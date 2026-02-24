@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import fs from "node:fs"
+import path from "node:path"
 
 // Initialize Gemini API
 const geminiApiKey =
@@ -9,7 +11,7 @@ const geminiApiKey =
 const genAI = new GoogleGenerativeAI(geminiApiKey)
 
 // System prompts for different AI contexts
-export const PUBLIC_SYSTEM_PROMPT = `You are an AI assistant for Gold Century Real Estate, specializing in Dubai property investment for international buyers. 
+const DEFAULT_PUBLIC_SYSTEM_PROMPT = `You are an AI assistant for Gold Century Real Estate, specializing in Dubai property investment for international buyers.
 
 CONTEXT:
 - You have access to 3500+ Dubai real estate projects with complete data including specifications, ROI metrics, demand scores, rankings, and market trends
@@ -44,6 +46,19 @@ RESPONSE FORMAT:
 - Use bullet points for lists
 - Include specific numbers and data when relevant
 - End responses with a next step (ask for a detail or request contact info)`
+
+const loadCodexPrompt = () => {
+  try {
+    const filePath = path.join(process.cwd(), "data.md")
+    const codexPrompt = fs.readFileSync(filePath, "utf8").trim()
+    if (!codexPrompt) return DEFAULT_PUBLIC_SYSTEM_PROMPT
+    return `${DEFAULT_PUBLIC_SYSTEM_PROMPT}\n\n${codexPrompt}`
+  } catch {
+    return DEFAULT_PUBLIC_SYSTEM_PROMPT
+  }
+}
+
+export const PUBLIC_SYSTEM_PROMPT = loadCodexPrompt()
 
 export const BROKER_SYSTEM_PROMPT = `You are an AI assistant for Gold Century Real Estate brokers and sales team.
 

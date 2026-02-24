@@ -91,11 +91,15 @@ export async function POST(req: NextRequest) {
       propertyContext = "\n\nSHORTLIST (max 3):\n"
       relevantProjects.slice(0, resultLimit).forEach((project, idx) => {
         const prop = projectToProperty(project)
+        const bedLabel =
+          prop.specifications.bedrooms === 0
+            ? "Studio"
+            : `${prop.specifications.bedrooms} BR`
         propertyContext += `
 ${idx + 1}. ${prop.title}
    - Location: ${prop.location.area}
    - From: ${prop.currency} ${prop.price.toLocaleString()}
-   - Beds: ${prop.specifications.bedrooms}
+   - Beds: ${bedLabel}
    - ROI: ${prop.investmentMetrics.roi}%
    - Golden Visa: ${prop.investmentMetrics.goldenVisaEligible ? 'Yes' : 'No'}
 `

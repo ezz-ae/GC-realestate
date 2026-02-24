@@ -56,23 +56,23 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-[80px] items-center justify-between md:h-[96px]">
+      <div className="container flex h-[92px] items-center justify-between md:h-[110px]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Image
             src="/logo-light.png"
             alt="Gold Century Real Estate"
-            width={240}
-            height={70}
-            className="h-16 w-auto md:h-20 dark:hidden"
+            width={280}
+            height={82}
+            className="h-20 w-auto md:h-24 dark:hidden"
             priority
           />
           <Image
             src="/logo-dark.png"
             alt="Gold Century Real Estate"
-            width={240}
-            height={70}
-            className="hidden h-16 w-auto md:h-20 dark:block"
+            width={280}
+            height={82}
+            className="hidden h-20 w-auto md:h-24 dark:block"
             priority
           />
         </Link>
@@ -176,16 +176,16 @@ export function SiteHeader() {
                   <Image
                     src="/logo-light.png"
                     alt="Gold Century Real Estate"
-                    width={220}
-                    height={64}
-                    className="h-14 w-auto dark:hidden"
+                    width={240}
+                    height={70}
+                    className="h-16 w-auto dark:hidden"
                   />
                   <Image
                     src="/logo-dark.png"
                     alt="Gold Century Real Estate"
-                    width={220}
-                    height={64}
-                    className="hidden h-14 w-auto dark:block"
+                    width={240}
+                    height={70}
+                    className="hidden h-16 w-auto dark:block"
                   />
                 </Link>
                 <nav className="flex flex-col gap-6 text-sm">
