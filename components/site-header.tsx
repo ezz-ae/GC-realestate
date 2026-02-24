@@ -28,12 +28,12 @@ const mainLinks = [
 ]
 
 const marketLinks = [
+  { href: "/market/trends", label: "Market Analysis", description: "Prime reports, analytics, and forecasts." },
   { href: "/market", label: "Market Hub", description: "Overview of Dubai market intelligence." },
   { href: "/market/why-dubai", label: "Why Dubai", description: "Investment case and macro advantages." },
   { href: "/market/areas", label: "Areas Guide", description: "Area-by-area comparison and insights." },
   { href: "/market/golden-visa", label: "Golden Visa", description: "Residency rules and eligibility." },
   { href: "/market/financing", label: "Financing", description: "Mortgage and payment plan options." },
-  { href: "/market/trends", label: "Market Trends", description: "Reports, analytics, and forecasts." },
   { href: "/market/regulations", label: "Regulations", description: "Legal framework for buyers." },
 ]
 
@@ -87,7 +87,7 @@ export function SiteHeader() {
             <NavigationMenuList className="gap-2">
               <NavigationMenuItem>
                 <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
-                  Main
+                  Properties
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className={megaMenuWide}>
                   <div className="grid gap-2 p-2 md:grid-cols-2">
@@ -176,7 +176,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button asChild className="hidden md:inline-flex gold-gradient">
-            <Link href="/contact">Get Started</Link>
+            <Link href="/chat">AI Assistant</Link>
           </Button>
 
           {/* Mobile Menu */}
@@ -207,7 +207,7 @@ export function SiteHeader() {
                 </Link>
                 <nav className="flex flex-col gap-6 text-sm">
                   <div className="space-y-3">
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Main</div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Properties</div>
                     {mainLinks.map((item) => (
                       <Link
                         key={item.href}
@@ -260,8 +260,8 @@ export function SiteHeader() {
                   </div>
                 </nav>
                 <Button asChild className="gold-gradient w-full">
-                  <Link href="/contact" onClick={() => setIsOpen(false)}>
-                    Get Started
+                  <Link href="/chat" onClick={() => setIsOpen(false)}>
+                    AI Assistant
                   </Link>
                 </Button>
               </div>

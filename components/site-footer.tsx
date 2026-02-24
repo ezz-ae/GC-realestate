@@ -29,7 +29,7 @@ export function SiteFooter() {
         { href: "/market/areas", label: "Areas Guide" },
         { href: "/market/golden-visa", label: "Golden Visa" },
         { href: "/market/financing", label: "Financing" },
-        { href: "/market/trends", label: "Market Trends" },
+        { href: "/market/trends", label: "Market Analysis" },
         { href: "/market/regulations", label: "Regulations" },
       ],
     },
