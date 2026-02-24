@@ -28,7 +28,7 @@ const mainLinks = [
 ]
 
 const marketLinks = [
-  { href: "/market/trends", label: "Market Analysis", description: "Prime reports, analytics, and forecasts." },
+  { href: "/market/trends", label: "Market Analysis (Prime)", description: "Prime reports, analytics, and forecasts." },
   { href: "/market", label: "Market Hub", description: "Overview of Dubai market intelligence." },
   { href: "/market/why-dubai", label: "Why Dubai", description: "Investment case and macro advantages." },
   { href: "/market/areas", label: "Areas Guide", description: "Area-by-area comparison and insights." },
@@ -60,23 +60,23 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-[112px] items-center justify-between md:h-[132px]">
+      <div className="container flex h-[120px] items-center justify-between md:h-[144px]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Image
             src="/logo-light.png"
             alt="Gold Century Real Estate"
-            width={360}
-            height={110}
-            className="h-28 w-auto md:h-32 dark:hidden"
+            width={420}
+            height={128}
+            className="h-32 w-auto md:h-36 dark:hidden"
             priority
           />
           <Image
             src="/logo-dark.png"
             alt="Gold Century Real Estate"
-            width={360}
-            height={110}
-            className="hidden h-28 w-auto md:h-32 dark:block"
+            width={420}
+            height={128}
+            className="hidden h-32 w-auto md:h-36 dark:block"
             priority
           />
         </Link>
@@ -193,15 +193,15 @@ export function SiteHeader() {
                   <Image
                     src="/logo-light.png"
                     alt="Gold Century Real Estate"
-                    width={280}
-                    height={84}
+                    width={300}
+                    height={92}
                     className="h-24 w-auto dark:hidden"
                   />
                   <Image
                     src="/logo-dark.png"
                     alt="Gold Century Real Estate"
-                    width={280}
-                    height={84}
+                    width={300}
+                    height={92}
                     className="hidden h-24 w-auto dark:block"
                   />
                 </Link>

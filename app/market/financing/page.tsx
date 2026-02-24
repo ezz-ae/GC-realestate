@@ -68,7 +68,7 @@ export default function FinancingPage() {
         </section>
 
         {/* Mortgage Calculator */}
-        <section className="py-16">
+        <section id="calculator" className="py-16">
           <div className="container">
             <div className="mx-auto max-w-4xl">
               <div className="text-center mb-10">
@@ -147,7 +147,7 @@ export default function FinancingPage() {
         </section>
 
         {/* Loan Options */}
-        <section className="py-16 bg-muted/30">
+        <section id="loan-options" className="py-16 bg-muted/30">
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="font-serif text-3xl font-bold">Loan Options</h2>
@@ -242,7 +242,7 @@ export default function FinancingPage() {
         </section>
 
         {/* Required Documents */}
-        <section className="py-16">
+        <section id="documents" className="py-16">
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="font-serif text-3xl font-bold">Required Documents</h2>
@@ -296,7 +296,7 @@ export default function FinancingPage() {
         </section>
 
         {/* Partner Banks */}
-        <section className="py-16 bg-muted/30">
+        <section id="banks" className="py-16 bg-muted/30">
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="font-serif text-3xl font-bold">Our Partner Banks</h2>
@@ -318,7 +318,7 @@ export default function FinancingPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-16">
+        <section id="pre-approval" className="py-16">
           <div className="container">
             <Card className="gold-gradient">
               <CardContent className="p-8 md:p-12 text-center">

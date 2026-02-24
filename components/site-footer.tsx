@@ -29,8 +29,19 @@ export function SiteFooter() {
         { href: "/market/areas", label: "Areas Guide" },
         { href: "/market/golden-visa", label: "Golden Visa" },
         { href: "/market/financing", label: "Financing" },
-        { href: "/market/trends", label: "Market Analysis" },
+        { href: "/market/trends", label: "Market Analysis (Prime)" },
         { href: "/market/regulations", label: "Regulations" },
+      ],
+    },
+    {
+      title: "Financing",
+      links: [
+        { href: "/market/financing", label: "Overview" },
+        { href: "/market/financing#calculator", label: "Mortgage Calculator" },
+        { href: "/market/financing#loan-options", label: "Loan Options" },
+        { href: "/market/financing#documents", label: "Required Documents" },
+        { href: "/market/financing#banks", label: "Partner Banks" },
+        { href: "/market/financing#pre-approval", label: "Get Pre-Approved" },
       ],
     },
     {
@@ -64,21 +75,21 @@ export function SiteFooter() {
               <Image
                 src="/logo-light.png"
                 alt="Gold Century Real Estate"
-                width={240}
-                height={70}
-                className="h-16 w-auto dark:hidden"
+                width={280}
+                height={84}
+                className="h-20 w-auto dark:hidden"
               />
               <Image
                 src="/logo-dark.png"
                 alt="Gold Century Real Estate"
-                width={240}
-                height={70}
-                className="hidden h-16 w-auto dark:block"
+                width={280}
+                height={84}
+                className="hidden h-20 w-auto dark:block"
               />
             </Link>
-            <p className="text-sm text-muted-foreground">
-              Gold Century Real Estate delivers investment intelligence and premium access to Dubai's
-              top-performing projects for international buyers.
+            <p className="text-sm text-muted-foreground max-w-sm text-pretty leading-relaxed">
+              <span className="block">Gold Century Real Estate delivers investment intelligence</span>
+              <span className="block">and premium access to Dubai's top-performing projects for international buyers.</span>
             </p>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -107,7 +118,7 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
             {footerSections.map((section) => (
               <div key={section.title}>
                 <h3 className="text-sm font-semibold uppercase tracking-wide">{section.title}</h3>
