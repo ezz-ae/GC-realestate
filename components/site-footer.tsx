@@ -80,30 +80,30 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-card">
       <div className="container py-12">
-        <div className="grid gap-10 lg:grid-cols-[1.2fr,2.6fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.6fr,2.4fr]">
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center">
               <Image
                 src="/logo-light.png"
                 alt="Gold Century Real Estate"
-                width={420}
-                height={128}
-                className="h-32 w-auto dark:hidden"
+                width={635}
+                height={771}
+                className="h-36 w-auto dark:hidden"
               />
               <Image
                 src="/logo-dark.png"
                 alt="Gold Century Real Estate"
-                width={420}
-                height={128}
-                className="hidden h-32 w-auto dark:block"
+                width={635}
+                height={771}
+                className="hidden h-36 w-auto dark:block"
               />
             </Link>
-            <p className="text-sm text-muted-foreground max-w-[260px] text-pretty leading-relaxed">
+            <p className="text-base text-muted-foreground max-w-md text-pretty leading-relaxed">
               <span className="block">Gold Century Real Estate delivers investment intelligence</span>
               <span className="block">and premium access to Dubai's top-performing projects</span>
               <span className="block">for international buyers.</span>
             </p>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-base">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 Downtown Dubai, UAE
