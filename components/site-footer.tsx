@@ -7,25 +7,72 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export function SiteFooter() {
+  const footerSections = [
+    {
+      title: "Main",
+      links: [
+        { href: "/", label: "Home" },
+        { href: "/properties", label: "Properties" },
+        { href: "/projects", label: "Projects" },
+        { href: "/developers", label: "Developers" },
+        { href: "/areas", label: "Areas" },
+        { href: "/blog", label: "Blog" },
+        { href: "/chat", label: "AI Assistant" },
+      ],
+    },
+    {
+      title: "Market",
+      links: [
+        { href: "/market", label: "Market Hub" },
+        { href: "/market/why-dubai", label: "Why Dubai" },
+        { href: "/market/areas", label: "Areas Guide" },
+        { href: "/market/golden-visa", label: "Golden Visa" },
+        { href: "/market/financing", label: "Financing" },
+        { href: "/market/trends", label: "Market Trends" },
+        { href: "/market/regulations", label: "Regulations" },
+      ],
+    },
+    {
+      title: "Tools",
+      links: [
+        { href: "/tools", label: "Tools Hub" },
+        { href: "/tools/roi-calculator", label: "ROI Calculator" },
+        { href: "/tools/payment-simulator", label: "Payment Simulator" },
+        { href: "/tools/comparator", label: "Project Comparator" },
+        { href: "/tools/ai-discovery", label: "AI Discovery" },
+        { href: "/tools/market-tracker", label: "Market Tracker" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [
+        { href: "/about", label: "About" },
+        { href: "/services", label: "Services" },
+        { href: "/contact", label: "Contact" },
+        { href: "/dashboard/leads", label: "Leads Dashboard" },
+      ],
+    },
+  ]
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="container py-12">
-        <div className="grid gap-10 lg:grid-cols-[1.2fr,2fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr,2.6fr]">
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center">
               <Image
                 src="/logo-light.png"
                 alt="Gold Century Real Estate"
-                width={160}
-                height={44}
-                className="dark:hidden"
+                width={200}
+                height={56}
+                className="h-12 w-auto dark:hidden"
               />
               <Image
                 src="/logo-dark.png"
                 alt="Gold Century Real Estate"
-                width={160}
-                height={44}
-                className="hidden dark:block"
+                width={200}
+                height={56}
+                className="hidden h-12 w-auto dark:block"
               />
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -59,63 +106,21 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide">Explore</h3>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="/properties" className="hover:text-foreground">Properties</Link>
-                </li>
-                <li>
-                  <Link href="/projects" className="hover:text-foreground">Projects</Link>
-                </li>
-                <li>
-                  <Link href="/areas" className="hover:text-foreground">Areas</Link>
-                </li>
-                <li>
-                  <Link href="/developers" className="hover:text-foreground">Developers</Link>
-                </li>
-                <li>
-                  <Link href="/blog" className="hover:text-foreground">Blog</Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide">Market</h3>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="/market" className="hover:text-foreground">Market Hub</Link>
-                </li>
-                <li>
-                  <Link href="/market/why-dubai" className="hover:text-foreground">Why Dubai</Link>
-                </li>
-                <li>
-                  <Link href="/market/golden-visa" className="hover:text-foreground">Golden Visa</Link>
-                </li>
-                <li>
-                  <Link href="/market/trends" className="hover:text-foreground">Market Trends</Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide">Tools</h3>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="/tools/roi-calculator" className="hover:text-foreground">ROI Calculator</Link>
-                </li>
-                <li>
-                  <Link href="/tools/payment-simulator" className="hover:text-foreground">Payment Simulator</Link>
-                </li>
-                <li>
-                  <Link href="/tools/comparator" className="hover:text-foreground">Project Comparator</Link>
-                </li>
-                <li>
-                  <Link href="/tools/ai-discovery" className="hover:text-foreground">AI Discovery</Link>
-                </li>
-              </ul>
-            </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {footerSections.map((section) => (
+              <div key={section.title}>
+                <h3 className="text-sm font-semibold uppercase tracking-wide">{section.title}</h3>
+                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                  {section.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className="hover:text-foreground">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 

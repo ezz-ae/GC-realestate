@@ -13,11 +13,11 @@ export function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
   const isUser = role === "user"
 
   return (
-    <div className={cn("flex gap-3 py-3", isUser && "flex-row-reverse")}>
+    <div className={cn("flex gap-4 py-4", isUser && "flex-row-reverse")}>
       <div
         className={cn(
-          "flex h-9 w-9 shrink-0 select-none items-center justify-center rounded-full border border-border/60",
-          isUser ? "bg-primary text-primary-foreground" : "bg-background"
+          "flex h-10 w-10 shrink-0 select-none items-center justify-center rounded-full border border-border/60 shadow-sm",
+          isUser ? "bg-primary text-primary-foreground" : "bg-background/80"
         )}
       >
         {isUser ? (
@@ -26,22 +26,22 @@ export function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
           <Bot className="h-4 w-4 text-primary" />
         )}
       </div>
-      <div className={cn("flex-1 space-y-2", isUser && "flex flex-col items-end")}>
+      <div className={cn("flex-1", isUser && "flex flex-col items-end")}>
         <div
           className={cn(
             "inline-block max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
             isUser
-              ? "bg-primary text-primary-foreground"
+              ? "bg-gradient-to-br from-primary to-amber-500 text-primary-foreground"
               : "border border-border/60 bg-background/80 text-foreground"
           )}
         >
           <p className="whitespace-pre-wrap">{content}</p>
+          {timestamp && (
+            <span className="mt-2 block text-[11px] text-muted-foreground/80">
+              {timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
         </div>
-        {timestamp && (
-          <span className="text-[11px] text-muted-foreground">
-            {timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        )}
       </div>
     </div>
   )

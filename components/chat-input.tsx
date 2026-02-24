@@ -35,14 +35,18 @@ export function ChatInput({
 
   return (
     <form onSubmit={handleSubmit} className="relative">
-      <div className="rounded-2xl border border-border bg-background/80 px-3 py-2 shadow-sm">
+      <div className="rounded-2xl border border-border/70 bg-gradient-to-b from-background/90 to-background px-4 py-3 shadow-sm transition focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/20">
+        <div className="mb-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+          <span className="rounded-full border border-border px-2 py-0.5 uppercase tracking-wide">Live data</span>
+          <span>Ask about budget, area, or ROI for precise matches.</span>
+        </div>
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="min-h-[64px] resize-none border-0 bg-transparent p-2 pr-12 focus-visible:ring-0"
+          className="min-h-[72px] resize-none border-0 bg-transparent p-2 pr-12 text-base focus-visible:ring-0"
           rows={2}
         />
         <div className="flex items-center justify-between px-2 pb-1">
