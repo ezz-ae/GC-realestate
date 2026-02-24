@@ -1,0 +1,16 @@
+import { SiteHeader } from "@/components/site-header"
+import { getProjectsForGrid } from "@/lib/entrestate"
+import { ProjectComparatorClient } from "@/components/project-comparator-client"
+
+export default async function ComparatorPage() {
+  const projects = await getProjectsForGrid(30)
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="flex-1">
+        <ProjectComparatorClient projects={projects} />
+      </main>
+    </div>
+  )
+}
