@@ -14,13 +14,13 @@ import {
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { href: "/dashboard/overview", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/ai-assistant", label: "AI Assistant", icon: Bot },
-  { href: "/dashboard/projects", label: "Projects", icon: FolderKanban },
-  { href: "/dashboard/projects/add", label: "Add Project", icon: PlusCircle },
-  { href: "/dashboard/leads", label: "Leads", icon: Users },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/profile", label: "Profile", icon: Settings },
+  { href: "/crm/overview", label: "Overview", icon: LayoutDashboard },
+  { href: "/crm/ai-assistant", label: "AI Assistant", icon: Bot },
+  { href: "/crm/projects", label: "Projects", icon: FolderKanban },
+  { href: "/crm/projects/add", label: "Add Project", icon: PlusCircle },
+  { href: "/crm/leads", label: "Leads", icon: Users },
+  { href: "/crm/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/crm/profile", label: "Profile", icon: Settings },
 ]
 
 export function DashboardSidebar({

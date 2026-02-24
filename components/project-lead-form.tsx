@@ -43,7 +43,8 @@ export function ProjectLeadForm({ projectName }: ProjectLeadFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // In a real app, you would send this data to your CRM or API
-    console.log("Lead Form Submitted:", values)
+    // For now, we just show a success toast
+    // console.log("Lead Form Submitted:", values)
     
     toast({
       title: "Enquiry Sent!",

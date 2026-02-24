@@ -1,11 +1,11 @@
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import { DashboardSidebar } from "@/components/crm-sidebar"
 import { getSessionUser } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser()
   if (!user) {
-    redirect("/dashboard/login")
+    redirect("/crm/login")
   }
 
   return (

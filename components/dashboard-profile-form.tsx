@@ -49,7 +49,7 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" })
-    window.location.href = "/dashboard/login"
+    window.location.href = "/crm/login"
   }
 
   const handleChange = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -61,7 +61,7 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
     setStatus("saving")
     setMessage("")
     try {
-      const response = await fetch("/api/dashboard/profile", {
+      const response = await fetch("/api/crm/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

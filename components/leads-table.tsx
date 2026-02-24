@@ -124,7 +124,7 @@ export function LeadsTable({ leads, isAdmin }: LeadsTableProps) {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" asChild>
-              <Link href={`/dashboard/leads/${lead.id}`}>View</Link>
+              <Link href={`/crm/leads/${lead.id}`}>View</Link>
             </Button>
             {isAdmin ? (
               <>

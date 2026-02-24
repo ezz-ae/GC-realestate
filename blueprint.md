@@ -149,14 +149,14 @@ Routing Structure
 /tools/ai-discovery
 /tools/market-tracker
 
-/dashboard (broker/sales portal - NOT client portal)
-/dashboard/overview (sales stats, leads, AI assistant)
-/dashboard/projects (manage 3500 projects)
-/dashboard/projects/add (AI-assisted project creation)
-/dashboard/leads (CRM with AI insights)
-/dashboard/ai-assistant (dedicated AI chat for brokers)
-/dashboard/analytics
-/dashboard/profile
+/crm (broker/sales portal - NOT client portal)
+/crm/overview (sales stats, leads, AI assistant)
+/crm/projects (manage 3500 projects)
+/crm/projects/add (AI-assisted project creation)
+/crm/leads (CRM with AI insights)
+/crm/ai-assistant (dedicated AI chat for brokers)
+/crm/analytics
+/crm/profile
 
 Implementation Plan by Layer
 Phase 1: Foundation & Public Site
@@ -812,7 +812,7 @@ Secure session management
 Password reset flow
 Activity logging
 
-4.2 Dashboard Overview (/dashboard/overview)
+4.2 Dashboard Overview (/crm/overview)
 
 AI Assistant Widget (prominent, always accessible):
 
@@ -843,7 +843,7 @@ Generate performance report
 
 
 
-4.3 AI Assistant (/dashboard/ai-assistant)
+4.3 AI Assistant (/crm/ai-assistant)
 Dedicated AI chat interface for brokers using Gemini 1.5:
 Core Capabilities:
 1. Database Query Assistant
@@ -927,7 +927,7 @@ Export conversation/data options
 Pin important conversations
 Share insights with team
 
-4.4 Projects Management (/dashboard/projects)
+4.4 Projects Management (/crm/projects)
 Browse All Projects:
 
 Table view of all 3500 projects
@@ -944,7 +944,7 @@ Assign leads to project
 Mark as featured/sold-out
 Generate marketing materials (AI-assisted)
 
-4.5 Add New Project (/dashboard/projects/add) - AI-POWERED
+4.5 Add New Project (/crm/projects/add) - AI-POWERED
 Revolutionary Feature: Brochure-to-Listing Automation
 Upload Method:
 
@@ -1013,7 +1013,7 @@ Automatically generates standalone landing page (advertisable)
 SEO-optimized from day one
 Consistent data structure across all projects
 
-4.6 Leads & CRM (/dashboard/leads)
+4.6 Leads & CRM (/crm/leads)
 Lead Management:
 
 All leads table with details:
@@ -1072,7 +1072,7 @@ Average time to conversion
 Win/loss reasons (AI-categorized)
 Broker performance leaderboard
 
-4.7 Analytics & Reporting (/dashboard/analytics)
+4.7 Analytics & Reporting (/crm/analytics)
 Sales Analytics:
 
 Revenue charts (daily/weekly/monthly)
@@ -1112,7 +1112,7 @@ Excel data exports
 Presentation-ready charts
 Scheduled email reports
 
-4.8 Profile & Settings (/dashboard/profile)
+4.8 Profile & Settings (/crm/profile)
 
 Broker personal information
 Performance statistics

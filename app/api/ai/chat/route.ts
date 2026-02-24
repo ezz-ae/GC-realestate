@@ -38,16 +38,30 @@ const ensureLeadsTable = async () => {
 }
 
 const extractContactDetails = (text: string) => {
-  const emailMatch = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)
-  const phoneMatch = text.match(/(\+?\d[\d\s().-]{7,}\d)/)
-  const nameMatch =
-    text.match(/(?:my name is|i am|i'm|this is)\s+([a-z][a-z\s'.-]{1,40})/i) ||
-    text.match(/name\s*[:\-]\s*([a-z][a-z\s'.-]{1,40})/i)
+  // Enhanced email regex
+  const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
+  
+  // Robust international phone number regex
+  const phoneMatch = text.match(/(?:\+?\d{1,4}[-.\s]?)?\(?\d{1,3}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/)
+  
+  // Smarter name detection (looks for patterns like "I am X", "Name is X", "This is X")
+  const namePatterns = [
+    /(?:my name is|i am|i'm|this is|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i,
+    /name\s*[:\-]\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i
+  ]
+  
+  let name = null
+  for (const pattern of namePatterns) {
+    const match = text.match(pattern)
+    if (match && match[1]) {
+      name = match[1].trim()
+      break
+    }
+  }
 
-  const email = emailMatch ? emailMatch[0] : null
-  const rawPhone = phoneMatch ? phoneMatch[1] : null
+  const email = emailMatch ? emailMatch[0].toLowerCase() : null
+  const rawPhone = phoneMatch ? phoneMatch[0] : null
   const phone = rawPhone ? rawPhone.replace(/[^\d+]/g, "") : null
-  const name = nameMatch ? nameMatch[1].trim() : null
 
   return { email, phone, name }
 }
@@ -146,13 +160,41 @@ ${idx + 1}. ${prop.title}
       message,
     ].join("\n")
 
+    // STRICT TOPIC VALIDATION
+    const topicCheck = message.toLowerCase()
+    const isRealEstateRelated = 
+      topicCheck.includes('dubai') || 
+      topicCheck.includes('real estate') || 
+      topicCheck.includes('property') || 
+      topicCheck.includes('investment') || 
+      topicCheck.includes('roi') || 
+      topicCheck.includes('yield') || 
+      topicCheck.includes('visa') || 
+      topicCheck.includes('project') || 
+      topicCheck.includes('apartment') || 
+      topicCheck.includes('villa') || 
+      topicCheck.includes('marina') || 
+      topicCheck.includes('downtown') || 
+      topicCheck.includes('budget') ||
+      topicCheck.includes('price') ||
+      topicCheck.includes('buy') ||
+      topicCheck.includes('sell')
+
+    if (!isRealEstateRelated && message.length > 20) {
+      // Small messages like "hello" pass, but long unrelated ones get blocked
+      return NextResponse.json({
+        reply: "I am a specialized Dubai Real Estate Investment Consultant. I can help you with property searches, ROI analysis, and market trends in Dubai. How can I assist your investment journey today?",
+        properties: []
+      })
+    }
+
     const contact = extractContactDetails(conversationText)
     const leadContext = `
 \n\nLEAD STATUS:
 - Name: ${contact.name || "missing"}
 - Phone: ${contact.phone || "missing"}
 - Email: ${contact.email || "missing"}
-If any detail is missing, ask for it before sharing long lists. Keep responses short.
+IMPORTANT: If contact details are missing, prioritize asking for them naturally before providing deep analysis or long lists.
 `
 
     // Send message with property context
