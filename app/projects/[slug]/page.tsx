@@ -194,6 +194,8 @@ export default async function ProjectPage({
 }) {
   const { slug } = await params
   const project = await getProject(slug)
+  let prevSlug: string | null = null
+  let nextSlug: string | null = null
 
   if (!project) {
     const suggestions = await getProjectsForGrid(6)
@@ -230,8 +232,8 @@ export default async function ProjectPage({
   }
 
   const adjacent = await getAdjacentProjectSlugs(project.slug)
-  const prevSlug = adjacent.prev_slug
-  const nextSlug = adjacent.next_slug
+  prevSlug = adjacent.prev_slug
+  nextSlug = adjacent.next_slug
 
   const location = project.location || {
     area: "Dubai",

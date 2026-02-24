@@ -51,6 +51,7 @@ export function AISearchBar({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             placeholder={placeholder}
+            autoFocus
             className="w-full rounded-full border border-border bg-card px-12 py-4 text-sm shadow-sm transition-all focus:border-primary focus:outline-none placeholder:text-muted-foreground/60"
           />
           <Button 

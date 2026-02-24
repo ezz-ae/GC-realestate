@@ -120,37 +120,38 @@ export default function DashboardAIAssistantPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-2xl border border-border bg-gradient-to-b from-background to-muted/70 p-6">
-        <Badge className="mb-3 gold-gradient" variant="secondary">
-          AI Assistant
+    <div className="space-y-10">
+      <section className="rounded-3xl border border-border bg-gradient-to-br from-card to-muted/40 p-8 shadow-sm">
+        <Badge className="mb-3 gold-gradient border-none px-3" variant="secondary">
+          Gemini Intelligence
         </Badge>
-        <h1 className="font-serif text-3xl font-bold">Broker AI Command Center</h1>
-        <p className="text-sm text-muted-foreground">
-          Query projects, analyze leads, and craft sales responses with Gemini-backed intelligence.
+        <h1 className="font-serif text-4xl font-bold tracking-tight">Broker Intelligence Command</h1>
+        <p className="text-sm text-muted-foreground max-w-2xl mt-2">
+          Execute specialized database queries, analyze high-intent leads, and generate investment deliverables with proprietary Gemini-backed models.
         </p>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-        <Card className="overflow-hidden">
-          <CardHeader className="border-b border-border bg-card/80">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl gold-gradient">
-                <Sparkles className="h-5 w-5 text-primary-foreground" />
+      <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
+        <Card className="rounded-[2rem] border-border shadow-md overflow-hidden bg-card/50 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/50 bg-muted/20 pb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl gold-gradient shadow-lg shadow-primary/20">
+                <Sparkles className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <CardTitle>Ask the AI</CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  Database queries, CRM intelligence, and sales coaching.
+                <CardTitle className="font-serif text-xl font-bold">Ask Gemini</CardTitle>
+                <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-0.5">
+                  Investment Guidance & Lead Analysis
                 </p>
               </div>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-wrap gap-2">
               {suggestions.map((text) => (
                 <Button
                   key={text}
                   variant="outline"
                   size="sm"
+                  className="rounded-full text-[10px] font-bold uppercase tracking-tight h-8 border-border/60 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
                   onClick={() => sendMessage(text)}
                 >
                   {text}
@@ -158,8 +159,8 @@ export default function DashboardAIAssistantPage() {
               ))}
             </div>
           </CardHeader>
-          <CardContent className="space-y-4 p-6">
-            <div className="max-h-[520px] space-y-2 overflow-y-auto">
+          <CardContent className="space-y-6 p-8">
+            <div className="max-h-[580px] space-y-4 overflow-y-auto rounded-3xl border border-border/40 bg-card/40 p-6 shadow-inner">
               {messages.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
                   Start a conversation to see project lists, lead insights, and AI coaching.

@@ -68,6 +68,19 @@ const extractContactDetails = (text: string) => {
 
 const hasPropertyIntent = (message: string) => {
   const text = message.toLowerCase()
+  const propertyKeywords = [
+    "show",
+    "find",
+    "search",
+    "list",
+    "browse",
+    "recommend",
+    "suggest",
+    "available",
+    "looking for",
+    "where to buy",
+    "best for",
+  ]
   const propertyNouns = [
     "property",
     "properties",
@@ -79,16 +92,18 @@ const hasPropertyIntent = (message: string) => {
     "villas",
     "unit",
     "units",
-    "listing",
-    "listings",
     "studio",
     "penthouse",
     "townhouse",
   ]
-  if (propertyNouns.some((noun) => text.includes(noun))) return true
-  if (/\b[1-6]\s*br\b/.test(text)) return true
-  if (/\b[1-6]\s*bed(room)?\b/.test(text)) return true
-  return false
+  
+  const hasKeyword = propertyKeywords.some(kw => text.includes(kw))
+  const hasNoun = propertyNouns.some(noun => text.includes(noun))
+  const hasBeds = /\b[1-6]\s*(br|bed(room)?s?)\b/.test(text)
+  const hasPrice = /\b(aed|price|budget|million|k)\b/.test(text)
+  
+  // Stricter intent: must have a noun AND (a keyword OR price OR beds)
+  return hasNoun && (hasKeyword || hasPrice || hasBeds)
 }
 
 export async function POST(req: NextRequest) {
@@ -129,25 +144,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Build context with property data
+    // Build context with property data (Silent context, not text shortlist)
     let propertyContext = ""
     if (wantsProperties && relevantProjects.length > 0) {
-      propertyContext = "\n\nSHORTLIST (max 3):\n"
-      relevantProjects.slice(0, resultLimit).forEach((project, idx) => {
-        const prop = projectToProperty(project)
-        const bedLabel =
-          prop.specifications.bedrooms === 0
-            ? "Studio"
-            : `${prop.specifications.bedrooms} BR`
-        propertyContext += `
-${idx + 1}. ${prop.title}
-   - Location: ${prop.location.area}
-   - From: ${prop.currency} ${prop.price.toLocaleString()}
-   - Beds: ${bedLabel}
-   - ROI: ${prop.investmentMetrics.roi}%
-   - Golden Visa: ${prop.investmentMetrics.goldenVisaEligible ? 'Yes' : 'No'}
-`
-      })
+      propertyContext = "\n\n[SYSTEM: User is interested in properties. I have attached 3 relevant project objects to this session. Provide a concise response and guide them to the featured cards below.]\n"
     }
 
     const areaContext = wantsProperties && relevantProjects[0]?.location?.area

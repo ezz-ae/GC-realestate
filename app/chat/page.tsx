@@ -27,8 +27,10 @@ export default function ChatPage() {
   const [resultProperties, setResultProperties] = useState<Property[]>([])
   const [isMobileView, setIsMobileView] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const shouldAutoScrollRef = useRef(true)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, isLoading])
 
   const formatShortPrice = (value: number) =>
     new Intl.NumberFormat("en-AE", {
@@ -67,31 +69,6 @@ export default function ChatPage() {
     mediaQuery.addEventListener("change", update)
     return () => mediaQuery.removeEventListener("change", update)
   }, [])
-
-  const getScrollViewport = () => {
-    if (!scrollAreaRef.current) return null
-    return scrollAreaRef.current.querySelector<HTMLDivElement>('[data-slot="scroll-area-viewport"]')
-  }
-
-  useEffect(() => {
-    const viewport = getScrollViewport()
-    if (!viewport) return
-    const updateAutoScroll = () => {
-      const threshold = 80
-      const distanceToBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight
-      shouldAutoScrollRef.current = distanceToBottom <= threshold
-    }
-    updateAutoScroll()
-    viewport.addEventListener("scroll", updateAutoScroll)
-    return () => viewport.removeEventListener("scroll", updateAutoScroll)
-  }, [])
-
-  useEffect(() => {
-    if (!shouldAutoScrollRef.current) return
-    const viewport = getScrollViewport()
-    if (!viewport) return
-    viewport.scrollTo({ top: viewport.scrollHeight, behavior: "auto" })
-  }, [messages])
 
   useEffect(() => {
     if (initialQuery && messages.length === 0) {
@@ -143,14 +120,14 @@ export default function ChatPage() {
        {/* Main Chat Area */}
        <div className="flex-1 overflow-hidden relative bg-background/50">
             {/* Background Effects */}
-            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-20">
-                <div className="absolute -top-[20%] -right-[10%] h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl" />
-                <div className="absolute top-[20%] -left-[10%] h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-3xl" />
+            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-30">
+                <div className="absolute -top-[10%] -right-[5%] h-[600px] w-[600px] rounded-full bg-primary/10 blur-[120px]" />
+                <div className="absolute top-[30%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div ref={scrollAreaRef} className="h-full">
-              <ScrollArea className="h-full px-4 py-6 md:px-8">
-                <div className="mx-auto max-w-3xl space-y-6 pb-4">
+            <div className="h-full">
+              <ScrollArea className="h-full px-4 py-8 md:px-8">
+                <div className="mx-auto max-w-4xl space-y-10 pb-8">
                     {messages.length === 0 ? (
                          <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
                             <div className="space-y-4">

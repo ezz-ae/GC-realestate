@@ -80,73 +80,81 @@ export function LeadsTable({ leads, isAdmin }: LeadsTableProps) {
   }
 
   return (
-    <div className="overflow-auto rounded-lg border border-border bg-card">
-      <div className="grid min-w-[980px] grid-cols-9 gap-4 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        <div className="col-span-2">Lead</div>
-        <div>Status</div>
-        <div>Priority</div>
-        <div>Project</div>
-        <div>Source</div>
-        <div>Assigned</div>
-        <div>Last Contact</div>
-        <div>Actions</div>
-      </div>
-      {leads.map((lead) => (
-        <div
-          key={lead.id}
-          className="grid min-w-[980px] grid-cols-9 gap-4 px-4 py-4 text-sm border-b border-border last:border-b-0"
-        >
-          <div className="col-span-2">
-            <div className="font-medium">{lead.name}</div>
-            <div className="text-xs text-muted-foreground">{lead.email || "—"}</div>
-          </div>
-          <div>
-            <Badge variant="outline" className={statusClass(lead.status)}>
-              {lead.status || "new"}
-            </Badge>
-          </div>
-          <div>
-            <Badge variant="outline" className={priorityClass(lead.priority)}>
-              {lead.priority || "cold"}
-            </Badge>
-          </div>
-          <div className="text-muted-foreground">{lead.project_slug || "—"}</div>
-          <div className="text-muted-foreground">{lead.source || "—"}</div>
-          <div>
-            {lead.assigned_broker_id ? (
-              <Badge variant="secondary">{lead.assigned_broker_id}</Badge>
-            ) : (
-              <span className="text-xs text-muted-foreground">Unassigned</span>
-            )}
-          </div>
-          <div className="text-muted-foreground">
-            {formatDate(lead.last_contact_at || lead.created_at)}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" variant="outline" asChild>
-              <Link href={`/crm/leads/${lead.id}`}>View</Link>
-            </Button>
-            {isAdmin ? (
-              <>
-                <Input
-                  placeholder="Broker ID"
-                  value={assignments[lead.id] || ""}
-                  onChange={(e) => setAssignments((prev) => ({ ...prev, [lead.id]: e.target.value }))}
-                  className="h-8 w-28"
-                />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={loading === lead.id || !assignments[lead.id]}
-                  onClick={() => handleAssign(lead.id)}
-                >
-                  {loading === lead.id ? "Assigning..." : "Assign"}
-                </Button>
-              </>
-            ) : null}
-          </div>
+    <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+      <div className="overflow-x-auto">
+        <div className="grid min-w-[1100px] grid-cols-10 gap-4 border-b border-border/60 bg-muted/30 px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
+          <div className="col-span-2">Lead Information</div>
+          <div className="col-span-1">Status</div>
+          <div className="col-span-1">Priority</div>
+          <div className="col-span-1 text-center">Project</div>
+          <div className="col-span-1 text-center">Source</div>
+          <div className="col-span-1 text-center">Assigned</div>
+          <div className="col-span-1 text-right">Activity</div>
+          <div className="col-span-2 text-right">Management</div>
         </div>
-      ))}
+        {leads.map((lead) => (
+          <div
+            key={lead.id}
+            className="grid min-w-[1100px] grid-cols-10 gap-4 px-6 py-5 text-sm border-b border-border/40 last:border-b-0 hover:bg-muted/10 transition-colors items-center"
+          >
+            <div className="col-span-2">
+              <div className="font-serif text-base font-bold text-foreground">{lead.name}</div>
+              <div className="text-[10px] text-muted-foreground font-medium mt-0.5">{lead.email || "No email"}</div>
+            </div>
+            <div className="col-span-1">
+              <Badge variant="outline" className={cn("rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-tight", statusClass(lead.status))}>
+                {lead.status || "new"}
+              </Badge>
+            </div>
+            <div className="col-span-1">
+              <Badge variant="outline" className={cn("rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-tight", priorityClass(lead.priority))}>
+                {lead.priority || "cold"}
+              </Badge>
+            </div>
+            <div className="col-span-1 text-center font-medium text-xs truncate" title={lead.project_slug || ""}>
+              {lead.project_slug || "—"}
+            </div>
+            <div className="col-span-1 text-center text-xs text-muted-foreground">
+              {lead.source || "Web"}
+            </div>
+            <div className="col-span-1 text-center">
+              {lead.assigned_broker_id ? (
+                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted text-[10px] font-bold">
+                  {lead.assigned_broker_id.slice(0, 6)}
+                </div>
+              ) : (
+                <span className="text-[10px] font-bold text-muted-foreground/50 italic">Open</span>
+              )}
+            </div>
+            <div className="col-span-1 text-right text-xs text-muted-foreground whitespace-nowrap">
+              {formatDate(lead.last_contact_at || lead.created_at)}
+            </div>
+            <div className="col-span-2 flex items-center justify-end gap-2">
+              <Button size="sm" variant="ghost" className="h-8 text-[10px] font-bold uppercase tracking-wider hover:bg-primary/5 hover:text-primary" asChild>
+                <Link href={`/crm/leads/${lead.id}`}>View Details</Link>
+              </Button>
+              {isAdmin && !lead.assigned_broker_id ? (
+                <div className="flex gap-1 animate-in fade-in slide-in-from-right-2 duration-300">
+                  <Input
+                    placeholder="ID"
+                    value={assignments[lead.id] || ""}
+                    onChange={(e) => setAssignments((prev) => ({ ...prev, [lead.id]: e.target.value }))}
+                    className="h-8 w-16 text-[10px] font-bold uppercase px-2"
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8 gold-gradient text-[10px] font-bold px-3 shadow-sm"
+                    disabled={loading === lead.id || !assignments[lead.id]}
+                    onClick={() => handleAssign(lead.id)}
+                  >
+                    {loading === lead.id ? "..." : "Assign"}
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

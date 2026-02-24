@@ -89,21 +89,27 @@ export function SiteFooter() {
                 className="hidden h-16 w-auto dark:block md:h-20 md:drop-shadow-xl"
               />
             </Link>
-            <p className="text-base text-muted-foreground leading-relaxed max-w-lg">
+            <p className="text-base text-muted-foreground leading-relaxed max-w-lg text-pretty">
               Gold Century Real Estate delivers curated Dubai projects, market intelligence, and CRM-powered execution for international investors. Every insight is backed by live data from Entrestate Intelligence.
             </p>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                Downtown Dubai, UAE
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground group">
+                <div className="h-8 w-8 rounded-full border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                  <MapPin className="h-4 w-4 text-primary" />
+                </div>
+                <span>Business Bay · Downtown Dubai, UAE</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 text-primary" />
-                +971 50 750 5175
+              <div className="flex items-center gap-3 text-sm text-muted-foreground group">
+                <div className="h-8 w-8 rounded-full border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                  <Phone className="h-4 w-4 text-primary" />
+                </div>
+                <span>+971 50 750 5175</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4 text-primary" />
-                hello@goldcentury.ae
+              <div className="flex items-center gap-3 text-sm text-muted-foreground group">
+                <div className="h-8 w-8 rounded-full border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                  <Mail className="h-4 w-4 text-primary" />
+                </div>
+                <span>hello@goldcentury.ae</span>
               </div>
             </div>
             <div className="flex items-center gap-3">

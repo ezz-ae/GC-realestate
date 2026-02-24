@@ -92,7 +92,7 @@ const parseBedrooms = (unitType?: string) => {
 }
 
 const SORT_SCORE_ORDER =
-  "COALESCE((payload->>'sortScore')::float, market_score) DESC NULLS LAST"
+  "COALESCE(NULLIF(payload->>'sortScore', '')::numeric, market_score) DESC NULLS LAST"
 
 export const projectToProperty = (project: Project): Property => {
   const primaryUnit = project.units?.[0]
@@ -313,32 +313,12 @@ export async function getFeaturedProperties(limit = 3) {
      FROM gc_projects
      WHERE status = 'selling'
        AND featured = true
-       AND COALESCE(hero_image, payload->>'heroImage', '') <> ''
-       AND jsonb_typeof(payload->'gallery') = 'array'
-       AND jsonb_array_length(payload->'gallery') >= 4
-       AND jsonb_typeof(payload->'units') = 'array'
-       AND jsonb_array_length(payload->'units') > 0
-       AND (payload->'investmentHighlights'->>'expectedROI')::numeric > 0
-     ORDER BY ${SORT_SCORE_ORDER}, rental_yield DESC NULLS LAST
+     ORDER BY ${SORT_SCORE_ORDER}
      LIMIT $1`,
     [limit],
   )
 
-  const primary = rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
-  if (primary.length >= limit) return primary
-
-  const excludeIds = rows.map((row) => row.id)
-  const fillRows = await query<ProjectRow>(
-    `SELECT id, slug, payload
-     FROM gc_projects
-     WHERE status = 'selling'
-       AND id <> ALL($1::text[])
-     ORDER BY ${SORT_SCORE_ORDER}, rental_yield DESC NULLS LAST
-     LIMIT $2`,
-    [excludeIds, limit - primary.length],
-  )
-
-  return [...primary, ...fillRows.map((row) => projectToProperty(normalizeProjectPayload(row)))]
+  return rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
 }
 
 export interface PropertyListingFilters {
@@ -425,6 +405,38 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
   const pageSize = Math.max(1, filters.pageSize || 12)
   const page = Math.max(1, filters.page || 1)
   const offset = (page - 1) * pageSize
+  const hasActiveFilters =
+    Boolean(filters.areas?.length) ||
+    Boolean(filters.developer) ||
+    Boolean(filters.bedrooms?.length) ||
+    Boolean(filters.propertyType) ||
+    filters.minPrice != null ||
+    filters.maxPrice != null ||
+    filters.freeholdOnly ||
+    filters.goldenVisa
+
+  const usesFeaturedFirstPage =
+    page === 1 && !hasActiveFilters && (!filters.sort || filters.sort === "score")
+
+  if (usesFeaturedFirstPage) {
+    const rows = await query<ProjectRow>(
+      `SELECT id, slug, payload
+       FROM gc_projects
+       WHERE featured = true
+       ORDER BY ${SORT_SCORE_ORDER}
+       LIMIT $1`,
+      [pageSize],
+    )
+    const countRows = await query<{ total: number }>(
+      `SELECT COUNT(*)::int AS total FROM gc_projects WHERE featured = true`,
+    )
+    const total = countRows[0]?.total ?? rows.length
+    return {
+      total,
+      properties: rows.map((row) => projectToProperty(normalizeProjectPayload(row))),
+    }
+  }
+
   const values: Array<string | number | boolean> = []
   const where = buildPropertyListingWhere(filters, values)
   const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : ""
@@ -1479,7 +1491,8 @@ export async function ensureUsersTable() {
       ADD COLUMN IF NOT EXISTS password_hash text,
       ADD COLUMN IF NOT EXISTS password_reset_token_hash text,
       ADD COLUMN IF NOT EXISTS password_reset_expires timestamptz,
-      ADD COLUMN IF NOT EXISTS last_login_at timestamptz
+      ADD COLUMN IF NOT EXISTS last_login_at timestamptz,
+      ADD COLUMN IF NOT EXISTS ai_access boolean DEFAULT false
   `)
 }
 
@@ -1492,6 +1505,35 @@ export async function getUserProfileByEmail(email: string) {
      WHERE email = $1
      LIMIT 1`,
     [email],
+  )
+  return rows[0] || null
+}
+
+export interface UserAccessRecord {
+  id: string
+  name: string | null
+  email: string
+  role: string
+  ai_access: boolean
+}
+
+export async function getUserAccessList() {
+  await ensureUsersTable()
+  return query<UserAccessRecord>(
+    `SELECT id, name, email, role, ai_access
+     FROM gc_users
+     ORDER BY created_at DESC`,
+  )
+}
+
+export async function setUserAiAccess(id: string, aiAccess: boolean) {
+  await ensureUsersTable()
+  const rows = await query<UserAccessRecord>(
+    `UPDATE gc_users
+     SET ai_access = $2
+     WHERE id = $1
+     RETURNING id, name, email, role, ai_access`,
+    [id, aiAccess],
   )
   return rows[0] || null
 }

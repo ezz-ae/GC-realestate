@@ -2,7 +2,12 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DashboardAIWidget } from "@/components/dashboard-ai-widget"
-import { getDashboardOverviewData, resolveAccessRole } from "@/lib/entrestate"
+import { AdminUserAccessPanel } from "@/components/admin-user-access-panel"
+import { AiProjectUpdatePanel } from "@/components/ai-project-update-panel"
+import { AiTrainingCard } from "@/components/ai-training-card"
+import { getDashboardOverviewData, resolveAccessRole, getUserAccessList } from "@/lib/entrestate"
+import { getAiProjectUpdates } from "@/lib/ai-project-updates"
+import { getAiTrainingRequests } from "@/lib/ai-training"
 import { getSessionUser } from "@/lib/auth"
 import { listConversations } from "@/lib/ai-conversations"
 import Link from "next/link"
@@ -29,7 +34,15 @@ export default async function DashboardOverview() {
   const accessRole = resolveAccessRole(user?.role)
   const brokerId = accessRole === "broker" ? user?.id : undefined
   const data = await getDashboardOverviewData(accessRole, brokerId)
+  const trainingRequests = accessRole === "admin" ? await getAiTrainingRequests(6) : []
+  const projectUpdates = accessRole === "admin" ? await getAiProjectUpdates(6) : []
   const conversations = user ? await listConversations(user.id, 3) : []
+  const userAccessList = accessRole === "admin" ? await getUserAccessList() : []
+  const projectOptions = data.topProjects.map((project) => ({
+    slug: project.slug,
+    name: project.name,
+    area: project.area,
+  }))
 
   const dailyTasks = [
     data.hotLeads[0] ? `Follow up with ${data.hotLeads[0].name} (hot lead)` : null,
@@ -68,48 +81,48 @@ export default async function DashboardOverview() {
   ]
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-2xl border border-border bg-gradient-to-b from-background to-muted/70 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <Badge className="mb-3 gold-gradient" variant="secondary">
-              Dashboard Overview
+    <div className="space-y-10">
+      <section className="rounded-3xl border border-border bg-gradient-to-br from-card to-muted/40 p-8 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div className="space-y-1">
+            <Badge className="mb-2 gold-gradient border-none px-3" variant="secondary">
+              Live Intelligence
             </Badge>
-            <h1 className="font-serif text-3xl font-bold">Sales & CRM Hub</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="font-serif text-4xl font-bold tracking-tight">Sales Executive Hub</h1>
+            <p className="text-sm text-muted-foreground max-w-lg">
               {accessRole === "admin"
-                ? "Company-wide performance with AI-assisted insights."
-                : `Broker view: ${brokerId || "your assigned leads"} and sales pipeline.`}
+                ? "Oversee company-wide property inventory, lead acquisition metrics, and AI training models."
+                : `Active Sales Pipeline for ${user?.name || "Broker"}. Tracking engagement and high-intent signals.`}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/leads">View Pending Leads</Link>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" className="rounded-xl h-11 border-border/60 hover:bg-muted" asChild>
+              <Link href="/crm/leads">View All Leads</Link>
             </Button>
-            <Button className="gold-gradient" asChild>
-              <Link href="/dashboard/ai-assistant">Ask AI</Link>
+            <Button className="gold-gradient rounded-xl h-11 px-6 font-bold shadow-lg shadow-primary/20" asChild>
+              <Link href="/crm/ai-assistant">Launch AI Assistant</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {kpis.map((kpi) => {
           const Icon = kpi.icon
           return (
-            <Card key={kpi.label}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+            <Card key={kpi.label} className="rounded-2xl border-border/50 shadow-sm overflow-hidden group hover:shadow-md transition-all">
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/5 border border-primary/10 group-hover:bg-primary/10 transition-colors">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
                   <div>
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">
                       {kpi.label}
                     </div>
-                    <div className="mt-2 text-2xl font-semibold">
+                    <div className="text-2xl font-bold tracking-tight text-foreground">
                       {kpi.value}
                     </div>
-                  </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                    <Icon className="h-5 w-5 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -122,32 +135,32 @@ export default async function DashboardOverview() {
         <DashboardAIWidget />
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Hot Leads Alert</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                Prioritized using engagement and completeness signals.
+          <Card className="rounded-2xl border-border/50 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif text-xl font-bold">Hot Leads Alert</CardTitle>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
+                Priority engagement signals
               </p>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {data.hotLeads.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-                  No leads available yet.
+                <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground bg-muted/20">
+                  No priority leads detected.
                 </div>
               ) : (
                 data.hotLeads.map((lead) => (
                   <div
                     key={lead.id}
-                    className="flex items-center justify-between rounded-lg border border-border/70 bg-background/70 px-3 py-2"
+                    className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/20 px-4 py-3 hover:border-primary/30 transition-colors"
                   >
                     <div>
-                      <div className="text-sm font-semibold">{lead.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {lead.project_slug || "No project selected"} · {lead.phone}
+                      <div className="font-semibold text-sm">{lead.name}</div>
+                      <div className="text-[10px] text-muted-foreground font-medium mt-0.5">
+                        {lead.project_slug || "General Inquiry"} · {lead.phone}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-amber-600">
-                      <Flame className="h-4 w-4" />
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-600">
+                      <Flame className="h-3 w-3" />
                       Score {lead.score}
                     </div>
                   </div>
@@ -186,21 +199,21 @@ export default async function DashboardOverview() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Suggested Tasks</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                AI-curated focus points for today.
+          <Card className="rounded-2xl border-border/50 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif text-xl font-bold">Suggested Tasks</CardTitle>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
+                AI-curated focus points
               </p>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
+            <CardContent className="space-y-2">
               {dailyTasks.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-                  No tasks yet.
+                <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground bg-muted/20">
+                  All tasks completed.
                 </div>
               ) : (
                 dailyTasks.map((task) => (
-                  <div key={task} className="rounded-lg border border-border/60 bg-background/70 px-3 py-2">
+                  <div key={task} className="rounded-xl border border-border/60 bg-muted/20 px-4 py-3 text-sm font-medium hover:border-primary/30 transition-colors">
                     {task}
                   </div>
                 ))
@@ -251,60 +264,126 @@ export default async function DashboardOverview() {
         </div>
       </section>
 
+      {accessRole === "admin" && (
+        <>
+          <section>
+            <AiTrainingCard projects={data.topProjects} requests={trainingRequests} />
+          </section>
+
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Learning Conversations</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Track the AI conversations that teach Gemini about buyer intent and project updates.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {conversations.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+                    No learning conversations captured yet.
+                  </div>
+                ) : (
+                  conversations.map((conv) => (
+                    <div
+                      key={conv.id}
+                      className="rounded-2xl border border-border/70 bg-background/60 p-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold">{conv.title || "AI conversation"}</div>
+                          <div className="text-xs text-muted-foreground">
+                            Updated {new Date(conv.updated_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <Badge variant={conv.pinned ? "secondary" : "outline"}>Learning</Badge>
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{conv.summary || "AI session"}</p>
+                    </div>
+                  ))
+                )}
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/crm/ai-assistant">Start a learning conversation</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Admin Control Panel</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Grant or revoke AI control access for any team member.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <AdminUserAccessPanel users={userAccessList} />
+              </CardContent>
+            </Card>
+          </section>
+
+          <section>
+            <AiProjectUpdatePanel projects={projectOptions} updates={projectUpdates} />
+          </section>
+        </>
+      )}
+
       <section className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Project Performance</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              Top performing projects by market score and ROI.
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {data.topProjects.map((project) => (
-              <div
-                key={project.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-background/70 px-3 py-2"
-              >
-                <div>
-                  <div className="font-semibold">{project.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {project.area || "Dubai"} · Market Score {project.marketScore ?? "—"}
+          <Card className="rounded-2xl border-border/50 shadow-sm overflow-hidden">
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif text-xl font-bold">Project Performance</CardTitle>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
+                Market score leaderboard
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {data.topProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/50 bg-muted/20 px-4 py-3 hover:bg-muted/40 transition-colors"
+                >
+                  <div>
+                    <div className="font-semibold text-sm">{project.name}</div>
+                    <div className="text-[10px] text-muted-foreground font-medium mt-0.5">
+                      {project.area || "Dubai"} · Score {project.marketScore ?? "—"}/10
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-green-600">{project.expectedRoi ?? "—"}% ROI</div>
+                    <div className="text-[9px] uppercase tracking-tighter text-muted-foreground">Target Yield</div>
                   </div>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
-                  ROI {project.expectedRoi ?? "—"}% · Yield {project.rentalYield ?? "—"}%
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </CardContent>
+          </Card>
 
-        <Card className="border-primary/40">
-          <CardHeader>
-            <CardTitle className="text-lg">Quick Actions</CardTitle>
-            <p className="text-xs text-muted-foreground">Speed up your daily workflow.</p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-between" asChild>
-              <Link href="/dashboard/projects/add">
-                Add New Project
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-between" asChild>
-              <Link href="/dashboard/leads">
-                Assign Unassigned Leads ({data.kpis.unassignedLeads})
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-between" asChild>
-              <Link href="/dashboard/analytics">
-                Generate Performance Report
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="rounded-2xl border-primary/20 shadow-sm bg-primary/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="font-serif text-xl font-bold text-primary">Quick Actions</CardTitle>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-primary/60">Execution shortcuts</p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-between rounded-xl h-11 border-primary/10 bg-card hover:bg-muted font-semibold text-xs" asChild>
+                <Link href="/crm/projects/add">
+                  Add New Project
+                  <ArrowUpRight className="h-4 w-4 text-primary" />
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full justify-between rounded-xl h-11 border-primary/10 bg-card hover:bg-muted font-semibold text-xs" asChild>
+                <Link href="/crm/leads">
+                  Assign Leads ({data.kpis.unassignedLeads})
+                  <ArrowUpRight className="h-4 w-4 text-primary" />
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full justify-between rounded-xl h-11 border-primary/10 bg-card hover:bg-muted font-semibold text-xs" asChild>
+                <Link href="/crm/analytics">
+                  Performance Report
+                  <ArrowUpRight className="h-4 w-4 text-primary" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
       </section>
     </div>
   )

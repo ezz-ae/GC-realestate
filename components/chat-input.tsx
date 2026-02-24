@@ -46,6 +46,7 @@ export function ChatInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
+          autoFocus
           className="min-h-[52px] max-h-[200px] w-full resize-none border-0 bg-transparent py-2.5 pl-10 pr-12 text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
           rows={1}
         />

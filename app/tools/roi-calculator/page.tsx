@@ -36,65 +36,80 @@ export default function RoiCalculatorPage() {
         </section>
 
         <section className="py-16">
-          <div className="container grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
-            <Card>
-              <CardContent className="p-6 space-y-6">
+          <div className="container grid gap-8 lg:grid-cols-[1fr,1fr]">
+            <Card className="rounded-[2rem] border-border shadow-lg overflow-hidden">
+              <CardContent className="p-8 space-y-8">
                 <div>
-                  <Label htmlFor="price">Property Price (AED)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className="mt-2"
-                  />
+                  <h3 className="font-serif text-xl font-bold mb-6">Investment Parameters</h3>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="price" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Property Price (AED)</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(Number(e.target.value))}
+                        className="h-12 rounded-xl bg-muted/50 border-border focus:ring-primary/20"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="annualRent" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Annual Rent (AED)</Label>
+                      <Input
+                        id="annualRent"
+                        type="number"
+                        value={annualRent}
+                        onChange={(e) => setAnnualRent(Number(e.target.value))}
+                        className="h-12 rounded-xl bg-muted/50 border-border focus:ring-primary/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="annualCosts" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Annual Costs (AED)</Label>
+                      <Input
+                        id="annualCosts"
+                        type="number"
+                        value={annualCosts}
+                        onChange={(e) => setAnnualCosts(Number(e.target.value))}
+                        className="h-12 rounded-xl bg-muted/50 border-border focus:ring-primary/20"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="annualRent">Annual Rent (AED)</Label>
-                  <Input
-                    id="annualRent"
-                    type="number"
-                    value={annualRent}
-                    onChange={(e) => setAnnualRent(Number(e.target.value))}
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="annualCosts">Annual Costs (AED)</Label>
-                  <Input
-                    id="annualCosts"
-                    type="number"
-                    value={annualCosts}
-                    onChange={(e) => setAnnualCosts(Number(e.target.value))}
-                    className="mt-2"
-                  />
-                </div>
-                <Button className="gold-gradient w-full">Update Results</Button>
+                <Button className="gold-gradient w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Update Intelligence</Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-6 space-y-6">
-                <div>
-                  <div className="text-sm text-muted-foreground">Gross Yield</div>
-                  <div className="text-3xl font-bold gold-text-gradient">{grossYield.toFixed(2)}%</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Net Yield</div>
-                  <div className="text-3xl font-bold gold-text-gradient">{netYield.toFixed(2)}%</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Monthly Cash Flow</div>
-                  <div className="text-3xl font-bold gold-text-gradient">
-                    AED {monthlyCashflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            <Card className="rounded-[2rem] bg-muted/30 border-border shadow-inner overflow-hidden">
+              <CardContent className="p-8 space-y-10">
+                <h3 className="font-serif text-xl font-bold">Yield Analysis</h3>
+                <div className="grid gap-8">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-6">
+                    <div className="space-y-1">
+                      <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground">Gross Rental Yield</div>
+                      <div className="text-4xl font-bold gold-text-gradient">{grossYield.toFixed(2)}%</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between border-b border-border/50 pb-6">
+                    <div className="space-y-1">
+                      <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground">Net Rental Yield</div>
+                      <div className="text-4xl font-bold gold-text-gradient">{netYield.toFixed(2)}%</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground">Monthly Cashflow</div>
+                      <div className="text-3xl font-bold text-foreground">
+                        AED {monthlyCashflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Use this as a quick benchmark before requesting a full investment analysis from our team.
-                </p>
-                <Button variant="outline" className="w-full" asChild>
-                  <a href="/contact">Request Full Analysis</a>
-                </Button>
+                
+                <div className="pt-6">
+                  <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-primary/20 text-primary hover:bg-primary/5" asChild>
+                    <a href="/contact">Request Detailed ROI Report</a>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

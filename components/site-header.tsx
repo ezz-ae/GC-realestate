@@ -62,10 +62,10 @@ export function SiteHeader() {
   const megaMenuCompact = "w-[min(520px,92vw)] min-w-[320px] p-2"
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-24">
-      <div className="container flex h-24 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60 h-20 transition-all duration-300">
+      <div className="container flex h-20 items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 shrink-0">
+        <Link href="/" className="flex items-center space-x-2 shrink-0 transition-opacity hover:opacity-90">
           <Image
             src="/logo_blsck.png"
             alt="Gold Century Real Estate"

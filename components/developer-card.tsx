@@ -11,40 +11,39 @@ interface DeveloperCardProps {
 export function DeveloperCard({ developer }: DeveloperCardProps) {
   return (
     <Link href={`/developers/${developer.slug}`}>
-      <Card className="group overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-card">
-              <Building2 className="h-5 w-5 text-primary" />
+      <Card className="group overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/10 bg-primary/5 shadow-sm shrink-0">
+              <Building2 className="h-6 w-6 text-primary" />
             </div>
-            <div className="flex-1">
-              <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-lg font-semibold text-foreground">{developer.name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {developer.tier ? `${developer.tier} developer` : "Dubai developer"}
+                  <div className="font-serif text-xl font-bold text-foreground group-hover:text-primary transition-colors truncate">{developer.name}</div>
+                  <div className="mt-1 text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
+                    {developer.tier ? `${developer.tier} Tier` : "Official Developer"}
                   </div>
                 </div>
-                <Badge variant="secondary">
-                  {developer.awards[0] || "Top Developer"}
-                </Badge>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
-                {developer.description}
-              </p>
             </div>
           </div>
 
-          <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">Track record</div>
-            <p className="mt-1 text-sm text-foreground">{developer.trackRecord}</p>
+          <p className="mt-5 text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {developer.description}
+          </p>
+
+          <div className="mt-6 rounded-2xl border border-border/50 bg-muted/40 p-4">
+            <div className="text-[10px] uppercase font-bold tracking-widest text-primary mb-1.5">Elite Track Record</div>
+            <p className="text-xs text-foreground font-medium line-clamp-2 leading-relaxed">{developer.trackRecord}</p>
           </div>
 
-          <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-            <span className="rounded-full border border-border px-2 py-1">
-              {developer.tier ? developer.tier : "Core"}
+          <div className="mt-6 pt-6 border-t border-border/50 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground group-hover:text-primary transition-colors">
+            <span className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              Verified Partner
             </span>
-            <span className="text-foreground">View profile →</span>
+            <span>Profile →</span>
           </div>
         </CardContent>
       </Card>

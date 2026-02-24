@@ -67,21 +67,21 @@ export default async function Home() {
       </section>
 
       {/* Hero Contact Section */}
-      <section className="relative z-20 pb-12">
+      <section className="relative z-20 pb-20">
         <div className="container">
-          <div className="mx-auto max-w-4xl rounded-3xl border border-border bg-card/90 p-6 shadow-2xl backdrop-blur">
-            <div className="mb-6 text-center">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Get a free consultation by our well-experienced team
+          <div className="mx-auto max-w-4xl rounded-[2.5rem] border border-border bg-card/60 p-8 md:p-12 shadow-2xl backdrop-blur-xl">
+            <div className="mb-10 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3">
+                Expert Guidance · No Obligations
               </p>
-              <h3 className="font-serif text-3xl font-bold">
-                Schedule a call with our Dubai investment specialists
+              <h3 className="font-serif text-3xl font-bold md:text-4xl">
+                Schedule a Consultation
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Drop your name and WhatsApp/phone number, and we will respond within one business hour with a tailored plan.
+              <p className="mt-4 text-muted-foreground text-pretty max-w-xl mx-auto">
+                Connect with our Dubai investment specialists for a tailored market brief within one business hour.
               </p>
             </div>
-            <form className="grid gap-4 sm:grid-cols-2">
+            <form className="grid gap-6 sm:grid-cols-2">
               <label className="flex flex-col space-y-1 text-xs uppercase tracking-widest text-muted-foreground">
                 Full Name
                 <input

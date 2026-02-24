@@ -31,15 +31,15 @@ export function DashboardSidebar({
   const pathname = usePathname()
 
   return (
-    <aside className="rounded-2xl border border-border bg-card p-4">
-      <div className="mb-4">
-        <div className="text-xs uppercase tracking-wide text-muted-foreground">Dashboard</div>
-        <div className="mt-2 text-sm font-semibold text-foreground">
-          {user.role}
+    <aside className="rounded-3xl border border-border bg-card/50 backdrop-blur-sm p-6 sticky top-24 h-fit">
+      <div className="mb-8 px-2">
+        <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-primary mb-2">Access Level</div>
+        <div className="font-serif text-xl font-bold text-foreground">
+          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
         </div>
-        <div className="text-xs text-muted-foreground">ID: {user.id}</div>
+        <div className="mt-1 text-[10px] text-muted-foreground font-medium">ID: {user.id.slice(0, 8)}...</div>
       </div>
-      <nav className="space-y-1">
+      <nav className="space-y-1.5">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
@@ -48,13 +48,13 @@ export function DashboardSidebar({
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200",
                 isActive
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]"
+                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className={cn("h-4 w-4", isActive ? "stroke-[2.5px]" : "stroke-2")} />
               {item.label}
             </Link>
           )

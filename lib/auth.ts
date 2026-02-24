@@ -190,11 +190,11 @@ const parseCookieHeader = (header: string | null | undefined, name: string) => {
 }
 
 export async function getSessionUser() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
+  const headerStore = await headers()
   const token =
-    typeof cookieStore.get === "function"
-      ? cookieStore.get(SESSION_COOKIE)?.value
-      : parseCookieHeader(headers().get("cookie"), SESSION_COOKIE)
+    cookieStore.get(SESSION_COOKIE)?.value ??
+    parseCookieHeader(headerStore.get("cookie"), SESSION_COOKIE)
   return getSessionUserFromToken(token)
 }
 

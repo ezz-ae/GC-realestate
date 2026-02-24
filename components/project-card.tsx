@@ -61,20 +61,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <Link href={`/projects/${project.slug}`} className="group block" prefetch={false}>
-      <Card className="overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <Card className="overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           <Image
             src={project.heroImage}
             alt={project.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-            <Badge variant={project.status === "selling" ? "default" : "secondary"} className="shadow-sm">
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+            <Badge variant={project.status === "selling" ? "default" : "secondary"} className="shadow-sm backdrop-blur-md bg-background/95 border-none">
               {statusLabel}
             </Badge>
             {project.investmentHighlights.goldenVisaEligible && (
-              <Badge className="bg-amber-500 hover:bg-amber-600 text-white shadow-sm border-none">
+              <Badge className="gold-gradient text-white shadow-sm border-none">
                 Golden Visa
               </Badge>
             )}
@@ -82,22 +82,22 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
 
         <CardContent className="p-5">
-          <div className="mb-2">
-            <h3 className="text-lg font-semibold line-clamp-1 group-hover:text-primary transition-colors">
+          <div className="mb-3">
+            <h3 className="font-serif text-xl font-bold line-clamp-1 group-hover:text-primary transition-colors">
               {project.name}
             </h3>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5" />
+            <div className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground mt-1">
+              <MapPin className="h-3 w-3 text-primary/70" />
               <span className="line-clamp-1">{project.location.area}</span>
             </div>
           </div>
 
-          <div className="mb-4">
-            <p className="text-primary font-bold text-lg">{getPriceRange(project)}</p>
+          <div className="mb-5">
+            <p className="gold-text-gradient font-bold text-2xl tracking-tight">{getPriceRange(project)}</p>
           </div>
 
           {(bedrooms || baths || area) && (
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4 pt-4 border-t border-border/50">
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mb-6 pt-4 border-t border-border/50">
               {bedrooms && (
                 <div className="flex items-center gap-1.5">
                   <BedDouble className="h-4 w-4 text-foreground/70" />
@@ -119,9 +119,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           )}
 
-          <div className="mt-6 flex items-center justify-between text-sm font-semibold text-foreground">
-            <span>View project profile</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80 group-hover:text-primary transition-colors">
+            <span>Explore Development</span>
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1.5" />
           </div>
         </CardContent>
       </Card>

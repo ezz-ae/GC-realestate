@@ -76,12 +76,12 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
       </div>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="rounded-2xl border-border shadow-sm">
           <CardContent className="p-6 space-y-4">
-            <div className="text-sm text-muted-foreground">Project A</div>
+            <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Project Selection A</div>
             <Select value={leftId} onValueChange={setLeftId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select project" />
+              <SelectTrigger autoFocus className="h-12 rounded-xl bg-muted/30">
+                <SelectValue placeholder="Select primary project" />
               </SelectTrigger>
               <SelectContent>
                 {projects.map((project) => (
@@ -94,12 +94,12 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl border-border shadow-sm">
           <CardContent className="p-6 space-y-4">
-            <div className="text-sm text-muted-foreground">Project B</div>
+            <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Project Selection B</div>
             <Select value={rightId} onValueChange={setRightId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select project" />
+              <SelectTrigger className="h-12 rounded-xl bg-muted/30">
+                <SelectValue placeholder="Select secondary project" />
               </SelectTrigger>
               <SelectContent>
                 {projects.map((project) => (
@@ -119,44 +119,56 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
         </Button>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
         {[leftProject, rightProject].map((project, index) => (
-          <Card key={project?.id || index}>
-            <CardContent className="p-6 space-y-4">
-              <div className="font-serif text-2xl font-bold">{project?.name || "Select a project"}</div>
-              <div className="text-sm text-muted-foreground">{project?.tagline}</div>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Area</span>
-                  <span className="font-medium">{project?.location.area || "-"}</span>
+          <Card key={project?.id || index} className="rounded-[2rem] border-border shadow-md overflow-hidden bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
+            <CardContent className="p-8 space-y-6">
+              <div className="space-y-2">
+                <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-primary">{index === 0 ? "Primary Candidate" : "Comparison Match"}</div>
+                <div className="font-serif text-3xl font-bold tracking-tight">{project?.name || "Select a project"}</div>
+                <div className="text-sm text-muted-foreground leading-relaxed italic">{project?.tagline}</div>
+              </div>
+
+              <div className="space-y-4 pt-6 border-t border-border/50">
+                <div className="flex items-center justify-between group">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Area</span>
+                  <span className="font-semibold text-foreground">{project?.location.area || "-"}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Price Range</span>
-                  <span className="font-medium">{getPriceRange(project)}</span>
+                <div className="flex items-center justify-between group">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Starting Price</span>
+                  <span className="font-bold gold-text-gradient text-lg">{getPriceRange(project)}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Expected ROI</span>
-                  <span className="font-medium">
+                <div className="flex items-center justify-between group">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Expected ROI</span>
+                  <span className="font-bold text-green-600">
                     {project ? `${project.investmentHighlights.expectedROI}%` : "-"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Rental Yield</span>
-                  <span className="font-medium">
+                <div className="flex items-center justify-between group">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Rental Yield</span>
+                  <span className="font-bold text-foreground">
                     {project ? `${project.investmentHighlights.rentalYield}%` : "-"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Down Payment</span>
-                  <span className="font-medium">
-                    {project ? `${project.paymentPlan.downPayment}%` : "-"}
+                <div className="flex items-center justify-between group">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Entry Threshold</span>
+                  <span className="font-semibold text-foreground">
+                    {project ? `${project.paymentPlan.downPayment}% Down` : "-"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Handover</span>
-                  <span className="font-medium">{project?.timeline.handoverDate || "-"}</span>
+                <div className="flex items-center justify-between group">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Completion</span>
+                  <span className="font-semibold text-foreground">{project?.timeline.handoverDate || "-"}</span>
                 </div>
               </div>
+              
+              {project && (
+                <div className="pt-6">
+                  <Button variant="outline" className="w-full h-11 rounded-xl font-bold border-primary/20 text-primary hover:bg-primary/5" asChild>
+                    <Link href={`/projects/${project.slug}`}>View Full Profile</Link>
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}

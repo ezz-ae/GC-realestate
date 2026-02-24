@@ -11,20 +11,20 @@ export function DashboardAIWidget() {
   const recentMessages = messages.slice(-4)
 
   return (
-    <Card className="border-primary/30">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-lg">AI Assistant</CardTitle>
-          <p className="text-xs text-muted-foreground">
-            Ask me anything about projects, leads, or sales strategies.
+    <Card className="rounded-[2rem] border-primary/20 bg-primary/5 shadow-sm overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
+        <div className="space-y-1">
+          <CardTitle className="font-serif text-2xl font-bold text-primary">Broker AI</CardTitle>
+          <p className="text-[10px] uppercase font-bold tracking-widest text-primary/60">
+            Intelligent Sales Copilot
           </p>
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl gold-gradient shadow-sm">
-          <Sparkles className="h-5 w-5 text-primary-foreground" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl gold-gradient shadow-lg shadow-primary/20">
+          <Sparkles className="h-6 w-6 text-primary-foreground" />
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl border border-border/60 bg-background/70 px-4 py-2">
+      <CardContent className="space-y-6">
+        <div className="max-h-[320px] space-y-4 overflow-y-auto rounded-[1.5rem] border border-primary/10 bg-card/60 px-5 py-4 shadow-inner">
           {recentMessages.length === 0 ? (
             <div className="py-6 text-center text-sm text-muted-foreground">
               Start a conversation to get instant sales insights.

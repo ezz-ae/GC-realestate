@@ -16,6 +16,12 @@ export default function PaymentSimulatorPage() {
 
   const calcAmount = (percent: number) => (price * percent) / 100
   const totalPercent = downPayment + duringConstruction + onHandover + postHandover
+  const installments = [
+    { id: "downPayment", label: "Down Payment (%)", percent: downPayment, setter: setDownPayment },
+    { id: "duringConstruction", label: "During Construction (%)", percent: duringConstruction, setter: setDuringConstruction },
+    { id: "onHandover", label: "On Handover (%)", percent: onHandover, setter: setOnHandover },
+    { id: "postHandover", label: "Post Handover (%)", percent: postHandover, setter: setPostHandover },
+  ]
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -37,109 +43,75 @@ export default function PaymentSimulatorPage() {
         </section>
 
         <section className="py-16">
-          <div className="container grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
-            <Card>
-              <CardContent className="p-6 space-y-6">
-                <div>
-                  <Label htmlFor="price">Property Price (AED)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className="mt-2"
-                  />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="downPayment">Down Payment (%)</Label>
+          <div className="container grid gap-8 lg:grid-cols-[1fr,1fr]">
+            <Card className="rounded-[2rem] border-border shadow-lg overflow-hidden">
+              <CardContent className="p-8 space-y-8">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="price" className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Property Price (AED)</Label>
                     <Input
-                      id="downPayment"
+                      id="price"
                       type="number"
-                      value={downPayment}
-                      onChange={(e) => setDownPayment(Number(e.target.value))}
-                      className="mt-2"
+                      value={price}
+                      onChange={(e) => setPrice(Number(e.target.value))}
+                      className="h-12 rounded-xl bg-muted/50 border-border focus:ring-primary/20"
+                      autoFocus
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="duringConstruction">During Construction (%)</Label>
-                    <Input
-                      id="duringConstruction"
-                      type="number"
-                      value={duringConstruction}
-                      onChange={(e) => setDuringConstruction(Number(e.target.value))}
-                      className="mt-2"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="onHandover">On Handover (%)</Label>
-                    <Input
-                      id="onHandover"
-                      type="number"
-                      value={onHandover}
-                      onChange={(e) => setOnHandover(Number(e.target.value))}
-                      className="mt-2"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="postHandover">Post Handover (%)</Label>
-                    <Input
-                      id="postHandover"
-                      type="number"
-                      value={postHandover}
-                      onChange={(e) => setPostHandover(Number(e.target.value))}
-                      className="mt-2"
-                    />
+
+                  <div className="grid gap-6">
+                    {installments.map((item) => (
+                      <div key={item.id} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor={item.id} className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{item.label}</Label>
+                          <span className="text-xs font-bold text-primary">AED {calcAmount(item.percent).toLocaleString()}</span>
+                        </div>
+                        <Input
+                          id={item.id}
+                          type="number"
+                          value={item.percent}
+                          onChange={(e) => item.setter(Number(e.target.value))}
+                          className="h-10 rounded-lg bg-muted/30 border-border"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <Button className="gold-gradient w-full">Update Schedule</Button>
+                <Button className="gold-gradient w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Analyze Payment Flow</Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-6 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">Total Allocation</div>
-                  <div className={`font-semibold ${totalPercent === 100 ? "text-green-600" : "text-red-500"}`}>
+            <Card className="rounded-[2rem] bg-muted/30 border-border shadow-inner overflow-hidden">
+              <CardContent className="p-8 space-y-8">
+                <div className="flex items-center justify-between border-b border-border/50 pb-6">
+                  <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Plan Allocation</div>
+                  <div className={`text-xl font-bold ${totalPercent === 100 ? "text-green-600" : "text-red-500"}`}>
                     {totalPercent}%
                   </div>
                 </div>
 
-                <div className="space-y-4 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Down Payment</span>
-                    <span className="font-medium">
-                      AED {calcAmount(downPayment).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">During Construction</span>
-                    <span className="font-medium">
-                      AED {calcAmount(duringConstruction).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">On Handover</span>
-                    <span className="font-medium">
-                      AED {calcAmount(onHandover).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </span>
-                  </div>
-                  {postHandover > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Post Handover</span>
-                      <span className="font-medium">
-                        AED {calcAmount(postHandover).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      </span>
+                <div className="space-y-6">
+                  {installments.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <div className="text-sm font-semibold">{item.label.replace(" (%)", "")}</div>
+                        <div className="text-[10px] uppercase text-muted-foreground font-medium tracking-tight">{item.percent}% of total</div>
+                      </div>
+                      <div className="text-lg font-bold text-foreground">
+                        AED {calcAmount(item.percent).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
 
-                <p className="text-sm text-muted-foreground">
-                  Adjust the plan to match the developer schedule or request a tailored installment plan.
-                </p>
-                <Button variant="outline" className="w-full" asChild>
-                  <a href="/contact">Request Custom Plan</a>
-                </Button>
+                <div className="pt-8 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-6">
+                    This model is for estimation purposes. Request a custom plan to see developer-specific incentives and rebates.
+                  </p>
+                  <Button variant="outline" className="w-full h-12 rounded-xl font-bold border-primary/20 text-primary hover:bg-primary/5" asChild>
+                    <a href="/contact">Get Official Payment Schedule</a>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

@@ -16,8 +16,8 @@ export async function generateStaticParams() {
 }
 
 export default async function AreaDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = await params
-  const slug = typeof resolvedParams?.slug === "string" ? resolvedParams.slug.trim() : ""
+  const { slug: rawSlug } = await params
+  const slug = typeof rawSlug === "string" ? rawSlug.trim() : ""
 
   if (!slug) {
     notFound()
