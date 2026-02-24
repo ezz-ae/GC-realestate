@@ -54,39 +54,42 @@ const companyLinks = [
 
 export function SiteHeader() {
   const [isOpen, setIsOpen] = React.useState(false)
+  const megaMenuWide = "w-[min(720px,92vw)] min-w-[360px] p-2"
+  const megaMenuMedium = "w-[min(640px,92vw)] min-w-[340px] p-2"
+  const megaMenuCompact = "w-[min(520px,92vw)] min-w-[320px] p-2"
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-[104px] items-center justify-between md:h-[120px]">
+      <div className="container flex h-[112px] items-center justify-between md:h-[132px]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Image
             src="/logo-light.png"
             alt="Gold Century Real Estate"
-            width={320}
-            height={96}
-            className="h-24 w-auto md:h-28 dark:hidden"
+            width={360}
+            height={110}
+            className="h-28 w-auto md:h-32 dark:hidden"
             priority
           />
           <Image
             src="/logo-dark.png"
             alt="Gold Century Real Estate"
-            width={320}
-            height={96}
-            className="hidden h-24 w-auto md:h-28 dark:block"
+            width={360}
+            height={110}
+            className="hidden h-28 w-auto md:h-32 dark:block"
             priority
           />
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center md:flex">
+        <nav className="hidden flex-1 items-center justify-center md:flex">
           <NavigationMenu viewport={false}>
             <NavigationMenuList className="gap-2">
               <NavigationMenuItem>
                 <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
                   Main
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="w-[520px] p-2">
+                <NavigationMenuContent className={megaMenuWide}>
                   <div className="grid gap-2 p-2 md:grid-cols-2">
                     {mainLinks.map((item) => (
                       <NavigationMenuLink asChild key={item.href}>
@@ -107,7 +110,7 @@ export function SiteHeader() {
                 <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
                   Market
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="w-[520px] p-2">
+                <NavigationMenuContent className={megaMenuWide}>
                   <div className="grid gap-2 p-2 md:grid-cols-2">
                     {marketLinks.map((item) => (
                       <NavigationMenuLink asChild key={item.href}>
@@ -128,7 +131,7 @@ export function SiteHeader() {
                 <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
                   Tools
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="w-[480px] p-2">
+                <NavigationMenuContent className={megaMenuMedium}>
                   <div className="grid gap-2 p-2 md:grid-cols-2">
                     {toolsLinks.map((item) => (
                       <NavigationMenuLink asChild key={item.href}>
@@ -149,7 +152,7 @@ export function SiteHeader() {
                 <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
                   Company
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="w-[420px] p-2">
+                <NavigationMenuContent className={megaMenuCompact}>
                   <div className="grid gap-2 p-2">
                     {companyLinks.map((item) => (
                       <NavigationMenuLink asChild key={item.href}>
@@ -190,16 +193,16 @@ export function SiteHeader() {
                   <Image
                     src="/logo-light.png"
                     alt="Gold Century Real Estate"
-                    width={260}
-                    height={76}
-                    className="h-20 w-auto dark:hidden"
+                    width={280}
+                    height={84}
+                    className="h-24 w-auto dark:hidden"
                   />
                   <Image
                     src="/logo-dark.png"
                     alt="Gold Century Real Estate"
-                    width={260}
-                    height={76}
-                    className="hidden h-20 w-auto dark:block"
+                    width={280}
+                    height={84}
+                    className="hidden h-24 w-auto dark:block"
                   />
                 </Link>
                 <nav className="flex flex-col gap-6 text-sm">
