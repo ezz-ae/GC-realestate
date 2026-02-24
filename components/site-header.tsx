@@ -60,23 +60,23 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-[120px] items-center justify-between md:h-[144px]">
+      <div className="container flex h-[160px] items-center justify-between md:h-[190px]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Image
             src="/logo-light.png"
             alt="Gold Century Real Estate"
-            width={420}
-            height={128}
-            className="h-32 w-auto md:h-36 dark:hidden"
+            width={520}
+            height={160}
+            className="h-40 w-auto md:h-48 dark:hidden"
             priority
           />
           <Image
             src="/logo-dark.png"
             alt="Gold Century Real Estate"
-            width={420}
-            height={128}
-            className="hidden h-32 w-auto md:h-36 dark:block"
+            width={520}
+            height={160}
+            className="hidden h-40 w-auto md:h-48 dark:block"
             priority
           />
         </Link>
@@ -193,15 +193,15 @@ export function SiteHeader() {
                   <Image
                     src="/logo-light.png"
                     alt="Gold Century Real Estate"
-                    width={300}
-                    height={92}
+                    width={320}
+                    height={98}
                     className="h-24 w-auto dark:hidden"
                   />
                   <Image
                     src="/logo-dark.png"
                     alt="Gold Century Real Estate"
-                    width={300}
-                    height={92}
+                    width={320}
+                    height={98}
                     className="hidden h-24 w-auto dark:block"
                   />
                 </Link>

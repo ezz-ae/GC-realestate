@@ -18,7 +18,7 @@ export default function MarketTrendsPage() {
       <SiteHeader />
       <main className="flex-1">
         {/* Hero with AI Assistant */}
-        <section className="border-b border-border bg-gradient-to-b from-background to-muted py-16">
+        <section id="overview" className="border-b border-border bg-gradient-to-b from-background to-muted py-16">
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
               <Badge className="mb-4 gold-gradient" variant="secondary">
@@ -51,7 +51,7 @@ export default function MarketTrendsPage() {
         </section>
 
         {/* Key Metrics */}
-        <section className="border-b border-border bg-card py-12">
+        <section id="metrics" className="border-b border-border bg-card py-12">
           <div className="container">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <div>
@@ -94,7 +94,7 @@ export default function MarketTrendsPage() {
         </section>
 
         {/* Price Trends by Area */}
-        <section className="py-16">
+        <section id="price-trends" className="py-16">
           <div className="container">
             <div className="mb-10">
               <h2 className="font-serif text-3xl font-bold mb-2">Price Trends by Area</h2>
@@ -139,7 +139,7 @@ export default function MarketTrendsPage() {
         </section>
 
         {/* Market Segments */}
-        <section className="py-16 bg-muted/30">
+        <section id="segments" className="py-16 bg-muted/30">
           <div className="container">
             <div className="mb-10">
               <h2 className="font-serif text-3xl font-bold mb-2">Market Segments</h2>
@@ -250,7 +250,7 @@ export default function MarketTrendsPage() {
         </section>
 
         {/* Reports */}
-        <section className="py-16">
+        <section id="reports" className="py-16">
           <div className="container">
             <div className="mb-10">
               <h2 className="font-serif text-3xl font-bold mb-2">Market Reports</h2>
@@ -287,7 +287,7 @@ export default function MarketTrendsPage() {
         </section>
 
         {/* AI CTA */}
-        <section className="py-16 bg-gradient-to-br from-primary/5 to-primary/10">
+        <section id="ai-cta" className="py-16 bg-gradient-to-br from-primary/5 to-primary/10">
           <div className="container">
             <Card className="max-w-4xl mx-auto border-primary/50">
               <CardContent className="p-8 md:p-12">

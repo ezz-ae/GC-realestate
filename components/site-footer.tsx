@@ -45,6 +45,17 @@ export function SiteFooter() {
       ],
     },
     {
+      title: "Market Analysis",
+      links: [
+        { href: "/market/trends", label: "Overview" },
+        { href: "/market/trends#metrics", label: "Key Metrics" },
+        { href: "/market/trends#price-trends", label: "Price Trends" },
+        { href: "/market/trends#segments", label: "Market Segments" },
+        { href: "/market/trends#reports", label: "Market Reports" },
+        { href: "/market/trends#ai-cta", label: "AI Market Analyst" },
+      ],
+    },
+    {
       title: "Tools",
       links: [
         { href: "/tools", label: "Tools Hub" },
@@ -75,21 +86,22 @@ export function SiteFooter() {
               <Image
                 src="/logo-light.png"
                 alt="Gold Century Real Estate"
-                width={280}
-                height={84}
-                className="h-20 w-auto dark:hidden"
+                width={360}
+                height={110}
+                className="h-24 w-auto dark:hidden"
               />
               <Image
                 src="/logo-dark.png"
                 alt="Gold Century Real Estate"
-                width={280}
-                height={84}
-                className="hidden h-20 w-auto dark:block"
+                width={360}
+                height={110}
+                className="hidden h-24 w-auto dark:block"
               />
             </Link>
-            <p className="text-sm text-muted-foreground max-w-sm text-pretty leading-relaxed">
+            <p className="text-sm text-muted-foreground max-w-[260px] text-pretty leading-relaxed">
               <span className="block">Gold Century Real Estate delivers investment intelligence</span>
-              <span className="block">and premium access to Dubai's top-performing projects for international buyers.</span>
+              <span className="block">and premium access to Dubai's top-performing projects</span>
+              <span className="block">for international buyers.</span>
             </p>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -118,7 +130,7 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
             {footerSections.map((section) => (
               <div key={section.title}>
                 <h3 className="text-sm font-semibold uppercase tracking-wide">{section.title}</h3>
