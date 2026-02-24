@@ -73,7 +73,7 @@ export default function GoldenVisaPage() {
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>Must not be mortgaged (or mortgage < AED 2M)</span>
+                        <span>Must not be mortgaged (or mortgage &lt; AED 2M)</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
