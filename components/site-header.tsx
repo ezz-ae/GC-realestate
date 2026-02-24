@@ -17,13 +17,14 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 
-const primaryNav = [
-  { href: "/", label: "Home" },
-  { href: "/properties", label: "Properties" },
-  { href: "/projects", label: "Projects" },
-  { href: "/areas", label: "Areas" },
-  { href: "/developers", label: "Developers" },
-  { href: "/blog", label: "Blog" },
+const mainLinks = [
+  { href: "/", label: "Home", description: "Platform overview and market highlights." },
+  { href: "/properties", label: "Properties", description: "Browse 3,655 live listings." },
+  { href: "/projects", label: "Projects", description: "Master developments and launches." },
+  { href: "/areas", label: "Areas", description: "Compare districts and demand." },
+  { href: "/developers", label: "Developers", description: "Track records and delivery stats." },
+  { href: "/blog", label: "Blog", description: "Investor insights and reports." },
+  { href: "/chat", label: "AI Assistant", description: "Get a curated shortlist fast." },
 ]
 
 const marketLinks = [
@@ -56,23 +57,23 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-[92px] items-center justify-between md:h-[110px]">
+      <div className="container flex h-[104px] items-center justify-between md:h-[120px]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Image
             src="/logo-light.png"
             alt="Gold Century Real Estate"
-            width={280}
-            height={82}
-            className="h-20 w-auto md:h-24 dark:hidden"
+            width={320}
+            height={96}
+            className="h-24 w-auto md:h-28 dark:hidden"
             priority
           />
           <Image
             src="/logo-dark.png"
             alt="Gold Century Real Estate"
-            width={280}
-            height={82}
-            className="hidden h-20 w-auto md:h-24 dark:block"
+            width={320}
+            height={96}
+            className="hidden h-24 w-auto md:h-28 dark:block"
             priority
           />
         </Link>
@@ -81,13 +82,26 @@ export function SiteHeader() {
         <nav className="hidden items-center md:flex">
           <NavigationMenu viewport={false}>
             <NavigationMenuList className="gap-2">
-              {primaryNav.map((item) => (
-                <NavigationMenuItem key={item.href}>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link href={item.href}>{item.label}</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                  Main
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="w-[520px] p-2">
+                  <div className="grid gap-2 p-2 md:grid-cols-2">
+                    {mainLinks.map((item) => (
+                      <NavigationMenuLink asChild key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="rounded-md border border-transparent p-3 transition hover:border-border hover:bg-muted/60"
+                        >
+                          <div className="text-sm font-semibold text-foreground">{item.label}</div>
+                          <div className="text-xs text-muted-foreground">{item.description}</div>
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
 
               <NavigationMenuItem>
                 <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
@@ -176,22 +190,22 @@ export function SiteHeader() {
                   <Image
                     src="/logo-light.png"
                     alt="Gold Century Real Estate"
-                    width={240}
-                    height={70}
-                    className="h-16 w-auto dark:hidden"
+                    width={260}
+                    height={76}
+                    className="h-20 w-auto dark:hidden"
                   />
                   <Image
                     src="/logo-dark.png"
                     alt="Gold Century Real Estate"
-                    width={240}
-                    height={70}
-                    className="hidden h-16 w-auto dark:block"
+                    width={260}
+                    height={76}
+                    className="hidden h-20 w-auto dark:block"
                   />
                 </Link>
                 <nav className="flex flex-col gap-6 text-sm">
                   <div className="space-y-3">
                     <div className="text-xs uppercase tracking-wide text-muted-foreground">Main</div>
-                    {primaryNav.map((item) => (
+                    {mainLinks.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}

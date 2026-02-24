@@ -204,7 +204,11 @@ const mapDeveloperRow = (row: DeveloperRow): DeveloperProfile => {
 
 export async function getProjectsForGrid(limit = 50) {
   const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload FROM gc_projects WHERE status = 'selling' ORDER BY market_score DESC LIMIT $1`,
+    `SELECT id, slug, payload
+     FROM gc_projects
+     WHERE status = 'selling'
+     ORDER BY featured DESC NULLS LAST, market_score DESC NULLS LAST
+     LIMIT $1`,
     [limit],
   )
   return rows.map((row) => normalizeProjectPayload(row))
@@ -231,7 +235,8 @@ export async function getFeaturedProperties(limit = 3) {
     `SELECT id, slug, payload
      FROM gc_projects
      WHERE status = 'selling'
-       AND COALESCE(hero_image, '') <> ''
+       AND featured = true
+       AND COALESCE(hero_image, payload->>'heroImage', '') <> ''
        AND jsonb_typeof(payload->'gallery') = 'array'
        AND jsonb_array_length(payload->'gallery') >= 4
        AND jsonb_typeof(payload->'units') = 'array'

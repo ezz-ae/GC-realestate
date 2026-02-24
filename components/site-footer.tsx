@@ -18,6 +18,7 @@ export function SiteFooter() {
         { href: "/areas", label: "Areas" },
         { href: "/blog", label: "Blog" },
         { href: "/chat", label: "AI Assistant" },
+        { href: "/tools", label: "Tools Hub" },
       ],
     },
     {
@@ -63,16 +64,16 @@ export function SiteFooter() {
               <Image
                 src="/logo-light.png"
                 alt="Gold Century Real Estate"
-                width={220}
-                height={64}
-                className="h-14 w-auto dark:hidden"
+                width={240}
+                height={70}
+                className="h-16 w-auto dark:hidden"
               />
               <Image
                 src="/logo-dark.png"
                 alt="Gold Century Real Estate"
-                width={220}
-                height={64}
-                className="hidden h-14 w-auto dark:block"
+                width={240}
+                height={70}
+                className="hidden h-16 w-auto dark:block"
               />
             </Link>
             <p className="text-sm text-muted-foreground">
