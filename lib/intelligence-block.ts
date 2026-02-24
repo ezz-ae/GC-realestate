@@ -21,9 +21,9 @@ export async function getIntelligenceBlockData() {
     `,
     sql`
       SELECT name, slug, area_type, avg_yield, avg_score,
-             project_count, image, payload->>'heroVideo' AS video
+             project_count, payload->>'heroVideo' AS video
       FROM gc_area_profiles
-      WHERE avg_yield > 4 AND project_count >= 5 AND image IS NOT NULL
+      WHERE avg_yield > 4 AND project_count >= 5
       ORDER BY avg_yield DESC
       LIMIT 4
     `,

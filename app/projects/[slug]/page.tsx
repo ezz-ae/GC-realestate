@@ -32,8 +32,10 @@ import {
   ShoppingBag,
   School,
   Plane,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
-import { getProjectBySlug, getProjectsForGrid, searchProjects } from "@/lib/entrestate"
+import { getProjectBySlug, getProjectsForGrid, searchProjects, getAdjacentProjectSlugs } from "@/lib/entrestate"
 import { Toaster } from "@/components/ui/toaster"
 import type { Project } from "@/lib/types/project"
 import { ProjectLeadForm } from "@/components/project-lead-form"
@@ -147,6 +149,9 @@ export async function generateMetadata({
 }) {
   const { slug } = await params
   const project = await getProject(slug)
+  const adjacent = project ? await getAdjacentProjectSlugs(project.slug) : { prev_slug: null, next_slug: null }
+  const prevSlug = adjacent.prev_slug
+  const nextSlug = adjacent.next_slug
   
   if (!project) {
     return {
@@ -224,6 +229,10 @@ export default async function ProjectPage({
     )
   }
 
+  const adjacent = await getAdjacentProjectSlugs(project.slug)
+  const prevSlug = adjacent.prev_slug
+  const nextSlug = adjacent.next_slug
+
   const location = project.location || {
     area: "Dubai",
     district: "Dubai",
@@ -287,8 +296,7 @@ export default async function ProjectPage({
 
   return (
     <>
-        {/* Hero Section */}
-        <section className="relative h-[60vh] min-h-[500px]">
+        <section className="relative h-[55vh] min-h-[450px]">
           <Image
             src={heroImage}
             alt={project.name}
@@ -296,110 +304,110 @@ export default async function ProjectPage({
             className={heroImageClass}
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-black/40 to-black/10" />
-          
-          <div className="container relative flex h-full items-end pb-16">
-            <div className="grid gap-8 lg:grid-cols-[1.5fr,1fr] w-full items-end">
-              <div className="space-y-6">
-                <div className="flex flex-wrap gap-3">
-                  <Badge variant="secondary" className="backdrop-blur-md bg-white/10 text-white hover:bg-white/20 border-white/20">
-                    {project.status?.replace("-", " ")}
-                  </Badge>
-                  {project.investmentHighlights?.goldenVisaEligible && (
-                    <Badge className="gold-gradient text-white border-none">Golden Visa Eligible</Badge>
-                  )}
-                  {location.freehold && (
-                    <Badge variant="outline" className="text-white border-white/40">Freehold</Badge>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="text-amber-400 font-bold text-2xl md:hidden drop-shadow-sm">{priceRange}</div>
-                  <h1 className="font-serif text-4xl font-bold text-white md:text-6xl lg:text-7xl drop-shadow-lg">
-                    {project.name}
-                  </h1>
-                  <p className="text-xl text-white/90 font-light max-w-2xl drop-shadow-md">
-                    {project.tagline}
-                  </p>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm md:text-base font-medium">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-amber-400" />
-                    <span>{location.area}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-amber-400" />
-                    <span>{developer.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-amber-400" />
-                    <span>Handover: {timeline.handoverDate || timeline.expectedCompletion || "TBD"}</span>
-                  </div>
-                </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-black/40 to-black/10" />
+        </section>
 
-                <div className="flex flex-wrap gap-4 pt-4">
-                  <ProjectPdfDownload slug={project.slug} />
-                  {hasMedia && (
+        {/* Project Header */}
+        <section className="border-b border-border bg-card py-8 -mt-24 relative z-10">
+          <div className="container">
+            <div className="grid gap-8 lg:grid-cols-[1.5fr,1fr] w-full items-start">
+                <div className="space-y-6">
+                  <div className="flex flex-wrap gap-3">
+                    <Badge variant="secondary" className="backdrop-blur-md bg-card/60">
+                      {project.status?.replace("-", " ")}
+                    </Badge>
+                    {project.investmentHighlights?.goldenVisaEligible && (
+                      <Badge className="gold-gradient text-white border-none">Golden Visa Eligible</Badge>
+                    )}
+                    {location.freehold && (
+                      <Badge variant="outline">Freehold</Badge>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h1 className="font-serif text-4xl font-bold md:text-5xl lg:text-6xl">
+                      {project.name}
+                    </h1>
+                    <p className="text-lg text-muted-foreground font-light max-w-2xl">
+                      {project.tagline}
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-6 text-sm md:text-base font-medium">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-amber-400" />
+                      <span>{location.area}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-5 w-5 text-amber-400" />
+                      <span>{developer.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-amber-400" />
+                      <span>Handover: {timeline.handoverDate || timeline.expectedCompletion || "TBD"}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 pt-4">
+                    <ProjectPdfDownload slug={project.slug} />
+                    {hasMedia && (
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        asChild
+                      >
+                        <Link href="#media">
+                          <PlayCircle className="mr-2 h-5 w-5" />
+                          View Media
+                        </Link>
+                      </Button>
+                    )}
                     <Button
                       size="lg"
                       variant="outline"
-                      className="border-white/30 bg-white/5 text-white hover:bg-white/20 backdrop-blur-sm"
                       asChild
                     >
-                      <Link href="#media">
-                        <PlayCircle className="mr-2 h-5 w-5" />
-                        View Media
-                      </Link>
+                      <a href={`https://wa.me/${phoneNumber.replace("+", "")}`} target="_blank" rel="noopener noreferrer">
+                         <MessageCircle className="mr-2 h-5 w-5" />
+                         WhatsApp
+                      </a>
                     </Button>
-                  )}
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white/30 bg-white/5 text-white hover:bg-white/20 backdrop-blur-sm"
-                    asChild
-                  >
-                    <a href={`https://wa.me/${phoneNumber.replace("+", "")}`} target="_blank" rel="noopener noreferrer">
-                       <MessageCircle className="mr-2 h-5 w-5" />
-                       WhatsApp
-                    </a>
-                  </Button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Floating Glass Card for Key Stats */}
-              <div className="hidden lg:block">
-                <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md p-6 text-white shadow-2xl">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <div className="text-sm text-white/60">Starting Price</div>
-                      <div className="mt-1 text-2xl font-bold text-amber-400">{priceRange}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-white/60">Handover</div>
-                      <div className="mt-1 text-lg font-semibold">{timeline.handoverDate || "TBD"}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-white/60">Payment Plan</div>
-                      <div className="mt-1 text-lg font-semibold">
-                         {paymentPlan.postHandover > 0 ? "Post-Handover" : "Standard"}
+                {/* Floating Glass Card for Key Stats */}
+                <div className="hidden lg:block">
+                  <div className="rounded-2xl border border-border bg-muted/30 p-6 shadow-sm">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <div className="text-sm text-muted-foreground">Starting Price</div>
+                        <div className="mt-1 text-2xl font-bold text-amber-500">{priceRange}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Handover</div>
+                        <div className="mt-1 text-lg font-semibold">{timeline.handoverDate || "TBD"}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Payment Plan</div>
+                        <div className="mt-1 text-lg font-semibold">
+                           {paymentPlan.postHandover > 0 ? "Post-Handover" : "Standard"}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Unit Types</div>
+                        <div className="mt-1 text-sm font-medium line-clamp-1">
+                          {unitTypes.slice(0, 2).join(", ")}
+                          {unitTypes.length > 2 && "..."}
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <div className="text-sm text-white/60">Unit Types</div>
-                      <div className="mt-1 text-sm font-medium line-clamp-1">
-                        {unitTypes.slice(0, 2).join(", ")}
-                        {unitTypes.length > 2 && "..."}
-                      </div>
+                    <div className="mt-6 pt-6 border-t border-border flex gap-3">
+                       <Button className="w-full gold-gradient text-black font-semibold hover:opacity-90" asChild>
+                          <Link href="#contact">Enquire Now</Link>
+                       </Button>
                     </div>
-                  </div>
-                  <div className="mt-6 pt-6 border-t border-white/10 flex gap-3">
-                     <Button className="w-full gold-gradient text-black font-semibold hover:opacity-90" asChild>
-                        <Link href="#contact">Enquire Now</Link>
-                     </Button>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
         </section>
@@ -995,6 +1003,41 @@ export default async function ProjectPage({
           </div>
         </section>
         <Toaster />
+        {prevSlug || nextSlug ? (
+          <>
+            <div className="sm:hidden pb-24" />
+            <div className="fixed inset-x-0 bottom-0 z-50 bg-transparent sm:hidden">
+              <div className="mx-4 mb-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-background/90 px-4 py-3 shadow-2xl backdrop-blur">
+                {prevSlug ? (
+                  <Link
+                    href={`/projects/${prevSlug}`}
+                    className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Prev listing
+                  </Link>
+                ) : (
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
+                    Start
+                  </span>
+                )}
+                {nextSlug ? (
+                  <Link
+                    href={`/projects/${nextSlug}`}
+                    className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+                  >
+                    Next listing
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                ) : (
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
+                    Latest
+                  </span>
+                )}
+              </div>
+            </div>
+          </>
+        ) : null}
     </>
   )
 }

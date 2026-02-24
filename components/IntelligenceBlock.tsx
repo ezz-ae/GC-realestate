@@ -2,15 +2,36 @@
 // components/IntelligenceBlock.tsx
 // Homepage intelligence block — 3 panels + pulse strip
 // ─────────────────────────────────────────────────────────────────
+import Image from "next/image"
 import Link  from "next/link"
 
 type Props = { data: Awaited<ReturnType<typeof import("@/lib/intelligence-block").getIntelligenceBlockData>> }
 
 export function IntelligenceBlock({ data }: Props) {
+  if (!data) {
+    return (
+      <section className="w-full bg-[#1C1C1E] text-white py-24">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-zinc-500">Market Intelligence data is currently unavailable.</p>
+        </div>
+      </section>
+    )
+  }
+
   const { trending, best_areas, pulse, below_market } = data
 
+  if (!pulse || !trending || !best_areas || !below_market) {
+    return (
+      <section className="w-full bg-[#1C1C1E] text-white py-24">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-zinc-500">Partial Market Intelligence data. Display has been suspended.</p>
+        </div>
+      </section>
+    )
+  }
+
   return (
-    <section className="w-full bg-[#1C1C1E] text-white py-16 px-4">
+<section className="w-full bg-[#1C1C1E] text-white pt-24 pb-16 px-4 md:pt-28">
       <div className="max-w-7xl mx-auto space-y-10">
 
         {/* ── Header ── */}

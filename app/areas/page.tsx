@@ -58,7 +58,7 @@ export default async function AreasPage() {
                 <ul className="mt-3 space-y-1 text-sm">
                   {topYieldAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
-                      <span>{area.name}</span>
+                      <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
                       <span className="font-semibold text-green-600">{area.rentalYield}%</span>
                     </li>
                   ))}
@@ -71,7 +71,7 @@ export default async function AreasPage() {
                 <ul className="mt-3 space-y-1 text-sm">
                   {bestValueAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
-                      <span>{area.name}</span>
+                      <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
                       <span className="font-semibold">AED {area.avgPricePerSqft.toLocaleString()}</span>
                     </li>
                   ))}
@@ -84,7 +84,7 @@ export default async function AreasPage() {
                 <ul className="mt-3 space-y-1 text-sm">
                   {topScoreAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
-                      <span>{area.name}</span>
+                      <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
                       <span className="font-semibold gold-text-gradient">{area.investmentScore}/10</span>
                     </li>
                   ))}

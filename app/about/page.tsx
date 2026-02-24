@@ -13,19 +13,16 @@ const teamMembers = [
     name: "Johnathan Doe",
     title: "Founder & CEO",
     bio: "With over 20 years in international real estate, Johnathan leads Gold Century's strategic vision, focusing on data-driven growth.",
-    linkedinUrl: "https://linkedin.com",
   },
   {
     name: "Jane Smith",
     title: "Head of Sales",
     bio: "Jane manages a team of 50+ consultants, ensuring our clients receive unparalleled service and market intelligence.",
-    linkedinUrl: "https://linkedin.com",
   },
   {
     name: "Peter Jones",
     title: "Chief Technology Officer",
     bio: "Peter is the architect of our AI-powered platform, turning complex market data into actionable investment insights.",
-    linkedinUrl: "https://linkedin.com",
   },
 ]
 

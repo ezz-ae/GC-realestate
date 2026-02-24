@@ -25,7 +25,10 @@ export default function ChatPage() {
   
   const { messages, sendMessage, isLoading, lastProperties, error } = useAIChat()
   const [resultProperties, setResultProperties] = useState<Property[]>([])
+  const [isMobileView, setIsMobileView] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const shouldAutoScrollRef = useRef(true)
 
   const formatShortPrice = (value: number) =>
     new Intl.NumberFormat("en-AE", {
@@ -56,12 +59,38 @@ export default function ChatPage() {
     }
   }, [resultProperties])
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const mediaQuery = window.matchMedia("(max-width: 640px)")
+    const update = () => setIsMobileView(mediaQuery.matches)
+    update()
+    mediaQuery.addEventListener("change", update)
+    return () => mediaQuery.removeEventListener("change", update)
+  }, [])
+
+  const getScrollViewport = () => {
+    if (!scrollAreaRef.current) return null
+    return scrollAreaRef.current.querySelector<HTMLDivElement>('[data-slot="scroll-area-viewport"]')
   }
 
   useEffect(() => {
-    scrollToBottom()
+    const viewport = getScrollViewport()
+    if (!viewport) return
+    const updateAutoScroll = () => {
+      const threshold = 80
+      const distanceToBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight
+      shouldAutoScrollRef.current = distanceToBottom <= threshold
+    }
+    updateAutoScroll()
+    viewport.addEventListener("scroll", updateAutoScroll)
+    return () => viewport.removeEventListener("scroll", updateAutoScroll)
+  }, [])
+
+  useEffect(() => {
+    if (!shouldAutoScrollRef.current) return
+    const viewport = getScrollViewport()
+    if (!viewport) return
+    viewport.scrollTo({ top: viewport.scrollHeight, behavior: "auto" })
   }, [messages])
 
   useEffect(() => {
@@ -71,13 +100,11 @@ export default function ChatPage() {
   }, [initialQuery])
 
   const handleSendMessage = async (content: string) => {
-    await sendMessage(content)
+    await sendMessage(content, { isMobile: isMobileView })
   }
 
   useEffect(() => {
-    if (lastProperties?.length) {
-      setResultProperties(lastProperties)
-    }
+    setResultProperties(lastProperties || [])
   }, [lastProperties])
 
   const suggestedQuestions = [
@@ -121,7 +148,8 @@ export default function ChatPage() {
                 <div className="absolute top-[20%] -left-[10%] h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-3xl" />
             </div>
 
-            <ScrollArea className="h-full px-4 py-6 md:px-8">
+            <div ref={scrollAreaRef} className="h-full">
+              <ScrollArea className="h-full px-4 py-6 md:px-8">
                 <div className="mx-auto max-w-3xl space-y-6 pb-4">
                     {messages.length === 0 ? (
                          <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
@@ -188,8 +216,8 @@ export default function ChatPage() {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="p-6 bg-muted/10">
-                                        <Carousel opts={{ align: "start" }} className="w-full">
+                                    <div className="p-4 md:p-6 bg-muted/10">
+                                        <Carousel opts={{ align: "start" }} className="w-full max-w-[90vw] md:max-w-none">
                                             <CarouselContent>
                                                 {resultProperties.map((property) => (
                                                     <CarouselItem key={property.id} className="basis-[85%] md:basis-1/2 lg:basis-1/3 pl-4">
@@ -207,7 +235,8 @@ export default function ChatPage() {
                         </>
                     )}
                 </div>
-            </ScrollArea>
+              </ScrollArea>
+            </div>
        </div>
 
        {/* Input Area */}

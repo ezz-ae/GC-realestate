@@ -1,4 +1,4 @@
-import { DashboardSidebar } from "@/components/crm-sidebar"
+import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { getSessionUser } from "@/lib/auth"
 import { redirect } from "next/navigation"
 

@@ -67,6 +67,7 @@ export function AreasGuideClient({ areas }: AreasGuideClientProps) {
               <Link href={`/areas/${area.slug}`} key={area.slug}>
                 <Card className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
                   <div className="aspect-video relative overflow-hidden bg-muted">
+                    <Image src={area.image} alt={area.name} fill className="object-cover group-hover:scale-105 transition-transform" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     <div className="absolute top-3 right-3 z-20">
                       {area.freehold && (
@@ -76,13 +77,11 @@ export function AreasGuideClient({ areas }: AreasGuideClientProps) {
                         </Badge>
                       )}
                     </div>
-                    <div className="absolute bottom-3 left-3 z-20">
-                      <h3 className="font-serif text-xl font-bold text-white">{area.name}</h3>
-                      <p className="text-sm text-white/90">{area.description}</p>
-                    </div>
                   </div>
                   <CardContent className="p-4">
-                    <div className="space-y-3">
+                    <h3 className="font-serif text-xl font-bold text-foreground">{area.name}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{area.description}</p>
+                    <div className="space-y-3 pt-4 mt-4 border-t border-border">
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <Home className="h-4 w-4" />

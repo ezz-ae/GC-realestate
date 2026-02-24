@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu } from "lucide-react"
+import { Menu, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -30,7 +30,7 @@ const mainLinks = [
 ]
 
 const marketLinks = [
-  { href: "/market/trends", label: "Market Analysis (Prime)", description: "Prime reports, analytics, and forecasts." },
+  { href: "/market/trends", label: "Market Analysis", description: "Reports, analytics, and forecasts." },
   { href: "/market", label: "Market Hub", description: "Overview of Dubai market intelligence." },
   { href: "/market/why-dubai", label: "Why Dubai", description: "Investment case and macro advantages." },
   { href: "/market/areas", label: "Areas Guide", description: "Area-by-area comparison and insights." },
@@ -61,8 +61,8 @@ export function SiteHeader() {
   const megaMenuCompact = "w-[min(520px,92vw)] min-w-[320px] p-2"
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-20">
-      <div className="container flex h-20 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-24">
+      <div className="container flex h-24 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
           <Image
@@ -70,7 +70,7 @@ export function SiteHeader() {
             alt="Gold Century Real Estate"
             width={635}
             height={771}
-            className="h-14 w-auto md:h-16 dark:hidden"
+            className="h-16 w-auto md:h-20 dark:hidden"
             priority
           />
           <Image
@@ -78,7 +78,7 @@ export function SiteHeader() {
             alt="Gold Century Real Estate"
             width={635}
             height={771}
-            className="hidden h-14 w-auto md:h-16 dark:block"
+            className="hidden h-16 w-auto md:h-20 dark:block"
             priority
           />
         </Link>
@@ -199,19 +199,19 @@ export function SiteHeader() {
                       alt="Gold Century Real Estate"
                       width={120}
                       height={40}
-                      className="h-10 w-auto dark:hidden"
+                      className="h-12 w-auto dark:hidden"
                     />
                     <Image
                       src="/white_logo.png"
                       alt="Gold Century Real Estate"
                       width={120}
                       height={40}
-                      className="hidden h-10 w-auto dark:block"
+                      className="hidden h-12 w-auto dark:block"
                     />
                   </Link>
                 </div>
                 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                   <div className="p-6 space-y-8 pb-20">
                     <div className="space-y-4">
                       <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 px-1">

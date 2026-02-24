@@ -6,101 +6,90 @@ import { Mail, MapPin, Phone, Instagram, Linkedin, MessageCircle } from "lucide-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-export function SiteFooter() {
-  const footerSections = [
-    {
-      title: "Main",
-      links: [
-        { href: "/", label: "Home" },
-        { href: "/properties", label: "Properties" },
-        { href: "/projects", label: "Projects" },
-        { href: "/developers", label: "Developers" },
-        { href: "/areas", label: "Areas" },
-        { href: "/blog", label: "Blog" },
-        { href: "/chat", label: "AI Assistant" },
-        { href: "/tools", label: "Tools Hub" },
-      ],
-    },
-    {
-      title: "Market",
-      links: [
-        { href: "/market", label: "Market Hub" },
-        { href: "/market/why-dubai", label: "Why Dubai" },
-        { href: "/market/areas", label: "Areas Guide" },
-        { href: "/market/golden-visa", label: "Golden Visa" },
-        { href: "/market/financing", label: "Financing" },
-        { href: "/market/trends", label: "Market Analysis" },
-        { href: "/market/regulations", label: "Regulations" },
-      ],
-    },
-    {
-      title: "Financing",
-      links: [
-        { href: "/market/financing", label: "Overview" },
-        { href: "/market/financing#calculator", label: "Mortgage Calculator" },
-        { href: "/market/financing#loan-options", label: "Loan Options" },
-        { href: "/market/financing#documents", label: "Required Documents" },
-        { href: "/market/financing#banks", label: "Partner Banks" },
-        { href: "/market/financing#pre-approval", label: "Get Pre-Approved" },
-      ],
-    },
-    {
-      title: "Market Analysis",
-      links: [
-        { href: "/market/trends", label: "Overview" },
-        { href: "/market/trends#metrics", label: "Key Metrics" },
-        { href: "/market/trends#price-trends", label: "Price Trends" },
-        { href: "/market/trends#segments", label: "Market Segments" },
-        { href: "/market/trends#reports", label: "Market Reports" },
-        { href: "/market/trends#ai-cta", label: "AI Market Analyst" },
-      ],
-    },
-    {
-      title: "Tools",
-      links: [
-        { href: "/tools", label: "Tools Hub" },
-        { href: "/tools/roi-calculator", label: "ROI Calculator" },
-        { href: "/tools/payment-simulator", label: "Payment Simulator" },
-        { href: "/tools/comparator", label: "Project Comparator" },
-        { href: "/tools/ai-discovery", label: "AI Discovery" },
-        { href: "/tools/market-tracker", label: "Market Tracker" },
-      ],
-    },
-    {
-      title: "Company",
-      links: [
-        { href: "/about", label: "About" },
-        { href: "/services", label: "Services" },
-        { href: "/contact", label: "Contact" },
-      ],
-    },
-  ]
+const footerSections = [
+  {
+    title: "Platform",
+    links: [
+      { href: "/", label: "Home" },
+      { href: "/properties", label: "Properties" },
+      { href: "/projects", label: "Projects" },
+      { href: "/search", label: "Project Search" },
+      { href: "/areas", label: "Area Profiles" },
+      { href: "/developers", label: "Developers" },
+      { href: "/chat", label: "AI Assistant" },
+      { href: "/tools", label: "Tools Hub" },
+    ],
+  },
+  {
+    title: "Market Intelligence",
+    links: [
+      { href: "/market", label: "Market Hub" },
+      { href: "/market/trends", label: "Market Analysis" },
+      { href: "/market/trends#metrics", label: "Key Metrics" },
+      { href: "/market/areas", label: "Area Guide" },
+      { href: "/market/golden-visa", label: "Golden Visa" },
+      { href: "/market/regulations", label: "Regulations" },
+    ],
+  },
+  {
+    title: "Financing & Reports",
+    links: [
+      { href: "/market/financing", label: "Financing Overview" },
+      { href: "/market/financing#calculator", label: "Mortgage Calculator" },
+      { href: "/market/financing#loan-options", label: "Loan Options" },
+      { href: "/market/financing#documents", label: "Required Documents" },
+      { href: "/market/financing#banks", label: "Partner Banks" },
+      { href: "/market/financing#pre-approval", label: "Get Pre-Approved" },
+    ],
+  },
+  {
+    title: "Tools & Analytics",
+    links: [
+      { href: "/tools", label: "Tools Hub" },
+      { href: "/tools/payment-simulator", label: "Payment Simulator" },
+      { href: "/tools/roi-calculator", label: "ROI Calculator" },
+      { href: "/tools/comparator", label: "Project Comparator" },
+      { href: "/tools/market-tracker", label: "Market Tracker" },
+      { href: "/api/intelligence-block", label: "Live Pulse API" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/services", label: "Services" },
+      { href: "/contact", label: "Contact" },
+      { href: "/blog", label: "Insights" },
+      { href: "/privacy", label: "Privacy Policy" },
+      { href: "/terms", label: "Terms of Service" },
+    ],
+  },
+]
 
+export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-card">
       <div className="container py-16">
-        <div className="grid gap-12 lg:grid-cols-[1fr,2fr]">
+        <div className="grid gap-12 lg:grid-cols-[1.4fr,2.1fr]">
           <div className="space-y-8">
-            <Link href="/" className="inline-flex items-center">
+            <Link href="/" className="inline-flex items-center gap-3">
               <Image
                 src="/logo_blsck.png"
                 alt="Gold Century Real Estate"
                 width={635}
                 height={771}
-                className="h-14 w-auto dark:hidden"
+                className="h-16 w-auto dark:hidden md:h-20 md:drop-shadow-xl"
               />
               <Image
                 src="/white_logo.png"
                 alt="Gold Century Real Estate"
                 width={635}
                 height={771}
-                className="hidden h-14 w-auto dark:block"
+                className="hidden h-16 w-auto dark:block md:h-20 md:drop-shadow-xl"
               />
             </Link>
-            <p className="text-base text-muted-foreground leading-relaxed max-w-sm">
-              Gold Century Real Estate delivers investment intelligence
-              and premium access to Dubai's top-performing projects
-              for international buyers.
+            <p className="text-base text-muted-foreground leading-relaxed max-w-lg">
+              Gold Century Real Estate delivers curated Dubai projects, market intelligence, and CRM-powered execution for international investors. Every insight is backed by live data from Entrestate Intelligence.
             </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -133,15 +122,29 @@ export function SiteFooter() {
                 </a>
               </Button>
             </div>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                Request a market brief
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Input placeholder="Name · WhatsApp or Email" className="flex-1" />
+                <Button className="gold-gradient flex-shrink-0">
+                  Send Brief
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                By sharing your details we can send curated intelligence and licensed project data directly to your inbox or WhatsApp.
+              </p>
+            </div>
           </div>
 
-          <div className="grid gap-8 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-            {footerSections.slice(0, 4).map((section) => (
-              <div key={section.title} className="space-y-4">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {footerSections.map((section) => (
+              <div key={section.title} className="space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
                   {section.title}
                 </h4>
-                <ul className="space-y-2.5">
+                <ul className="space-y-2">
                   {section.links.map((link) => (
                     <li key={link.href}>
                       <Link
@@ -158,13 +161,16 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} Gold Century Real Estate. All rights reserved.
-          </p>
-          <div className="flex flex-wrap justify-center gap-6">
-            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">Privacy Policy</Link>
-            <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground">Terms of Service</Link>
+        <div className="mt-16 border-t border-border pt-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-muted-foreground text-center md:text-left">
+              © {new Date().getFullYear()} Gold Century Real Estate · Live market data by Entrestate.com. All rights reserved.
+            </p>
+            <div className="flex flex-wrap justify-center gap-6">
+              <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">Privacy Policy</Link>
+              <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground">Terms</Link>
+              <Link href="/robots.txt" className="text-xs text-muted-foreground hover:text-foreground">Robots</Link>
+            </div>
           </div>
         </div>
       </div>

@@ -13,9 +13,6 @@ export function TeamMemberCard({ name, title, bio, linkedinUrl }: TeamMemberCard
   return (
     <Card className="text-center">
       <CardContent className="p-6">
-        <div className="mx-auto mb-4 h-32 w-32 rounded-full overflow-hidden border-4 border-primary/20 bg-muted flex items-center justify-center">
-          <User className="h-16 w-16 text-muted-foreground" />
-        </div>
         <h3 className="font-serif text-xl font-bold">{name}</h3>
         <p className="text-sm font-medium text-primary">{title}</p>
         <p className="mt-3 text-xs text-muted-foreground">

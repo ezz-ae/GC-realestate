@@ -20,23 +20,20 @@ export function AreaCard({ area }: AreaCardProps) {
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          <div className="absolute top-3 right-3 z-20 flex flex-wrap gap-2">
+        </div>
+        <CardContent className="p-5 space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
             {area.freehold && (
               <Badge className="bg-green-600 text-white border-0 shadow-md">
                 <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
                 Freehold
               </Badge>
             )}
-            <Badge variant="secondary" className="backdrop-blur bg-white/70 text-black">
+            <Badge variant="secondary" className="bg-muted text-xs">
               {area.propertyCount}+ listings
             </Badge>
           </div>
-          <div className="absolute bottom-4 left-4 z-20">
-            <h3 className="font-serif text-2xl font-bold text-white drop-shadow-lg">{area.name}</h3>
-          </div>
-        </div>
-        <CardContent className="p-5 space-y-4">
+          <h3 className="font-serif text-2xl font-bold">{area.name}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
             {area.description}
           </p>

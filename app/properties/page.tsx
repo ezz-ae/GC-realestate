@@ -5,7 +5,8 @@ import { PropertiesToolbar } from "@/components/properties-toolbar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { getPropertyListing } from "@/lib/entrestate"import { Metadata } from "next"
+import { getPropertyListing } from "@/lib/entrestate"
+import { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Dubai Properties for Sale | Gold Century Real Estate",

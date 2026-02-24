@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 
 export interface Message {
   id: string
@@ -15,6 +15,12 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
   const [error, setError] = useState<string | null>(null)
   const [lastProperties, setLastProperties] = useState<any[]>([])
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const isSendingRef = useRef(false)
+  const messagesRef = useRef<Message[]>([])
+
+  useEffect(() => {
+    messagesRef.current = messages
+  }, [messages])
 
   useEffect(() => {
     if (mode !== 'broker') return
@@ -40,13 +46,16 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
     loadHistory()
   }, [mode])
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim()) return
+  const sendMessage = useCallback(async (content: string, options?: { isMobile?: boolean }) => {
+    const trimmed = content.trim()
+    if (!trimmed) return
+    if (isSendingRef.current) return
+    isSendingRef.current = true
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content,
+      content: trimmed,
       timestamp: new Date()
     }
 
@@ -57,6 +66,10 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
 
     try {
       const endpoint = mode === 'public' ? '/api/ai/chat' : '/api/ai/broker-chat'
+      const historyPayload = [...messagesRef.current, userMessage].map((m) => ({
+        role: m.role,
+        content: m.content,
+      }))
       
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -64,12 +77,10 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          message: content,
-          conversationHistory: messages.map(m => ({
-            role: m.role,
-            content: m.content
-          })),
-          conversationId
+          message: trimmed,
+          conversationHistory: historyPayload,
+          conversationId,
+          isMobile: options?.isMobile ?? false,
         })
       })
 
@@ -108,8 +119,9 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
       setMessages(prev => [...prev, fallbackMessage])
     } finally {
       setIsLoading(false)
+      isSendingRef.current = false
     }
-  }, [messages, mode, conversationId])
+  }, [mode, conversationId])
 
   const clearMessages = useCallback(() => {
     setMessages([])

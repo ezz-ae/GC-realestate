@@ -15,7 +15,9 @@ import {
 
 export async function generateStaticParams() {
   const developers = await getDevelopers()
-  return developers.map((developer) => ({ slug: developer.slug }))
+  return developers
+    .map((developer) => ({ slug: developer.slug }))
+    .filter((params) => Boolean(params.slug))
 }
 
 export async function generateMetadata({

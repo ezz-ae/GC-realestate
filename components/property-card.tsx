@@ -1,7 +1,6 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { MapPin, BedDouble, Bath, Maximize, TrendingUp } from "lucide-react"
 import Image from "next/image"
@@ -36,7 +35,8 @@ export function PropertyCard({ property }: PropertyCardProps) {
   }`
 
   return (
-    <Card className="group overflow-hidden transition-all hover:shadow-lg">
+    <Link href={`/properties/${property.slug}`} className="group block" prefetch={false}>
+      <Card className="overflow-hidden transition-all hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <Image
           src={imageSrc}
@@ -93,10 +93,11 @@ export function PropertyCard({ property }: PropertyCardProps) {
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full" variant="outline" asChild>
-          <Link href={`/properties/${property.slug}`}>View Details</Link>
-        </Button>
+        <div className="w-full rounded-lg border border-border px-4 py-2 text-center text-sm font-semibold uppercase tracking-wide text-muted-foreground transition group-hover:border-foreground group-hover:text-foreground">
+          View Details
+        </div>
       </CardFooter>
     </Card>
+    </Link>
   )
 }

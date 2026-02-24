@@ -66,10 +66,36 @@ const extractContactDetails = (text: string) => {
   return { email, phone, name }
 }
 
+const hasPropertyIntent = (message: string) => {
+  const text = message.toLowerCase()
+  const propertyNouns = [
+    "property",
+    "properties",
+    "project",
+    "projects",
+    "apartment",
+    "apartments",
+    "villa",
+    "villas",
+    "unit",
+    "units",
+    "listing",
+    "listings",
+    "studio",
+    "penthouse",
+    "townhouse",
+  ]
+  if (propertyNouns.some((noun) => text.includes(noun))) return true
+  if (/\b[1-6]\s*br\b/.test(text)) return true
+  if (/\b[1-6]\s*bed(room)?\b/.test(text)) return true
+  return false
+}
+
 export async function POST(req: NextRequest) {
   const resultLimit = 3
+  let wantsProperties = false
   try {
-    const { message, conversationHistory } = await req.json()
+    const { message, conversationHistory, isMobile } = await req.json()
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -78,30 +104,34 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    wantsProperties = hasPropertyIntent(message) && !Boolean(isMobile)
+
     // Search for relevant properties based on the query
-    let relevantProjects = await searchProjects(message, resultLimit)
+    let relevantProjects = wantsProperties ? await searchProjects(message, resultLimit) : []
     
     // Enhanced search based on common patterns
     const lowerMessage = message.toLowerCase()
     
     // Check for specific criteria
-    if (lowerMessage.includes('golden visa') || lowerMessage.includes('goldenvisа')) {
-      relevantProjects = await getGoldenVisaProjects(resultLimit)
-    } else if (lowerMessage.includes('best roi') || lowerMessage.includes('highest return')) {
-      relevantProjects = await getTopROIProjects(resultLimit)
-    } else if (lowerMessage.includes('2br') || lowerMessage.includes('2 bedroom')) {
-      relevantProjects = await searchProjects("2BR", resultLimit)
-    } else if (lowerMessage.includes('marina')) {
-      relevantProjects = await getProjectsByArea("Marina", resultLimit)
-    } else if (lowerMessage.includes('downtown')) {
-      relevantProjects = await getProjectsByArea("Downtown", resultLimit)
-    } else if (lowerMessage.includes('palm')) {
-      relevantProjects = await getProjectsByArea("Palm", resultLimit)
+    if (wantsProperties) {
+      if (lowerMessage.includes('golden visa') || lowerMessage.includes('goldenvisа')) {
+        relevantProjects = await getGoldenVisaProjects(resultLimit)
+      } else if (lowerMessage.includes('best roi') || lowerMessage.includes('highest return')) {
+        relevantProjects = await getTopROIProjects(resultLimit)
+      } else if (lowerMessage.includes('2br') || lowerMessage.includes('2 bedroom')) {
+        relevantProjects = await searchProjects("2BR", resultLimit)
+      } else if (lowerMessage.includes('marina')) {
+        relevantProjects = await getProjectsByArea("Marina", resultLimit)
+      } else if (lowerMessage.includes('downtown')) {
+        relevantProjects = await getProjectsByArea("Downtown", resultLimit)
+      } else if (lowerMessage.includes('palm')) {
+        relevantProjects = await getProjectsByArea("Palm", resultLimit)
+      }
     }
 
     // Build context with property data
     let propertyContext = ""
-    if (relevantProjects.length > 0) {
+    if (wantsProperties && relevantProjects.length > 0) {
       propertyContext = "\n\nSHORTLIST (max 3):\n"
       relevantProjects.slice(0, resultLimit).forEach((project, idx) => {
         const prop = projectToProperty(project)
@@ -120,7 +150,7 @@ ${idx + 1}. ${prop.title}
       })
     }
 
-    const areaContext = relevantProjects[0]?.location?.area
+    const areaContext = wantsProperties && relevantProjects[0]?.location?.area
       ? await getLlmContextByArea(relevantProjects[0].location.area, 8)
       : ""
 
@@ -131,7 +161,9 @@ ${idx + 1}. ${prop.title}
       return NextResponse.json({
         reply:
           "AI is temporarily unavailable, but I can still help. Tell me your budget, preferred area, and unit type, then share your name + phone so I can send the best shortlist.",
-        properties: relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project)),
+        properties: wantsProperties
+          ? relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
+          : [],
       })
     }
 
@@ -284,17 +316,21 @@ IMPORTANT: If contact details are missing, prioritize asking for them naturally 
 
     return NextResponse.json({
       reply: aiReply,
-      properties: relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
+      properties: wantsProperties
+        ? relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
+        : [],
     })
 
   } catch (error) {
     console.error("[v0] AI Chat API Error:", error)
     try {
-      const fallbackProjects = await searchProjects("Dubai", 5)
+      const fallbackProjects = wantsProperties ? await searchProjects("Dubai", 5) : []
       return NextResponse.json({
         reply:
           "AI is temporarily unavailable. Tell me your budget and preferred area, then share your name and phone so I can send a tailored shortlist.",
-        properties: fallbackProjects.slice(0, resultLimit).map((project) => projectToProperty(project)),
+        properties: wantsProperties
+          ? fallbackProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
+          : [],
       })
     } catch (fallbackError) {
       console.error("[v0] AI Chat API Fallback Error:", fallbackError)

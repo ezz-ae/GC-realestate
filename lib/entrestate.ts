@@ -74,6 +74,15 @@ const titleCase = (value: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ")
 
+const normalizeSlug = (value?: string) => {
+  if (!value) return ""
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
 const parseBedrooms = (unitType?: string) => {
   if (!unitType) return 1
   const normalized = unitType.toLowerCase()
@@ -184,8 +193,8 @@ const normalizeProjectPayload = (row: ProjectRow) => {
 
 const mapAreaRow = (row: AreaRow): AreaProfile => {
   const payload = row.payload || {}
-  const rawSlug = (payload.slug || row.slug || payload.name || row.name || "").trim()
-  const slug = rawSlug.toLowerCase().replace(/\s+/g, "-")
+  const rawSlug = payload.slug || row.slug || payload.name || row.name || ""
+  const slug = normalizeSlug(rawSlug)
   const areaType = payload.areaType || row.area_type || "urban"
   const lifestyleTags = [titleCase(areaType)]
 
@@ -214,10 +223,13 @@ const mapAreaRow = (row: AreaRow): AreaProfile => {
 
 const mapDeveloperRow = (row: DeveloperRow): DeveloperProfile => {
   const payload = row.payload || {}
+  const rawDeveloperSlug = payload.slug || row.slug || payload.name || row.name || ""
+  const normalizedDeveloperSlug = normalizeSlug(rawDeveloperSlug)
+  const finalSlug = normalizedDeveloperSlug || (payload.slug || row.slug || rawDeveloperSlug)
   return {
     id: payload.id || row.id,
     name: payload.name || row.name,
-    slug: payload.slug || row.slug,
+    slug: finalSlug,
     tier: payload.tier || row.tier || undefined,
     logo: payload.logo || row.logo || "/logo.png",
     bannerImage: payload.bannerImage || row.banner_image || "/logo.png",
@@ -246,10 +258,39 @@ export async function getProjectsForGrid(limit = 50) {
   return rows.map((row) => normalizeProjectPayload(row))
 }
 
-export async function getProjectBySlug(slug: string) {
-  const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload FROM gc_projects WHERE slug = $1 OR payload->>'slug' = $1 LIMIT 1`,
+export async function getAdjacentProjectSlugs(slug: string) {
+  const rows = await query<{ prev_slug: string | null; next_slug: string | null }>(
+    `
+      WITH ordered AS (
+        SELECT slug,
+               payload->>'slug' AS payload_slug,
+               lag(slug) OVER (ORDER BY ${SORT_SCORE_ORDER}) AS prev_slug,
+               lead(slug) OVER (ORDER BY ${SORT_SCORE_ORDER}) AS next_slug,
+               row_number() OVER (ORDER BY ${SORT_SCORE_ORDER}) AS idx
+        FROM gc_projects
+        WHERE status = 'selling'
+      )
+      SELECT prev_slug, next_slug
+      FROM ordered
+      WHERE slug = $1 OR payload_slug = $1
+      LIMIT 1
+    `,
     [slug],
+  )
+  return rows[0] || { prev_slug: null, next_slug: null }
+}
+
+export async function getProjectBySlug(slug: string) {
+  const cleanSlug = slug.trim().toLowerCase()
+  const rows = await query<ProjectRow>(
+    `SELECT id, slug, payload
+     FROM gc_projects
+     WHERE lower(slug) = $1
+        OR lower(payload->>'slug') = $1
+        OR lower(payload->>'slugified') = $1
+        OR lower(payload->>'pfSlug') = $1
+     LIMIT 1`,
+    [cleanSlug],
   )
   return rows[0] ? normalizeProjectPayload(rows[0]) : null
 }
@@ -459,9 +500,17 @@ export async function getAreas() {
 }
 
 export async function getAreaBySlug(slug: string) {
-  const cleanSlug = slug.trim()
+  const cleanSlug = normalizeSlug(slug)
+  if (!cleanSlug) return null
   const rows = await query<AreaRow>(
-    `SELECT slug, name, area_type, avg_score, median_price_aed, project_count, avg_yield, image, hero_video, payload FROM gc_area_profiles WHERE slug = $1 LIMIT 1`,
+    `SELECT slug, name, area_type, avg_score, median_price_aed, project_count, avg_yield, image, hero_video, payload
+     FROM gc_area_profiles
+     WHERE lower(slug) = $1
+        OR lower(payload->>'slug') = $1
+        OR lower(REGEXP_REPLACE(payload->>'slug', '[^a-z0-9]+', '-', 'g')) = $1
+        OR lower(REGEXP_REPLACE(payload->>'name', '[^a-z0-9]+', '-', 'g')) = $1
+        OR lower(REGEXP_REPLACE(name, '[^a-z0-9]+', '-', 'g')) = $1
+     LIMIT 1`,
     [cleanSlug],
   )
   return rows[0] ? mapAreaRow(rows[0]) : null
@@ -475,9 +524,18 @@ export async function getDevelopers() {
 }
 
 export async function getDeveloperBySlug(slug: string) {
+  const cleanSlug = normalizeSlug(slug)
+  if (!cleanSlug) return null
   const rows = await query<DeveloperRow>(
-    `SELECT id, slug, name, tier, avg_score, honesty_index, risk_discount, logo, banner_image, payload FROM gc_developer_profiles WHERE slug = $1 LIMIT 1`,
-    [slug],
+    `SELECT id, slug, name, tier, avg_score, honesty_index, risk_discount, logo, banner_image, payload
+     FROM gc_developer_profiles
+     WHERE lower(slug) = $1
+        OR lower(payload->>'slug') = $1
+        OR lower(REGEXP_REPLACE(payload->>'slug', '[^a-z0-9]+', '-', 'g')) = $1
+        OR lower(REGEXP_REPLACE(payload->>'name', '[^a-z0-9]+', '-', 'g')) = $1
+        OR lower(REGEXP_REPLACE(name, '[^a-z0-9]+', '-', 'g')) = $1
+     LIMIT 1`,
+    [cleanSlug],
   )
   return rows[0] ? mapDeveloperRow(rows[0]) : null
 }

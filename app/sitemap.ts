@@ -5,9 +5,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://goldcentury.ae'
 
   // Fetch dynamic data
-  const projects = await getProjectsForGrid(1000)
+  const projects = await getProjectsForGrid(120)
   const areas = await getAreas()
-  const properties = await getProperties(1000)
+  const properties = await getProperties(120)
 
   // Dynamic routes
   const projectUrls = projects.map((project) => ({

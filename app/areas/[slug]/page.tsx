@@ -11,11 +11,18 @@ import { getAreaBySlug, getAreas, getProjectsByArea, getPropertiesByArea } from 
 
 export async function generateStaticParams() {
   const areas = await getAreas()
-  return areas.map((area) => ({ slug: area.slug.trim().toLowerCase() }))
+  return areas.map((area) => ({ slug: area.slug }))
 }
 
-export default async function AreaDetailPage({ params }: { params: { slug: string } }) {
-  const area = await getAreaBySlug(params.slug.trim().toLowerCase())
+export default async function AreaDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params
+  const slug = typeof resolvedParams?.slug === "string" ? resolvedParams.slug.trim() : ""
+
+  if (!slug) {
+    notFound()
+  }
+
+  const area = await getAreaBySlug(slug)
 
   if (!area) {
     notFound()
@@ -28,20 +35,20 @@ export default async function AreaDetailPage({ params }: { params: { slug: strin
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
         <section className="relative h-[55vh] min-h-[420px]">
-            <Image src={area.image} alt={area.name} fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-          <div className="container relative flex h-full flex-col justify-end pb-10">
-            <Badge className="mb-4 gold-gradient" variant="secondary">
-              Dubai Area Guide
-            </Badge>
-            <h1 className="font-serif text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-              {area.name}
-            </h1>
-          </div>
+          <Image src={area.image} alt={area.name} fill className="object-cover" priority />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
         </section>
 
         <section className="border-b border-border bg-card py-8">
           <div className="container">
+            <div className="mb-6 space-y-2">
+              <Badge className="gold-gradient" variant="secondary">
+                Dubai Area Guide
+              </Badge>
+              <h1 className="font-serif text-4xl font-bold md:text-5xl lg:text-6xl">
+                {area.name}
+              </h1>
+            </div>
             <div className="grid gap-6 md:grid-cols-[1.5fr,1fr] items-center">
               <div className="space-y-4">
                 <h2 className="font-serif text-3xl font-bold">About {area.name}</h2>
