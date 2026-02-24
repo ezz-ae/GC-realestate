@@ -86,16 +86,16 @@ export function SiteFooter() {
               <Image
                 src="/logo-light.png"
                 alt="Gold Century Real Estate"
-                width={360}
-                height={110}
-                className="h-24 w-auto dark:hidden"
+                width={420}
+                height={128}
+                className="h-32 w-auto dark:hidden"
               />
               <Image
                 src="/logo-dark.png"
                 alt="Gold Century Real Estate"
-                width={360}
-                height={110}
-                className="hidden h-24 w-auto dark:block"
+                width={420}
+                height={128}
+                className="hidden h-32 w-auto dark:block"
               />
             </Link>
             <p className="text-sm text-muted-foreground max-w-[260px] text-pretty leading-relaxed">

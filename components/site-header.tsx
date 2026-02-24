@@ -60,23 +60,23 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-[160px] items-center justify-between md:h-[190px]">
+      <div className="container flex h-[208px] items-center justify-between md:h-[248px]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
           <Image
             src="/logo-light.png"
             alt="Gold Century Real Estate"
-            width={520}
-            height={160}
-            className="h-40 w-auto md:h-48 dark:hidden"
+            width={680}
+            height={210}
+            className="h-52 w-auto md:h-64 dark:hidden"
             priority
           />
           <Image
             src="/logo-dark.png"
             alt="Gold Century Real Estate"
-            width={520}
-            height={160}
-            className="hidden h-40 w-auto md:h-48 dark:block"
+            width={680}
+            height={210}
+            className="hidden h-52 w-auto md:h-64 dark:block"
             priority
           />
         </Link>
