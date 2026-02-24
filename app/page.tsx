@@ -8,6 +8,13 @@ import { getIntelligenceBlockData } from "@/lib/intelligence-block"
 import { TrendingUp, Building2, MapPin, Sparkles } from "lucide-react"
 import Link from "next/link"
 
+const heroPrompts = [
+  "Best ROI projects in 2026",
+  "Golden Visa eligible properties",
+  "Off-plan projects in Downtown Dubai",
+  "2BR apartments under AED 2M",
+]
+
 export default async function Home() {
   const intelligence = await getIntelligenceBlockData()
   return (
@@ -26,9 +33,24 @@ export default async function Home() {
               Your gateway to profitable investment in Dubai.
             </p>
             
-            {/* AI Search Bar */}
-            <div className="mx-auto mt-10 max-w-2xl rounded-2xl border bg-background/80 p-1.5 shadow-2xl backdrop-blur-md">
-              <AISearchBar />
+            <div className="mt-10 mx-auto max-w-3xl">
+              <div className="rounded-3xl border border-border bg-card/90 p-6 shadow-2xl backdrop-blur">
+                <AISearchBar showSuggestions={false} />
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    Try:
+                  </span>
+                  {heroPrompts.map((prompt) => (
+                    <Link
+                      key={prompt}
+                      href={`/chat?q=${encodeURIComponent(prompt)}`}
+                      className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-white hover:text-white"
+                    >
+                      {prompt}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -39,30 +61,62 @@ export default async function Home() {
                 <Link href="/market/why-dubai">Why Dubai</Link>
               </Button>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Hero Contact Section */}
       <section className="relative z-20 pb-12">
         <div className="container">
-          <div className="mx-auto grid max-w-5xl gap-8 rounded-xl border bg-card p-8 shadow-sm md:grid-cols-4 -mt-16">
-            <div className="text-center">
-              <div className="text-3xl font-bold gold-text-gradient md:text-4xl">3500+</div>
-              <div className="mt-2 text-sm text-muted-foreground">Dubai Projects</div>
+          <div className="mx-auto max-w-4xl rounded-3xl border border-border bg-card/90 p-6 shadow-2xl backdrop-blur">
+            <div className="mb-6 text-center">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Get a free consultation by our well-experienced team
+              </p>
+              <h3 className="font-serif text-3xl font-bold">
+                Schedule a call with our Dubai investment specialists
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Drop your name and WhatsApp/phone number, and we will respond within one business hour with a tailored plan.
+              </p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold gold-text-gradient md:text-4xl">15+</div>
-              <div className="mt-2 text-sm text-muted-foreground">Years Experience</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold gold-text-gradient md:text-4xl">$2B+</div>
-              <div className="mt-2 text-sm text-muted-foreground">Properties Sold</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold gold-text-gradient md:text-4xl">50+</div>
-              <div className="mt-2 text-sm text-muted-foreground">Countries Served</div>
-            </div>
+            <form className="grid gap-4 sm:grid-cols-2">
+              <label className="flex flex-col space-y-1 text-xs uppercase tracking-widest text-muted-foreground">
+                Full Name
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="John Doe"
+                  className="rounded-2xl border border-border bg-background/80 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/70"
+                />
+              </label>
+              <label className="flex flex-col space-y-1 text-xs uppercase tracking-widest text-muted-foreground">
+                WhatsApp or Phone
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  placeholder="+971 50 750 5175"
+                  className="rounded-2xl border border-border bg-background/80 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/70"
+                />
+              </label>
+              <label className="sm:col-span-2 flex flex-col space-y-1 text-xs uppercase tracking-widest text-muted-foreground">
+                Message (optional)
+                <textarea
+                  name="message"
+                  rows={3}
+                  placeholder="Budget, preferred areas, timeline..."
+                  className="resize-none rounded-2xl border border-border bg-background/80 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/70"
+                />
+              </label>
+              <div className="sm:col-span-2 flex justify-center">
+                <Button type="submit" className="gold-gradient w-full max-w-sm" size="lg">
+                  Request a callback
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       </section>

@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Mail, MapPin, Phone, Instagram, Linkedin, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { LeadFormPopup } from "@/components/lead-form-popup"
 
 const footerSections = [
   {
@@ -128,9 +129,7 @@ export function SiteFooter() {
               </p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Input placeholder="Name · WhatsApp or Email" className="flex-1" />
-                <Button className="gold-gradient flex-shrink-0">
-                  Send Brief
-                </Button>
+                <LeadFormPopup />
               </div>
               <p className="text-xs text-muted-foreground">
                 By sharing your details we can send curated intelligence and licensed project data directly to your inbox or WhatsApp.

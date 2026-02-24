@@ -1,6 +1,7 @@
 import { AreaCard } from "@/components/area-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { SmallLeadForm } from "@/components/small-lead-form"
 import { getAreas } from "@/lib/entrestate"
 import Link from "next/link"
 import { Metadata } from "next"
@@ -44,6 +45,17 @@ export default async function AreasPage() {
                   <Link href="/properties">Browse Properties</Link>
                 </Button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16">
+          <div className="container">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-[0_20px_45px_rgba(15,23,42,0.15)] md:p-10">
+              <SmallLeadForm
+                title="Request tailored area intelligence"
+                caption="Tell us your preferred budget, timelines, and districts and we will craft an investment brief for you."
+              />
             </div>
           </div>
         </section>

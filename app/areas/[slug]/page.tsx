@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { MapPin, ShieldCheck } from "lucide-react"
 import { ProjectCard } from "@/components/project-card"
 import { PropertyCard } from "@/components/property-card"
+import { SmallLeadForm } from "@/components/small-lead-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -260,6 +261,18 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
               <Button variant="outline" asChild>
                 <Link href="/chat">Ask the AI Assistant</Link>
               </Button>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12">
+          <div className="container">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-[0_20px_45px_rgba(15,23,42,0.2)] md:p-10">
+              <SmallLeadForm
+                source={area.name}
+                title={`Lead a briefing on ${area.name}`}
+                caption="Drop your budget and area priorities so our brokers can craft a tailored Dubai investment plan."
+              />
             </div>
           </div>
         </section>

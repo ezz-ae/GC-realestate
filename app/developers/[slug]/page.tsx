@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ProjectCard } from "@/components/project-card"
 import { PropertyCard } from "@/components/property-card"
+import { SmallLeadForm } from "@/components/small-lead-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -264,6 +265,18 @@ export default async function DeveloperDetailPage({
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Units Delivered</div>
                 <div className="mt-2 text-lg font-semibold">{unitsDelivered}</div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12">
+          <div className="container">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-[0_20px_45px_rgba(15,23,42,0.2)] md:p-10">
+              <SmallLeadForm
+                source={developer.name}
+                title={`Discuss ${developer.name} projects`}
+                caption="Get a quick summary of available inventory, ROI expectations, and financing options."
+              />
             </div>
           </div>
         </section>

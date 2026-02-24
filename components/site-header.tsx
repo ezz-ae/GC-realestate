@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, Sparkles } from "lucide-react"
+import { Menu, Sparkles, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -17,6 +17,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import { LeadFormPopup } from "@/components/lead-form-popup"
 
 const mainLinks = [
   { href: "/", label: "Home", description: "Platform overview and market highlights." },
@@ -177,6 +178,21 @@ export function SiteHeader() {
         {/* Actions */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="border border-border/40 text-foreground"
+          >
+            <a href="https://wa.me/971507505175" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+              <MessageCircle className="h-4 w-4" />
+            </a>
+          </Button>
+          <LeadFormPopup
+            buttonLabel="Free consultation"
+            buttonClassName="hidden md:inline-flex"
+            buttonSize="sm"
+          />
           <Button asChild className="hidden md:inline-flex gold-gradient">
             <Link href="/chat">AI Assistant</Link>
           </Button>
