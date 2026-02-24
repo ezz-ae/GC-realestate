@@ -6,6 +6,7 @@ import { getDashboardOverviewData, resolveAccessRole } from "@/lib/entrestate"
 import { getSessionUser } from "@/lib/auth"
 import { listConversations } from "@/lib/ai-conversations"
 import Link from "next/link"
+import { SmallLeadForm } from "@/components/small-lead-form"
 import {
   CalendarCheck,
   TrendingUp,
@@ -229,6 +230,22 @@ export default async function DashboardOverview() {
                   </div>
                 ))
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Request a Consultation</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Share your inquiry and our team will call you back within minutes.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <SmallLeadForm
+                className="space-y-2"
+                title="Get a free consultation"
+                caption="Drop your name & WhatsApp and the broker team will respond shortly."
+              />
             </CardContent>
           </Card>
         </div>

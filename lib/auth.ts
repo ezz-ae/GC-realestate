@@ -1,4 +1,4 @@
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { createHash, randomBytes, scrypt, timingSafeEqual } from "node:crypto"
 import { promisify } from "node:util"
 import { query } from "@/lib/db"
@@ -176,8 +176,25 @@ export async function getSessionUserFromToken(token?: string | null): Promise<Se
   return user
 }
 
+const parseCookieHeader = (header: string | null | undefined, name: string) => {
+  if (!header) return undefined
+  const cookies = header.split(";").map((cookie) => cookie.trim())
+  for (const cookie of cookies) {
+    if (!cookie) continue
+    const [key, ...rest] = cookie.split("=")
+    if (key === name) {
+      return decodeURIComponent(rest.join("="))
+    }
+  }
+  return undefined
+}
+
 export async function getSessionUser() {
-  const token = cookies().get(SESSION_COOKIE)?.value
+  const cookieStore = cookies()
+  const token =
+    typeof cookieStore.get === "function"
+      ? cookieStore.get(SESSION_COOKIE)?.value
+      : parseCookieHeader(headers().get("cookie"), SESSION_COOKIE)
   return getSessionUserFromToken(token)
 }
 
