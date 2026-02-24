@@ -1,6 +1,5 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { LeadForm } from "@/components/lead-form"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -75,6 +74,11 @@ const getUnitPriceRange = (unit: {
 }
 
 const toArray = <T,>(value: T[] | null | undefined) => (Array.isArray(value) ? value : [])
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
 
 const getSizeRange = (units: Project["units"]) => {
   const sizes = units
@@ -205,6 +209,7 @@ export default async function ProjectPage({
   const heroImageClass = project.heroImage ? "object-cover" : "object-contain bg-card"
 
   const priceRange = getPriceRange(project)
+  const areaSlug = slugify(location.area || "dubai")
   const unitTypes = getUnitTypes(units)
   const sizeRange = getSizeRange(units)
   const availabilityCount = getAvailabilityCount(units)
@@ -914,14 +919,46 @@ export default async function ProjectPage({
 
               {/* Sidebar */}
               <div className="space-y-6">
-                {/* Lead Registration Form */}
+                {/* AI Conversation Starter */}
                 <Card className="sticky top-6">
-                  <CardContent className="p-6">
-                    <h3 className="font-serif text-xl font-semibold mb-2">Register Your Interest</h3>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Fill out the form below and our team will contact you within 24 hours.
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-serif text-xl font-semibold">Have questions about {project.name}?</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Start a quick AI conversation to review pricing, payment plans, ROI, and availability. The
+                      assistant will also capture your contact details so we can send the full package.
                     </p>
-                    <LeadForm projectName={project.name} source="project-page" />
+                    <Button className="gold-gradient w-full" asChild>
+                      <Link
+                        href={`/chat?q=${encodeURIComponent(
+                          `I'm interested in ${project.name} in ${location.area}. Please share pricing, payment plan, and ROI.`,
+                        )}`}
+                      >
+                        Start AI Conversation
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Market Intelligence Loop */}
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <h4 className="font-semibold">Market Intelligence</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Connect this project with area insights, developer track records, and market-wide trends.
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <Button variant="outline" asChild>
+                        <Link href={`/areas/${areaSlug}`}>Explore {location.area} Analysis</Link>
+                      </Button>
+                      {developer.slug && (
+                        <Button variant="outline" asChild>
+                          <Link href={`/developers/${developer.slug}`}>Developer Profile</Link>
+                        </Button>
+                      )}
+                      <Button variant="outline" asChild>
+                        <Link href="/market/trends">Market Trends & Reports</Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 

@@ -98,28 +98,47 @@ export default async function AreaDetailPage({ params }: { params: { slug: strin
                 </div>
               </div>
 
-              <Card className="h-fit">
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-serif text-xl font-semibold">Area Snapshot</h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Freehold</span>
-                      <span className="font-medium">{area.freehold ? "Yes" : "No"}</span>
+              <div className="space-y-6">
+                <Card className="h-fit">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-serif text-xl font-semibold">Area Snapshot</h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Freehold</span>
+                        <span className="font-medium">{area.freehold ? "Yes" : "No"}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Lifestyle</span>
+                        <span className="font-medium">{area.lifestyleTags.join(", ")}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Active Listings</span>
+                        <span className="font-medium">{area.propertyCount}+</span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Lifestyle</span>
-                      <span className="font-medium">{area.lifestyleTags.join(", ")}</span>
+                    <Button className="w-full gold-gradient" asChild>
+                      <Link href="/contact">Request Area Consultation</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="h-fit">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-serif text-xl font-semibold">Market Intelligence</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Connect {area.name} insights with Dubai-wide market reports and trends.
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <Button variant="outline" asChild>
+                        <Link href="/market/areas">Compare Dubai Areas</Link>
+                      </Button>
+                      <Button variant="outline" asChild>
+                        <Link href="/market/trends">Market Trends & Reports</Link>
+                      </Button>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Active Listings</span>
-                      <span className="font-medium">{area.propertyCount}+</span>
-                    </div>
-                  </div>
-                  <Button className="w-full gold-gradient" asChild>
-                    <Link href="/contact">Request Area Consultation</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </section>

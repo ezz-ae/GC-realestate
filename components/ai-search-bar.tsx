@@ -32,7 +32,7 @@ export function AISearchBar({
   }
 
   const suggestions = [
-    "Best ROI projects in 2024",
+    "Best ROI projects in 2026",
     "Golden Visa eligible properties",
     "Off-plan projects in Downtown Dubai",
     "2BR apartments under AED 2M",

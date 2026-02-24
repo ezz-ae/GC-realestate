@@ -73,7 +73,7 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
         id: (Date.now() + 2).toString(),
         role: 'assistant',
         content:
-          "I'm having trouble connecting to the AI right now. Tell me your budget, preferred area, and unit type, and I'll still surface the best options.",
+          "I'm having trouble connecting to the AI right now. Tell me your budget, preferred area, and unit type, then share your name + phone so I can send a tailored shortlist.",
         timestamp: new Date()
       }
       setMessages(prev => [...prev, fallbackMessage])

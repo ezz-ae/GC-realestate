@@ -34,7 +34,7 @@ export default function MarketPage() {
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold gold-text-gradient">$140B+</div>
-                <div className="mt-1 text-sm text-muted-foreground">Transaction Volume 2024</div>
+                <div className="mt-1 text-sm text-muted-foreground">Transaction Volume 2025</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold gold-text-gradient">0%</div>

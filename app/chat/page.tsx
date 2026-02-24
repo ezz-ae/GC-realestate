@@ -6,6 +6,13 @@ import { ChatMessage } from "@/components/chat-message"
 import { ChatInput } from "@/components/chat-input"
 import { PropertyCard } from "@/components/property-card"
 import { Button } from "@/components/ui/button"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { useAIChat } from "@/hooks/use-ai-chat"
@@ -128,8 +135,7 @@ export default function ChatPage() {
           </div>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr]">
-          {/* Chat Section */}
+        <div className="grid gap-6">
           <div className="flex flex-col">
             <Card className="flex flex-1 flex-col overflow-hidden">
               <div className="border-b border-border px-4 py-4">
@@ -162,7 +168,7 @@ export default function ChatPage() {
                 </div>
               </div>
               {/* Messages */}
-              <ScrollArea className="flex-1 p-4" style={{ height: "calc(100vh - 420px)" }}>
+              <ScrollArea className="flex-1 p-4" style={{ height: "calc(100vh - 360px)" }}>
                 {messages.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center">
                     <div className="mb-6 rounded-2xl border border-border bg-background/80 px-6 py-5">
@@ -189,6 +195,48 @@ export default function ChatPage() {
                         content="Thinking..."
                       />
                     )}
+                    {resultProperties.length > 0 && (
+                      <div className="mt-6 rounded-2xl border border-border bg-background/80 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                          <div>
+                            <div className="text-sm font-semibold">AI Shortlist</div>
+                            <div className="text-xs text-muted-foreground">
+                              Tailored matches based on your criteria
+                            </div>
+                          </div>
+                          {shortlistStats && (
+                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                              <span className="rounded-full border border-border px-2 py-1">
+                                {shortlistStats.topArea}
+                              </span>
+                              <span className="rounded-full border border-border px-2 py-1">
+                                {formatShortPrice(shortlistStats.minPrice)} - {formatShortPrice(shortlistStats.maxPrice)}
+                              </span>
+                              <span className="rounded-full border border-border px-2 py-1">
+                                Avg ROI {shortlistStats.avgRoi.toFixed(1)}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4">
+                          <Carousel opts={{ align: "start" }} className="relative">
+                            <CarouselContent>
+                              {resultProperties.map((property) => (
+                                <CarouselItem
+                                  key={property.id}
+                                  className="basis-[85%] sm:basis-1/2 lg:basis-1/3"
+                                >
+                                  <PropertyCard property={property} />
+                                </CarouselItem>
+                              ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="-left-3 top-1/2 -translate-y-1/2" />
+                            <CarouselNext className="-right-3 top-1/2 -translate-y-1/2" />
+                          </Carousel>
+                        </div>
+                      </div>
+                    )}
                     <div ref={messagesEndRef} />
                   </div>
                 )}
@@ -206,54 +254,6 @@ export default function ChatPage() {
                 <ChatInput onSend={handleSendMessage} disabled={isLoading} />
               </div>
             </Card>
-          </div>
-
-          {/* Results Panel */}
-          <div className="flex flex-col lg:sticky lg:top-24 lg:h-[calc(100vh-140px)]">
-            <Card className="flex flex-1 flex-col overflow-hidden">
-              <div className="flex items-center justify-between border-b border-border px-4 py-3">
-                <h2 className="font-semibold">
-                  Results {resultProperties.length > 0 && `(${resultProperties.length})`}
-                </h2>
-              </div>
-
-              <ScrollArea className="flex-1">
-                <div className="p-4">
-                  {shortlistStats && (
-                    <div className="mb-4 grid gap-3 rounded-xl border border-border bg-muted/40 p-4 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Price Range</span>
-                        <span className="font-semibold">
-                          {formatShortPrice(shortlistStats.minPrice)} - {formatShortPrice(shortlistStats.maxPrice)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Top Area</span>
-                        <span className="font-semibold">{shortlistStats.topArea}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Avg ROI</span>
-                        <span className="font-semibold">{shortlistStats.avgRoi.toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  )}
-                  {resultProperties.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-8 text-center">
-                      <p className="text-sm text-muted-foreground">
-                        Start a conversation to see matching properties here
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {resultProperties.map((property) => (
-                        <PropertyCard key={property.id} property={property} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

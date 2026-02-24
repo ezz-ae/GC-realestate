@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Ruler, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { getProperties } from "@/lib/entrestate"
+import { getFeaturedProperties } from "@/lib/entrestate"
 
 const formatPrice = (price: number, currency: "AED" | "USD") => {
   const locale = currency === "AED" ? "en-AE" : "en-US"
@@ -17,7 +17,7 @@ const formatPrice = (price: number, currency: "AED" | "USD") => {
 }
 
 export async function FeaturedProperties() {
-  const featuredProperties = await getProperties(3)
+  const featuredProperties = await getFeaturedProperties(3)
   return (
     <section className="py-20">
       <div className="container">

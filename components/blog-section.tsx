@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { ArrowRight, FileEdit } from "lucide-react"
 import Image from "next/image"
-import { getFeaturedBlogPosts } from "@/lib/entrestate"
+import { getHomepageBlogPosts } from "@/lib/entrestate"
 
 export async function BlogSection() {
-  const posts = await getFeaturedBlogPosts(6)
+  const posts = await getHomepageBlogPosts(6)
   return (
     <section id="blog" className="py-20">
       <div className="container">

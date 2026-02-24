@@ -3,19 +3,52 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 
-const mainNav = [
+const primaryNav = [
   { href: "/", label: "Home" },
   { href: "/properties", label: "Properties" },
-  { href: "/developers", label: "Developers" },
   { href: "/projects", label: "Projects" },
-  { href: "/market", label: "Dubai Market" },
   { href: "/areas", label: "Areas" },
-  { href: "/tools", label: "Tools" },
+  { href: "/developers", label: "Developers" },
+  { href: "/blog", label: "Blog" },
+]
+
+const marketLinks = [
+  { href: "/market", label: "Market Hub", description: "Overview of Dubai market intelligence." },
+  { href: "/market/why-dubai", label: "Why Dubai", description: "Investment case and macro advantages." },
+  { href: "/market/areas", label: "Areas Guide", description: "Area-by-area comparison and insights." },
+  { href: "/market/golden-visa", label: "Golden Visa", description: "Residency rules and eligibility." },
+  { href: "/market/financing", label: "Financing", description: "Mortgage and payment plan options." },
+  { href: "/market/trends", label: "Market Trends", description: "Reports, analytics, and forecasts." },
+  { href: "/market/regulations", label: "Regulations", description: "Legal framework for buyers." },
+]
+
+const toolsLinks = [
+  { href: "/tools", label: "Tools Hub", description: "All investment tools in one place." },
+  { href: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate returns and yield." },
+  { href: "/tools/payment-simulator", label: "Payment Simulator", description: "Model payment plans quickly." },
+  { href: "/tools/comparator", label: "Project Comparator", description: "Compare projects side by side." },
+  { href: "/tools/ai-discovery", label: "AI Discovery", description: "Ask AI to find matches." },
+  { href: "/tools/market-tracker", label: "Market Tracker", description: "Track performance by area." },
+]
+
+const companyLinks = [
+  { href: "/about", label: "About", description: "Who we are and our mission." },
+  { href: "/services", label: "Services", description: "Advisory and investment support." },
+  { href: "/contact", label: "Contact", description: "Speak with the team." },
 ]
 
 export function SiteHeader() {
@@ -45,16 +78,81 @@ export function SiteHeader() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-6 md:flex">
-          {mainNav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="hidden items-center md:flex">
+          <NavigationMenu viewport={false}>
+            <NavigationMenuList className="gap-2">
+              {primaryNav.map((item) => (
+                <NavigationMenuItem key={item.href}>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link href={item.href}>{item.label}</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                  Market
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="w-[520px] p-2">
+                  <div className="grid gap-2 p-2 md:grid-cols-2">
+                    {marketLinks.map((item) => (
+                      <NavigationMenuLink asChild key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="rounded-md border border-transparent p-3 transition hover:border-border hover:bg-muted/60"
+                        >
+                          <div className="text-sm font-semibold text-foreground">{item.label}</div>
+                          <div className="text-xs text-muted-foreground">{item.description}</div>
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                  Tools
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="w-[480px] p-2">
+                  <div className="grid gap-2 p-2 md:grid-cols-2">
+                    {toolsLinks.map((item) => (
+                      <NavigationMenuLink asChild key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="rounded-md border border-transparent p-3 transition hover:border-border hover:bg-muted/60"
+                        >
+                          <div className="text-sm font-semibold text-foreground">{item.label}</div>
+                          <div className="text-xs text-muted-foreground">{item.description}</div>
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                  Company
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="w-[420px] p-2">
+                  <div className="grid gap-2 p-2">
+                    {companyLinks.map((item) => (
+                      <NavigationMenuLink asChild key={item.href}>
+                        <Link
+                          href={item.href}
+                          className="rounded-md border border-transparent p-3 transition hover:border-border hover:bg-muted/60"
+                        >
+                          <div className="text-sm font-semibold text-foreground">{item.label}</div>
+                          <div className="text-xs text-muted-foreground">{item.description}</div>
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </nav>
 
         {/* Actions */}
@@ -90,17 +188,59 @@ export function SiteHeader() {
                     className="hidden h-14 w-auto dark:block"
                   />
                 </Link>
-                <nav className="flex flex-col gap-4">
-                  {mainNav.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className="text-lg font-medium text-foreground/80 transition-colors hover:text-foreground"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+                <nav className="flex flex-col gap-6 text-sm">
+                  <div className="space-y-3">
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Main</div>
+                    {primaryNav.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className="block text-lg font-medium text-foreground/80 transition-colors hover:text-foreground"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="space-y-3">
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Market</div>
+                    {marketLinks.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className="block text-sm text-foreground/80 transition-colors hover:text-foreground"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="space-y-3">
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Tools</div>
+                    {toolsLinks.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className="block text-sm text-foreground/80 transition-colors hover:text-foreground"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="space-y-3">
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Company</div>
+                    {companyLinks.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsOpen(false)}
+                        className="block text-sm text-foreground/80 transition-colors hover:text-foreground"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
                 </nav>
                 <Button asChild className="gold-gradient w-full">
                   <Link href="/contact" onClick={() => setIsOpen(false)}>

@@ -69,7 +69,7 @@ export default function MarketTrendsPage() {
                   <div className="text-sm text-muted-foreground">Transaction Volume</div>
                 </div>
                 <div className="text-2xl font-bold">24,500</div>
-                <div className="text-sm text-green-600">Q4 2024</div>
+                <div className="text-sm text-green-600">Q4 2025</div>
               </div>
 
               <div>
@@ -87,7 +87,7 @@ export default function MarketTrendsPage() {
                   <div className="text-sm text-muted-foreground">Off-Plan Share</div>
                 </div>
                 <div className="text-2xl font-bold">62%</div>
-                <div className="text-sm text-green-600">+5% from 2023</div>
+                <div className="text-sm text-green-600">+5% from 2025</div>
               </div>
             </div>
           </div>
@@ -259,12 +259,12 @@ export default function MarketTrendsPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[
-                { title: "Q4 2024 Market Overview", pages: 24, date: "Dec 2024" },
-                { title: "Annual Report 2024", pages: 48, date: "Jan 2025" },
-                { title: "Off-Plan Investment Guide", pages: 32, date: "Nov 2024" },
-                { title: "Dubai Hills Market Analysis", pages: 16, date: "Oct 2024" },
-                { title: "Luxury Segment Report", pages: 28, date: "Sep 2024" },
-                { title: "Rental Market Trends", pages: 20, date: "Aug 2024" },
+                { title: "Q4 2025 Market Overview", pages: 24, date: "Dec 2025" },
+                { title: "Annual Report 2025", pages: 48, date: "Jan 2026" },
+                { title: "Off-Plan Investment Guide", pages: 32, date: "Nov 2025" },
+                { title: "Dubai Hills Market Analysis", pages: 16, date: "Oct 2025" },
+                { title: "Luxury Segment Report", pages: 28, date: "Sep 2025" },
+                { title: "Rental Market Trends", pages: 20, date: "Aug 2025" },
               ].map((report, idx) => (
                 <Card key={idx}>
                   <CardContent className="p-6">

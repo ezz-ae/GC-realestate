@@ -226,6 +226,39 @@ export async function getProperties(limit = 12) {
   return rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
 }
 
+export async function getFeaturedProperties(limit = 3) {
+  const rows = await query<ProjectRow>(
+    `SELECT id, slug, payload
+     FROM gc_projects
+     WHERE status = 'selling'
+       AND COALESCE(hero_image, '') <> ''
+       AND jsonb_typeof(payload->'gallery') = 'array'
+       AND jsonb_array_length(payload->'gallery') >= 4
+       AND jsonb_typeof(payload->'units') = 'array'
+       AND jsonb_array_length(payload->'units') > 0
+       AND (payload->'investmentHighlights'->>'expectedROI')::numeric > 0
+     ORDER BY market_score DESC NULLS LAST, rental_yield DESC NULLS LAST
+     LIMIT $1`,
+    [limit],
+  )
+
+  const primary = rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
+  if (primary.length >= limit) return primary
+
+  const excludeIds = rows.map((row) => row.id)
+  const fillRows = await query<ProjectRow>(
+    `SELECT id, slug, payload
+     FROM gc_projects
+     WHERE status = 'selling'
+       AND id <> ALL($1::text[])
+     ORDER BY market_score DESC NULLS LAST, rental_yield DESC NULLS LAST
+     LIMIT $2`,
+    [excludeIds, limit - primary.length],
+  )
+
+  return [...primary, ...fillRows.map((row) => projectToProperty(normalizeProjectPayload(row)))]
+}
+
 export interface PropertyListingFilters {
   page?: number
   pageSize?: number
@@ -626,6 +659,78 @@ export async function getFeaturedBlogPosts(limit = 6) {
     [limit],
   )
   return rows
+}
+
+const HOMEPAGE_BLOG_KEYWORDS = [
+  "%market%",
+  "%investment%",
+  "%investor%",
+  "%roi%",
+  "%yield%",
+  "%rental%",
+  "%dubai%",
+  "%property%",
+  "%real estate%",
+  "%off-plan%",
+  "%golden visa%",
+  "%trend%",
+  "%analysis%",
+  "%guide%",
+  "%finance%",
+  "%regulation%",
+]
+
+const HOMEPAGE_BLOG_EXCLUDES = [
+  "%thanksgiving%",
+  "%christmas%",
+  "%holiday%",
+  "%eid%",
+  "%ramadan%",
+  "%new year%",
+  "%valentine%",
+  "%national day%",
+]
+
+export async function getHomepageBlogPosts(limit = 6) {
+  const primaryRows = await query<BlogPostSummary>(
+    `SELECT id, slug, title, excerpt, hero_image, category, author, published_at, read_time, featured
+     FROM gc_blog_posts
+     WHERE hero_image IS NOT NULL
+       AND hero_image <> ''
+       AND (
+         title ILIKE ANY($1::text[])
+         OR excerpt ILIKE ANY($1::text[])
+         OR category ILIKE ANY($1::text[])
+       )
+       AND NOT (
+         title ILIKE ANY($2::text[])
+         OR excerpt ILIKE ANY($2::text[])
+       )
+     ORDER BY featured DESC NULLS LAST, published_at DESC NULLS LAST, created_at DESC
+     LIMIT $3`,
+    [HOMEPAGE_BLOG_KEYWORDS, HOMEPAGE_BLOG_EXCLUDES, limit],
+  )
+
+  if (primaryRows.length >= limit) return primaryRows
+
+  const excludeIds = primaryRows.map((row) => row.id)
+  const remaining = limit - primaryRows.length
+  const fallbackRows = await query<BlogPostSummary>(
+    `SELECT id, slug, title, excerpt, hero_image, category, author, published_at, read_time, featured
+     FROM gc_blog_posts
+     WHERE hero_image IS NOT NULL
+       AND hero_image <> ''
+       AND NOT (
+         title ILIKE ANY($1::text[])
+         OR excerpt ILIKE ANY($1::text[])
+       )
+       AND id <> ALL($2::text[])
+     ORDER BY published_at DESC NULLS LAST, created_at DESC
+     LIMIT $3`,
+    [HOMEPAGE_BLOG_EXCLUDES, excludeIds, remaining],
+  )
+
+  return [...primaryRows, ...fallbackRows]
 }
 
 export async function getBlogPostBySlug(slug: string) {

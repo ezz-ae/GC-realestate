@@ -14,7 +14,7 @@ const marketStats = [
   {
     label: "Transaction Volume",
     value: "24,500",
-    change: "Q4 2024",
+    change: "Q4 2025",
     icon: DollarSign,
     trend: "up"
   },

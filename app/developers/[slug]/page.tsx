@@ -173,38 +173,57 @@ export default async function DeveloperDetailPage({
                 </div>
               </div>
 
-              <Card className="h-fit">
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-serif text-xl font-semibold">Trust Signals</h3>
-                  <div className="space-y-3 text-sm text-muted-foreground">
-                    <div className="flex items-center justify-between">
-                      <span>Units delivered</span>
-                      <span className="text-foreground">{unitsDelivered}</span>
+              <div className="space-y-6">
+                <Card className="h-fit">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-serif text-xl font-semibold">Trust Signals</h3>
+                    <div className="space-y-3 text-sm text-muted-foreground">
+                      <div className="flex items-center justify-between">
+                        <span>Units delivered</span>
+                        <span className="text-foreground">{unitsDelivered}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>On-time delivery rate</span>
+                        <span className="text-foreground">
+                          {stats.onTimeDeliveryRate != null ? `${stats.onTimeDeliveryRate}%` : "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Avg market score</span>
+                        <span className="text-foreground">{stats.avgScore || "N/A"}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Golden Visa eligible</span>
+                        <span className="text-foreground">{stats.goldenVisaCount}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Price range</span>
+                        <span className="text-foreground">
+                          {stats.minPrice ? formatPrice(stats.minPrice) : "N/A"} -{" "}
+                          {stats.maxPrice ? formatPrice(stats.maxPrice) : "N/A"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span>On-time delivery rate</span>
-                      <span className="text-foreground">
-                        {stats.onTimeDeliveryRate != null ? `${stats.onTimeDeliveryRate}%` : "N/A"}
-                      </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="h-fit">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-serif text-xl font-semibold">Market Intelligence</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Connect developer performance with Dubai-wide market reports and area insights.
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <Button variant="outline" asChild>
+                        <Link href="/market/trends">Market Trends & Reports</Link>
+                      </Button>
+                      <Button variant="outline" asChild>
+                        <Link href="/market/areas">Area Performance Guide</Link>
+                      </Button>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span>Avg market score</span>
-                      <span className="text-foreground">{stats.avgScore || "N/A"}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Golden Visa eligible</span>
-                      <span className="text-foreground">{stats.goldenVisaCount}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Price range</span>
-                      <span className="text-foreground">
-                        {stats.minPrice ? formatPrice(stats.minPrice) : "N/A"} -{" "}
-                        {stats.maxPrice ? formatPrice(stats.maxPrice) : "N/A"}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </section>

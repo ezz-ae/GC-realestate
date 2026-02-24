@@ -177,15 +177,15 @@ export default function WhyDubaiPage() {
               <div className="grid gap-8 md:grid-cols-3 mb-12">
                 <div className="text-center">
                   <div className="text-4xl font-bold gold-text-gradient mb-2">15%</div>
-                  <div className="text-sm text-muted-foreground">Price Growth 2023-2024</div>
+                  <div className="text-sm text-muted-foreground">Price Growth 2025-2026</div>
                 </div>
                 <div className="text-center">
                   <div className="text-4xl font-bold gold-text-gradient mb-2">130K+</div>
-                  <div className="text-sm text-muted-foreground">Transactions in 2024</div>
+                  <div className="text-sm text-muted-foreground">Transactions in 2025</div>
                 </div>
                 <div className="text-center">
                   <div className="text-4xl font-bold gold-text-gradient mb-2">$140B+</div>
-                  <div className="text-sm text-muted-foreground">Total Sales Volume 2024</div>
+                  <div className="text-sm text-muted-foreground">Total Sales Volume 2025</div>
                 </div>
               </div>
 
