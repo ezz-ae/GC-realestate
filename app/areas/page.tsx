@@ -3,6 +3,17 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getAreas } from "@/lib/entrestate"
 import Link from "next/link"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Dubai Area Guides & Neighborhood Insights | Gold Century",
+  description: "Discover the best places to live and invest in Dubai. Comprehensive guides for Dubai Marina, Downtown, Palm Jumeirah, and more.",
+  openGraph: {
+    title: "Dubai Area Guides & Neighborhood Insights | Gold Century",
+    description: "Discover the best places to live and invest in Dubai.",
+    images: ["/logo_blsck.png"],
+  },
+}
 
 export default async function AreasPage() {
   const areas = await getAreas()

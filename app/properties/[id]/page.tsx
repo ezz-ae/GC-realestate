@@ -47,9 +47,26 @@ export async function generateMetadata({
   if (!property) {
     return { title: "Property Not Found" }
   }
+
+  const title = `${property.title} | Gold Century Real Estate`
+  const description = property.description || `${property.title} in ${property.location.area}, Dubai.`
+  const image = property.images?.[0] || "/logo_blsck.png"
+
   return {
-    title: `${property.title} | Gold Century Real Estate`,
-    description: property.description || `${property.title} in ${property.location.area}, Dubai.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [image],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [image],
+    },
   }
 }
 
@@ -86,8 +103,28 @@ export default async function PropertyPage({
           property.investmentMetrics.goldenVisaEligible ? "Golden Visa eligible" : "Investment ready",
         ].filter(Boolean)
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": property.title,
+    "description": description,
+    "url": `https://goldcentury.ae/properties/${property.slug}`,
+    "image": images[0],
+    "datePosted": property.createdAt,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": property.location.area,
+      "addressRegion": "Dubai",
+      "addressCountry": "AE"
+    }
+  }
+
   return (
     <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {/* Image Gallery */}
         <section className="bg-muted/30">
           <div className="container py-4 md:py-8">

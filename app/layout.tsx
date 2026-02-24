@@ -74,8 +74,12 @@ export const metadata: Metadata = {
     creator: "@goldcentury",
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      "/favicon.ico",
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
     shortcut: "/favicon.ico",
+    apple: "/icon.png",
   },
   robots: {
     index: true,
@@ -95,9 +99,53 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    "name": "Gold Century Real Estate",
+    "image": "https://goldcentury.ae/logo_blsck.png",
+    "@id": "https://goldcentury.ae",
+    "url": "https://goldcentury.ae",
+    "telephone": "+971501234567",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Business Bay",
+      "addressLocality": "Dubai",
+      "addressRegion": "Dubai",
+      "addressCountry": "AE"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 25.185,
+      "longitude": 55.275
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "09:00",
+      "closes": "18:00"
+    },
+    "sameAs": [
+      "https://www.facebook.com/goldcentury",
+      "https://www.instagram.com/goldcentury",
+      "https://www.linkedin.com/company/goldcentury"
+    ]
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${playfair.variable} ${geistMono.variable} font-sans antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

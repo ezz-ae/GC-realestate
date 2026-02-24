@@ -29,7 +29,7 @@ export function SiteFooter() {
         { href: "/market/areas", label: "Areas Guide" },
         { href: "/market/golden-visa", label: "Golden Visa" },
         { href: "/market/financing", label: "Financing" },
-        { href: "/market/trends", label: "Market Analysis (Prime)" },
+        { href: "/market/trends", label: "Market Analysis" },
         { href: "/market/regulations", label: "Regulations" },
       ],
     },
@@ -72,7 +72,6 @@ export function SiteFooter() {
         { href: "/about", label: "About" },
         { href: "/services", label: "Services" },
         { href: "/contact", label: "Contact" },
-        { href: "/dashboard/leads", label: "Leads Dashboard" },
       ],
     },
   ]
@@ -150,7 +149,7 @@ export function SiteFooter() {
 
         <div className="mt-16 grid gap-4 border-t border-border pt-8 md:grid-cols-[2fr,1fr] md:items-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Gold Century Real Estate. All rights reserved.
+            &copy; {new Date().getFullYear()} Gold Century Real Estate. All rights reserved. Live market data by Entrestate.com.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <Input

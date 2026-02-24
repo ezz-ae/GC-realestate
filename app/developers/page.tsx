@@ -3,6 +3,17 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getDevelopers } from "@/lib/entrestate"
 import Link from "next/link"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Top Real Estate Developers in Dubai | Gold Century",
+  description: "Learn about the leading real estate developers in Dubai, including Emaar, Damac, Nakheel, and Sobha. Track records and project insights.",
+  openGraph: {
+    title: "Top Real Estate Developers in Dubai | Gold Century",
+    description: "Learn about the leading real estate developers in Dubai.",
+    images: ["/logo_blsck.png"],
+  },
+}
 
 export default async function DevelopersPage() {
   const developers = await getDevelopers()

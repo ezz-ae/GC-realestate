@@ -3,6 +3,17 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getProjectsForGrid } from "@/lib/entrestate"
 import Link from "next/link"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "New Projects & Master Communities in Dubai | Gold Century",
+  description: "Explore the latest off-plan projects and master-planned communities in Dubai. Detailed insights into ROI, completion dates, and amenities.",
+  openGraph: {
+    title: "New Projects & Master Communities in Dubai | Gold Century",
+    description: "Explore the latest off-plan projects and master-planned communities in Dubai.",
+    images: ["/logo_blsck.png"],
+  },
+}
 
 export default async function ProjectsPage() {
   const projects = await getProjectsForGrid(24)

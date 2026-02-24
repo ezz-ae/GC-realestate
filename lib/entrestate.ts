@@ -609,7 +609,7 @@ export async function getDeveloperStats(developerName: string): Promise<Develope
       COUNT(*) FILTER (WHERE golden_visa_eligible = true)::int AS golden_visa_count,
       MIN(price_from_aed)::float AS min_price,
       MAX(price_to_aed)::float AS max_price,
-      MIN(COALESCE(handover_date, created_at)) AS first_project_date,
+      MIN(COALESCE(handover_date, created_at::timestamptz)) AS first_project_date,
       CASE
         WHEN COUNT(*) FILTER (WHERE status = 'completed') = 0 THEN NULL
         ELSE (

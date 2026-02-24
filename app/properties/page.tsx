@@ -5,8 +5,17 @@ import { PropertiesToolbar } from "@/components/properties-toolbar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { getPropertyListing } from "@/lib/entrestate"
+import { getPropertyListing } from "@/lib/entrestate"import { Metadata } from "next"
 
+export const metadata: Metadata = {
+  title: "Dubai Properties for Sale | Gold Century Real Estate",
+  description: "Browse over 3500+ luxury properties and investment opportunities in Dubai. Filter by location, price, and property type to find your perfect home.",
+  openGraph: {
+    title: "Dubai Properties for Sale | Gold Century Real Estate",
+    description: "Browse over 3500+ luxury properties and investment opportunities in Dubai.",
+    images: ["/logo_blsck.png"],
+  },
+}
 export default async function PropertiesPage({
   searchParams,
 }: {

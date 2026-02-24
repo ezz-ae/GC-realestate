@@ -2,7 +2,6 @@
 // components/IntelligenceBlock.tsx
 // Homepage intelligence block — 3 panels + pulse strip
 // ─────────────────────────────────────────────────────────────────
-import Image from "next/image"
 import Link  from "next/link"
 
 type Props = { data: Awaited<ReturnType<typeof import("@/lib/intelligence-block").getIntelligenceBlockData>> }
@@ -35,7 +34,7 @@ export function IntelligenceBlock({ data }: Props) {
             { label: "Off-Plan Projects",   value: Number(pulse.total_projects).toLocaleString() },
             { label: "Avg Rental Yield",    value: `${pulse.avg_yield}%` },
             { label: "Golden Visa Eligible",value: Number(pulse.gv_count).toLocaleString() },
-            { label: "Verified Listings",   value: Number(pulse.verified_listings).toLocaleString() },
+            { label: "Areas Covered",       value: Number(pulse.area_count).toLocaleString() },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
               <p className="text-2xl font-bold text-[#C9A961]">{value}</p>
@@ -82,22 +81,20 @@ export function IntelligenceBlock({ data }: Props) {
             <h3 className="text-sm font-semibold text-[#C9A961] uppercase tracking-widest">
               💰 Best Yield Areas
             </h3>
-            {best_areas.map((a: any) => (
-              <Link href={`/areas/${a.slug}`} key={a.slug}
-                className="relative rounded-xl overflow-hidden h-24 flex items-end p-3 group block">
-                <Image src={a.image} alt={a.name} fill className="object-cover brightness-50 group-hover:brightness-60 transition" />
-                <div className="relative z-10 flex justify-between w-full">
-                  <div>
-                    <p className="font-semibold text-sm">{a.name}</p>
-                    <p className="text-xs text-zinc-300">{a.project_count} projects</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[#C9A961] font-bold">{Number(a.avg_yield).toFixed(1)}%</p>
-                    <p className="text-xs text-zinc-400">avg yield</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          {best_areas.map((a: any) => (
+            <Link
+              href={`/areas/${a.slug}`}
+              key={a.slug}
+              className="flex flex-col gap-2 rounded-xl border border-border bg-zinc-900/70 p-4 transition hover:border-[#C9A961]"
+            >
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <div className="font-semibold">{a.name}</div>
+                <div className="text-xs">{a.project_count} projects</div>
+              </div>
+              <div className="text-2xl font-bold text-[#C9A961]">{Number(a.avg_yield).toFixed(1)}%</div>
+              <div className="text-xs uppercase tracking-widest text-zinc-400">average yield</div>
+            </Link>
+          ))}
           </div>
 
           {/* Panel 3 — Below Market */}

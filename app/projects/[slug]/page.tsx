@@ -155,19 +155,30 @@ export async function generateMetadata({
   }
 
   const priceRange = getPriceRange(project)
-  const heroImage = project.heroImage || "/logo.png"
-  const heroImageClass = project.heroImage ? "object-cover" : "object-contain bg-card"
-
   const locationArea = project.location?.area || "Dubai"
+  const title = project.seoTitle || `${project.name} - ${project.tagline} | Gold Century Real Estate`
+  const description = project.seoDescription ||
+      `${project.longDescription} Starting from ${priceRange}. Golden Visa eligible. Contact us today.`
+  const image = project.heroImage || "/logo_blsck.png"
 
   return {
-    title: project.seoTitle || `${project.name} - ${project.tagline} | Gold Century Real Estate`,
-    description:
-      project.seoDescription ||
-      `${project.longDescription} Starting from ${priceRange}. Golden Visa eligible. Contact us today.`,
+    title,
+    description,
     keywords: project.seoKeywords?.length
       ? project.seoKeywords
       : [project.name, locationArea, "Dubai property", "off-plan Dubai", "Golden Visa", "investment"],
+    openGraph: {
+      title,
+      description,
+      images: [image],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [image],
+    },
   }
 }
 

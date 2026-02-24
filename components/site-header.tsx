@@ -25,6 +25,7 @@ const mainLinks = [
   { href: "/developers", label: "Developers", description: "Track records and delivery stats." },
   { href: "/blog", label: "Blog", description: "Investor insights and reports." },
   { href: "/chat", label: "AI Assistant", description: "Get a curated shortlist fast." },
+  { href: "/market/trends", label: "Market Analysis", description: "Live market reports and forecasts." },
 ]
 
 const marketLinks = [
