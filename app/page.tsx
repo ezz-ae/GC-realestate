@@ -13,29 +13,29 @@ export default async function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-background py-24 md:py-32">
+      <section className="relative overflow-hidden bg-background py-20 md:py-32">
         <div className="absolute inset-0 z-0 opacity-30 bg-[radial-gradient(#a1a1aa_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
         <div className="container relative z-10">
           <div className="mx-auto max-w-4xl text-center">
-            <h1 className="font-serif text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="font-serif text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-7xl leading-[1.1]">
               Intelligence for{" "}
               <span className="gold-text-gradient">Dubai Real Estate</span>
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground text-balance md:text-xl">
-              Discover 3500+ luxury properties and exclusive off-plan projects in Dubai's premier locations.
-              Your gateway to profitable real estate investment.
+            <p className="mt-6 text-lg text-muted-foreground text-balance md:text-xl max-w-2xl mx-auto">
+              Discover 3500+ luxury properties and exclusive off-plan projects.
+              Your gateway to profitable investment in Dubai.
             </p>
             
             {/* AI Search Bar */}
-            <div className="mx-auto mt-10 max-w-2xl rounded-2xl border bg-background/80 p-2 shadow-lg backdrop-blur-sm">
+            <div className="mx-auto mt-10 max-w-2xl rounded-2xl border bg-background/80 p-1.5 shadow-2xl backdrop-blur-md">
               <AISearchBar />
             </div>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Button size="lg" className="gold-gradient" asChild>
+              <Button size="lg" className="gold-gradient text-black font-semibold h-12 px-8" asChild>
                 <Link href="/properties">Browse Properties</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" className="h-12 px-8" asChild>
                 <Link href="/market/why-dubai">Why Dubai</Link>
               </Button>
             </div>

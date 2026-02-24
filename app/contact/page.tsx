@@ -14,192 +14,154 @@ export default function ContactPage() {
   return (
     <>
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-b from-background to-muted py-20">
-          <div className="container">
+        <section className="relative overflow-hidden bg-background py-16 md:py-24 border-b">
+          <div className="absolute inset-0 z-0 opacity-20 bg-[radial-gradient(#a1a1aa_1px,transparent_1px)] [background-size:24px_24px]" />
+          <div className="container relative z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+              <h1 className="font-serif text-4xl font-bold tracking-tight md:text-6xl">
                 Get in <span className="gold-text-gradient">Touch</span>
               </h1>
-              <p className="mt-6 text-lg text-muted-foreground">
-                Have questions about Dubai real estate? Our expert team is here to help you make informed investment decisions
+              <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                Expert guidance for Dubai real estate. Our team helps you make data-driven investment decisions.
               </p>
             </div>
           </div>
         </section>
 
         {/* Contact Content */}
-        <section className="py-20">
+        <section className="py-12 md:py-24">
           <div className="container">
-            <div className="grid gap-12 lg:grid-cols-3 lg:gap-16">
+            <div className="grid gap-12 lg:grid-cols-[1fr,1.8fr]">
               {/* Contact Info */}
-              <div className="lg:col-span-1">
-                <h2 className="font-serif text-2xl font-bold">Contact Information</h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Reach out through any of these channels
-                </p>
+              <div className="space-y-8 order-2 lg:order-1">
+                <div>
+                  <h2 className="font-serif text-3xl font-bold">Contact Details</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Direct access to our advisory team.
+                  </p>
+                </div>
 
-                <div className="mt-8 space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg gold-gradient">
-                      <Phone className="h-5 w-5 text-primary-foreground" />
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="flex items-start gap-4 p-5 rounded-2xl border bg-card shadow-sm">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl gold-gradient">
+                      <Phone className="h-6 w-6 text-black" />
                     </div>
                     <div>
-                      <div className="font-medium">Phone</div>
-                      <a href="tel:+971507505175" className="text-sm text-muted-foreground hover:text-primary">
+                      <div className="font-bold text-sm">Call Center</div>
+                      <a href="tel:+971507505175" className="text-base text-muted-foreground hover:text-primary transition-colors">
                         +971 50 750 5175
                       </a>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg gold-gradient">
-                      <MessageCircle className="h-5 w-5 text-primary-foreground" />
+                  <div className="flex items-start gap-4 p-5 rounded-2xl border bg-card shadow-sm border-primary/20 bg-primary/5">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500 shadow-lg shadow-green-500/20">
+                      <MessageCircle className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-medium">WhatsApp</div>
-                      <a href="https://wa.me/971507505175" className="text-sm text-muted-foreground hover:text-primary">
-                        +971 50 750 5175
+                      <div className="font-bold text-sm">WhatsApp</div>
+                      <a href="https://wa.me/971507505175" className="text-base text-muted-foreground hover:text-green-600 transition-colors">
+                        Available 24/7
                       </a>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg gold-gradient">
-                      <Mail className="h-5 w-5 text-primary-foreground" />
+                  <div className="flex items-start gap-4 p-5 rounded-2xl border bg-card shadow-sm">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl gold-gradient">
+                      <Mail className="h-6 w-6 text-black" />
                     </div>
                     <div>
-                      <div className="font-medium">Email</div>
-                      <a href="mailto:info@goldcentury.ae" className="text-sm text-muted-foreground hover:text-primary">
-                        info@goldcentury.ae
+                      <div className="font-bold text-sm">Email Support</div>
+                      <a href="mailto:hello@goldcentury.ae" className="text-base text-muted-foreground hover:text-primary transition-colors">
+                        hello@goldcentury.ae
                       </a>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg gold-gradient">
-                      <MapPin className="h-5 w-5 text-primary-foreground" />
+                  <div className="flex items-start gap-4 p-5 rounded-2xl border bg-card shadow-sm">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl gold-gradient">
+                      <MapPin className="h-6 w-6 text-black" />
                     </div>
                     <div>
-                      <div className="font-medium">Office Address</div>
-                      <p className="text-sm text-muted-foreground">
-                        Business Bay, Dubai<br />
-                        United Arab Emirates
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg gold-gradient">
-                      <Clock className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="font-medium">Business Hours</div>
-                      <p className="text-sm text-muted-foreground">
-                        Sunday - Thursday: 9:00 AM - 6:00 PM<br />
-                        Saturday: 10:00 AM - 4:00 PM<br />
-                        Friday: Closed
+                      <div className="font-bold text-sm">Headquarters</div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Business Bay, Dubai, UAE
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-8">
-                  <Button className="w-full gold-gradient" size="lg" asChild>
-                    <a href="https://wa.me/971507505175" target="_blank" rel="noopener noreferrer">
-                      <MessageCircle className="mr-2 h-5 w-5" />
-                      Chat on WhatsApp
-                    </a>
-                  </Button>
+                <div className="p-6 rounded-2xl border bg-muted/40 backdrop-blur-sm">
+                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground mb-4">Support Hours</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Mon - Sat</span>
+                      <span className="text-foreground font-semibold">9:00 AM - 7:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Sunday</span>
+                      <span className="text-foreground font-semibold">Online Only</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Contact Form */}
-              <div className="lg:col-span-2">
-                <div className="rounded-lg border border-border bg-card p-8">
-                  <h2 className="font-serif text-2xl font-bold">Send us a Message</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Fill out the form below and we'll get back to you within 24 hours
+              <div className="order-1 lg:order-2">
+                <div className="rounded-[2rem] border border-border bg-card p-6 md:p-12 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
+                  
+                  <h2 className="font-serif text-3xl md:text-4xl font-bold">Send Enquiry</h2>
+                  <p className="mt-3 text-muted-foreground leading-relaxed">
+                    Fill out the form and a senior investment consultant will contact you with a curated portfolio.
                   </p>
 
-                  <form className="mt-8 space-y-6">
+                  <form className="mt-10 space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Full Name *</Label>
-                        <Input id="name" placeholder="John Smith" required />
+                        <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Full Name</Label>
+                        <Input id="name" placeholder="John Smith" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" required />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email Address *</Label>
-                        <Input id="email" type="email" placeholder="john@example.com" required />
+                        <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Email Address</Label>
+                        <Input id="email" type="email" placeholder="john@example.com" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" required />
                       </div>
                     </div>
 
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" type="tel" placeholder="+971 50 750 5175" />
+                        <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Phone Number</Label>
+                        <Input id="phone" type="tel" placeholder="+971 50 750 5175" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="country">Country *</Label>
-                        <Input id="country" placeholder="United Kingdom" required />
+                        <Label htmlFor="interest" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Investment Focus</Label>
+                        <select 
+                          id="interest" 
+                          className="flex h-14 w-full rounded-2xl border-0 bg-muted/30 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                          required
+                        >
+                          <option value="">Select an option</option>
+                          <option value="buying">Buying Property</option>
+                          <option value="investment">Investment Consultation</option>
+                          <option value="golden-visa">Golden Visa</option>
+                          <option value="other">Other Inquiry</option>
+                        </select>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="interest">What are you interested in? *</Label>
-                      <select 
-                        id="interest" 
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        required
-                      >
-                        <option value="">Select an option</option>
-                        <option value="buying">Buying Property</option>
-                        <option value="investment">Investment Consultation</option>
-                        <option value="golden-visa">Golden Visa Eligibility</option>
-                        <option value="market-info">Market Information</option>
-                        <option value="property-management">Property Management</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="budget">Investment Budget (Optional)</Label>
-                      <select 
-                        id="budget" 
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <option value="">Select a range</option>
-                        <option value="under-1m">Under AED 1M</option>
-                        <option value="1m-2m">AED 1M - 2M</option>
-                        <option value="2m-5m">AED 2M - 5M (Golden Visa)</option>
-                        <option value="5m-10m">AED 5M - 10M</option>
-                        <option value="over-10m">Over AED 10M</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message *</Label>
+                      <Label htmlFor="message" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Your Message</Label>
                       <Textarea 
                         id="message" 
-                        placeholder="Tell us about your investment goals, preferred locations, or any questions you have..."
-                        rows={6}
+                        placeholder="Tell us about your requirements, budget, or preferred areas..."
+                        rows={5}
+                        className="rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50 resize-none"
                         required
                       />
                     </div>
 
-                    <div className="flex items-start gap-2">
-                      <input 
-                        type="checkbox" 
-                        id="consent" 
-                        className="mt-1 h-4 w-4 rounded border-input"
-                        required
-                      />
-                      <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">
-                        I agree to receive marketing communications from Gold Century Real Estate about Dubai property investment opportunities
-                      </Label>
-                    </div>
-
-                    <Button type="submit" size="lg" className="w-full gold-gradient md:w-auto">
-                      Send Message
+                    <Button type="submit" size="lg" className="w-full gold-gradient text-black font-bold h-16 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] text-lg">
+                      Secure My Consultation
                     </Button>
                   </form>
                 </div>
@@ -230,7 +192,7 @@ export default function ContactPage() {
                     <span className="font-medium text-foreground">Phone:</span> +971 50 750 5175
                   </div>
                   <div>
-                    <span className="font-medium text-foreground">Email:</span> info@goldcentury.ae
+                    <span className="font-medium text-foreground">Email:</span> hello@goldcentury.ae
                   </div>
                   <div>
                     <span className="font-medium text-foreground">Consultations:</span> By appointment

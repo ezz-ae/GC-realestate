@@ -78,65 +78,76 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-border bg-card">
-      <div className="container py-12">
-        <div className="grid gap-16 lg:grid-cols-[1.6fr,2.4fr]">
-          <div className="space-y-4">
+      <div className="container py-16">
+        <div className="grid gap-12 lg:grid-cols-[1fr,2fr]">
+          <div className="space-y-8">
             <Link href="/" className="inline-flex items-center">
               <Image
                 src="/logo_blsck.png"
                 alt="Gold Century Real Estate"
                 width={635}
                 height={771}
-                className="h-16 w-auto dark:hidden"
+                className="h-14 w-auto dark:hidden"
               />
               <Image
                 src="/white_logo.png"
                 alt="Gold Century Real Estate"
                 width={635}
                 height={771}
-                className="hidden h-16 w-auto dark:block"
+                className="hidden h-14 w-auto dark:block"
               />
             </Link>
-            <p className="text-base text-muted-foreground max-w-md text-pretty leading-relaxed">
-              <span className="block">Gold Century Real Estate delivers investment intelligence</span>
-              <span className="block">and premium access to Dubai's top-performing projects</span>
-              <span className="block">for international buyers.</span>
+            <p className="text-base text-muted-foreground leading-relaxed max-w-sm">
+              Gold Century Real Estate delivers investment intelligence
+              and premium access to Dubai's top-performing projects
+              for international buyers.
             </p>
-            <div className="space-y-2 text-base">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 text-primary" />
                 Downtown Dubai, UAE
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Phone className="h-4 w-4" />
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <Phone className="h-4 w-4 text-primary" />
                 +971 50 750 5175
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-4 w-4" />
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 text-primary" />
                 hello@goldcentury.ae
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button size="icon" variant="outline" aria-label="LinkedIn">
-                <Linkedin className="h-4 w-4" />
+              <Button size="icon" variant="outline" className="rounded-full h-10 w-10" aria-label="LinkedIn" asChild>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                  <Linkedin className="h-5 w-5" />
+                </a>
               </Button>
-              <Button size="icon" variant="outline" aria-label="Instagram">
-                <Instagram className="h-4 w-4" />
+              <Button size="icon" variant="outline" className="rounded-full h-10 w-10" aria-label="Instagram" asChild>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                  <Instagram className="h-5 w-5" />
+                </a>
               </Button>
-              <Button size="icon" variant="outline" aria-label="WhatsApp">
-                <MessageCircle className="h-4 w-4" />
+              <Button size="icon" variant="outline" className="rounded-full h-10 w-10" aria-label="WhatsApp" asChild>
+                <a href="https://wa.me/971507505175" target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="h-5 w-5" />
+                </a>
               </Button>
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
-            {footerSections.map((section) => (
-              <div key={section.title}>
-                <h3 className="text-sm font-semibold uppercase tracking-wide">{section.title}</h3>
-                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <div className="grid gap-8 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+            {footerSections.slice(0, 4).map((section) => (
+              <div key={section.title} className="space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  {section.title}
+                </h4>
+                <ul className="space-y-2.5">
                   {section.links.map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href} className="hover:text-foreground">
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                      >
                         {link.label}
                       </Link>
                     </li>
@@ -147,17 +158,13 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-16 grid gap-4 border-t border-border pt-8 md:grid-cols-[2fr,1fr] md:items-center">
-          <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Gold Century Real Estate. All rights reserved. Live market data by Entrestate.com.
+        <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-sm text-muted-foreground text-center md:text-left">
+            © {new Date().getFullYear()} Gold Century Real Estate. All rights reserved.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-            <Input
-              type="email"
-              placeholder="Email for Dubai market updates"
-              className="h-9 sm:w-64"
-            />
-            <Button size="sm" className="gold-gradient">Subscribe</Button>
+          <div className="flex flex-wrap justify-center gap-6">
+            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground">Privacy Policy</Link>
+            <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground">Terms of Service</Link>
           </div>
         </div>
       </div>

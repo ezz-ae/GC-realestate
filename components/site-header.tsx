@@ -5,8 +5,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -182,89 +183,122 @@ export function SiteHeader() {
 
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <div className="flex flex-col gap-6 pt-6">
-                <Link href="/" onClick={() => setIsOpen(false)} className="mx-auto">
-                  <Image
-                    src="/logo_blsck.png"
-                    alt="Gold Century Real Estate"
-                    width={320}
-                    height={98}
-                    className="h-16 w-auto dark:hidden"
-                  />
-                  <Image
-                    src="/white_logo.png"
-                    alt="Gold Century Real Estate"
-                    width={320}
-                    height={98}
-                    className="hidden h-16 w-auto dark:block"
-                  />
-                </Link>
-                <nav className="flex flex-col gap-6 text-sm">
-                  <div className="space-y-3">
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Properties</div>
-                    {mainLinks.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className="block text-lg font-medium text-foreground/80 transition-colors hover:text-foreground"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="space-y-3">
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Market</div>
-                    {marketLinks.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm text-foreground/80 transition-colors hover:text-foreground"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="space-y-3">
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Tools</div>
-                    {toolsLinks.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm text-foreground/80 transition-colors hover:text-foreground"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="space-y-3">
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Company</div>
-                    {companyLinks.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm text-foreground/80 transition-colors hover:text-foreground"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                </nav>
-                <Button asChild className="gold-gradient w-full">
-                  <Link href="/chat" onClick={() => setIsOpen(false)}>
-                    AI Assistant
+            <SheetContent side="right" className="w-[85vw] max-w-[360px] p-0 border-l">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <div className="flex flex-col h-full">
+                <div className="p-6 border-b">
+                  <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center">
+                    <Image
+                      src="/logo_blsck.png"
+                      alt="Gold Century Real Estate"
+                      width={120}
+                      height={40}
+                      className="h-10 w-auto dark:hidden"
+                    />
+                    <Image
+                      src="/white_logo.png"
+                      alt="Gold Century Real Estate"
+                      width={120}
+                      height={40}
+                      className="hidden h-10 w-auto dark:block"
+                    />
                   </Link>
-                </Button>
+                </div>
+                
+                <ScrollArea className="flex-1">
+                  <div className="p-6 space-y-8 pb-20">
+                    <div className="space-y-4">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 px-1">
+                        Properties
+                      </div>
+                      <div className="grid gap-1">
+                        {mainLinks.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className="flex flex-col gap-0.5 rounded-lg p-3 text-sm font-medium transition-colors hover:bg-muted active:bg-muted"
+                          >
+                            <span className="text-base">{item.label}</span>
+                            <span className="text-xs font-normal text-muted-foreground line-clamp-1">{item.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 px-1">
+                        Market Intelligence
+                      </div>
+                      <div className="grid gap-1">
+                        {marketLinks.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className="flex flex-col gap-0.5 rounded-lg p-3 text-sm font-medium transition-colors hover:bg-muted active:bg-muted"
+                          >
+                            <span className="text-base">{item.label}</span>
+                            <span className="text-xs font-normal text-muted-foreground line-clamp-1">{item.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 px-1">
+                        Investment Tools
+                      </div>
+                      <div className="grid gap-1">
+                        {toolsLinks.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className="flex flex-col gap-0.5 rounded-lg p-3 text-sm font-medium transition-colors hover:bg-muted active:bg-muted"
+                          >
+                            <span className="text-base">{item.label}</span>
+                            <span className="text-xs font-normal text-muted-foreground line-clamp-1">{item.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 px-1">
+                        Company
+                      </div>
+                      <div className="grid gap-1">
+                        {companyLinks.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className="flex flex-col gap-0.5 rounded-lg p-3 text-sm font-medium transition-colors hover:bg-muted active:bg-muted"
+                          >
+                            <span className="text-base">{item.label}</span>
+                            <span className="text-xs font-normal text-muted-foreground line-clamp-1">{item.description}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </ScrollArea>
+
+                <div className="p-6 border-t bg-muted/30">
+                  <Button asChild className="w-full gold-gradient shadow-lg" size="lg">
+                    <Link href="/chat" onClick={() => setIsOpen(false)}>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      AI Assistant
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
