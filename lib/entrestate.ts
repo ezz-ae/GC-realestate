@@ -354,7 +354,7 @@ export interface PropertyListingFilters {
   goldenVisa?: boolean
 }
 
-const buildPropertyListingWhere = (filters: PropertyListingFilters, values: Array<string | number | boolean>) => {
+const buildPropertyListingWhere = (filters: PropertyListingFilters, values: Array<string | number>) => {
   const where: string[] = []
 
   if (filters.areas?.length) {
@@ -438,16 +438,33 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
     page === 1 && !hasActiveFilters && (!filters.sort || filters.sort === "score")
 
   if (usesFeaturedFirstPage) {
-    const rows = await query<ProjectRow>(
+    const featuredRows = await query<ProjectRow>(
       `SELECT id, slug, payload
        FROM gc_projects
-       WHERE featured = true
+       WHERE status = 'selling'
+         AND featured = true
        ORDER BY ${SORT_SCORE_ORDER}
        LIMIT $1`,
       [pageSize],
     )
+
+    let rows = featuredRows
+    const remaining = pageSize - featuredRows.length
+    if (remaining > 0) {
+      const fallbackRows = await query<ProjectRow>(
+        `SELECT id, slug, payload
+         FROM gc_projects
+         WHERE status = 'selling'
+           AND (featured IS DISTINCT FROM true)
+         ORDER BY ${SORT_SCORE_ORDER}
+         LIMIT $1`,
+        [remaining],
+      )
+      rows = [...featuredRows, ...fallbackRows]
+    }
+
     const countRows = await query<{ total: number }>(
-      `SELECT COUNT(*)::int AS total FROM gc_projects WHERE featured = true`,
+      `SELECT COUNT(*)::int AS total FROM gc_projects WHERE status = 'selling'`,
     )
     const total = countRows[0]?.total ?? rows.length
     return {
@@ -456,7 +473,7 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
     }
   }
 
-  const values: Array<string | number | boolean> = []
+  const values: Array<string | number> = []
   const where = buildPropertyListingWhere(filters, values)
   const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : ""
 
@@ -492,13 +509,17 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
 
   values.push(pageSize, offset)
   const rows = await query<ProjectRow>(
-    `SELECT payload FROM gc_projects ${whereClause} ORDER BY ${orderBy} LIMIT $${values.length - 1} OFFSET $${values.length}`,
+    `SELECT id, slug, payload
+     FROM gc_projects
+     ${whereClause}
+     ORDER BY ${orderBy}
+     LIMIT $${values.length - 1} OFFSET $${values.length}`,
     values,
   )
 
   return {
     total,
-    properties: rows.map((row) => projectToProperty(row.payload)),
+    properties: rows.map((row) => projectToProperty(normalizeProjectPayload(row))),
   }
 }
 
