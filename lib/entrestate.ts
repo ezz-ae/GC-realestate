@@ -85,6 +85,41 @@ const titleCase = (value: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ")
 
+const slugToTitle = (value?: string) =>
+  (value || "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+
+const pickString = (...values: unknown[]) => {
+  for (const value of values) {
+    if (typeof value !== "string") continue
+    const cleaned = value.trim()
+    if (cleaned) return cleaned
+  }
+  return ""
+}
+
+const toNumber = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) return value
+  if (typeof value === "string") {
+    const normalized = value.replace(/,/g, "").trim()
+    if (!normalized) return null
+    const parsed = Number(normalized)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+}
+
+const pickNumber = (...values: unknown[]) => {
+  for (const value of values) {
+    const parsed = toNumber(value)
+    if (parsed != null) return parsed
+  }
+  return null
+}
+
 const normalizeSlug = (value?: string) => {
   if (!value) return ""
   return value
@@ -106,6 +141,7 @@ const SORT_SCORE_ORDER =
   "COALESCE(market_score, NULLIF(payload->>'sortScore', '')::numeric) DESC NULLS LAST"
 
 export const projectToProperty = (project: Project): Property => {
+  const projectRecord = project as unknown as Record<string, unknown>
   const primaryUnit = project.units?.[0]
   const safeLocation = project.location || ({} as Project["location"])
   const safeDeveloper = project.developer || ({} as Project["developer"])
@@ -133,7 +169,31 @@ export const projectToProperty = (project: Project): Property => {
   const bathrooms = typeof unitBaths === "number" ? unitBaths : Math.max(1, bedrooms)
   const sizeSqft = primaryUnit?.sizeFrom ?? 900
   const sizeSqm = Math.round(sizeSqft * 0.0929)
-  const price = primaryUnit?.priceFrom ?? 1500000
+  const projectName =
+    pickString(
+      project.name,
+      projectRecord.projectName,
+      projectRecord.title,
+      projectRecord.pfName,
+      projectRecord.pfTitle,
+      slugToTitle(project.slug),
+    ) || "Property"
+  const fallbackPriceFromRecord = (() => {
+    const priceNode = projectRecord.price as
+      | { fromAed?: unknown; fromAED?: unknown; from?: unknown; min?: unknown }
+      | undefined
+    return pickNumber(
+      projectRecord.price_from_aed,
+      projectRecord.priceFromAed,
+      projectRecord.priceFromAED,
+      projectRecord.priceFrom,
+      priceNode?.fromAed,
+      priceNode?.fromAED,
+      priceNode?.from,
+      priceNode?.min,
+    )
+  })()
+  const price = pickNumber(primaryUnit?.priceFrom, primaryUnit?.priceTo, fallbackPriceFromRecord) ?? 0
   const heroImage = project.mediaSource?.heroImage || project.heroImage
   const gallery =
     Array.isArray(project.mediaSource?.gallery) && project.mediaSource?.gallery?.length
@@ -141,9 +201,9 @@ export const projectToProperty = (project: Project): Property => {
       : project.gallery
 
   return {
-    id: project.id || project.slug || normalizeSlug(project.name) || "property",
-    title: `${project.name || "Property"} ${primaryUnit?.type || "Residence"}`,
-    slug: project.slug || normalizeSlug(project.name) || "property",
+    id: project.id || project.slug || normalizeSlug(projectName) || "property",
+    title: projectName,
+    slug: project.slug || normalizeSlug(projectName) || "property",
     type: "off-plan",
     category: "apartment",
     price,
@@ -167,7 +227,7 @@ export const projectToProperty = (project: Project): Property => {
     images: gallery?.length ? gallery : heroImage ? [heroImage] : [],
     video: project.heroVideo,
     virtualTour: project.virtualTour,
-    description: project.description || `${project.name || "Property"} in ${area}, Dubai.`,
+    description: project.description || `${projectName} in ${area}, Dubai.`,
     highlights: project.highlights || [],
     amenities: project.amenities || [],
     developer: {
@@ -178,9 +238,9 @@ export const projectToProperty = (project: Project): Property => {
       logo: developerLogo,
     },
     project: {
-      id: project.id || project.slug || normalizeSlug(project.name) || "property",
-      name: project.name || "Property",
-      slug: project.slug || normalizeSlug(project.name) || "property",
+      id: project.id || project.slug || normalizeSlug(projectName) || "property",
+      name: projectName,
+      slug: project.slug || normalizeSlug(projectName) || "property",
     },
     investmentMetrics: {
       roi: safeInvestment.expectedROI ?? 0,
@@ -193,8 +253,8 @@ export const projectToProperty = (project: Project): Property => {
     handoverDate: safeTimeline.handoverDate,
     status: "available",
     featured: project.featured,
-    seoTitle: project.seoTitle || project.name || "Property",
-    seoDescription: project.seoDescription || project.description || `${project.name || "Property"} in Dubai.`,
+    seoTitle: project.seoTitle || projectName,
+    seoDescription: project.seoDescription || project.description || `${projectName} in Dubai.`,
     seoKeywords: project.seoKeywords || [],
     nearbyLandmarks: safeLocation.nearbyLandmarks?.map((landmark) => ({
       name: landmark.name,
@@ -207,28 +267,125 @@ export const projectToProperty = (project: Project): Property => {
 
 const normalizeProjectPayload = (row: ProjectRow) => {
   const payload = row.payload || ({} as Project)
+  const payloadRecord = payload as unknown as Record<string, unknown>
+  const rowRecord = row as ProjectListingRow
   const mediaHero = payload.mediaSource?.heroImage
   const mediaGallery =
     Array.isArray(payload.mediaSource?.gallery) && payload.mediaSource?.gallery.length
       ? payload.mediaSource.gallery
       : undefined
+  const primaryUnit = Array.isArray(payload.units) ? payload.units[0] : undefined
+  const priceNode = payloadRecord.price as
+    | { fromAed?: unknown; fromAED?: unknown; from?: unknown; min?: unknown; toAed?: unknown; max?: unknown }
+    | undefined
+  const priceFrom = pickNumber(
+    primaryUnit?.priceFrom,
+    primaryUnit?.priceTo,
+    payloadRecord.price_from_aed,
+    payloadRecord.priceFromAed,
+    payloadRecord.priceFromAED,
+    payloadRecord.priceFrom,
+    priceNode?.fromAed,
+    priceNode?.fromAED,
+    priceNode?.from,
+    priceNode?.min,
+    rowRecord.price_from_aed,
+  )
+  const priceTo = pickNumber(
+    primaryUnit?.priceTo,
+    payloadRecord.price_to_aed,
+    payloadRecord.priceToAed,
+    payloadRecord.priceToAED,
+    payloadRecord.priceTo,
+    priceNode?.toAed,
+    priceNode?.max,
+    rowRecord.price_to_aed,
+    priceFrom,
+  )
+  const canonicalSlug =
+    pickString(payload.slug, payloadRecord.slugified, payloadRecord.pfSlug, row.slug) ||
+    normalizeSlug(pickString(payload.name, rowRecord.name, payloadRecord.projectName, payloadRecord.title))
+  const canonicalName =
+    pickString(
+      payload.name,
+      rowRecord.name,
+      payloadRecord.projectName,
+      payloadRecord.title,
+      payloadRecord.pfName,
+      payloadRecord.pfTitle,
+      slugToTitle(canonicalSlug),
+    ) || "Property"
+  const canonicalHero =
+    pickString(payload.heroImage, mediaHero, rowRecord.hero_image, payloadRecord.ogImage, payloadRecord.og_image) ||
+    "/logo.png"
+  const fallbackUnits = Array.isArray(payload.units) && payload.units.length > 0
+    ? payload.units
+    : priceFrom != null
+      ? [
+          {
+            type: "Residence",
+            bedrooms: 1,
+            baths: 1,
+            bathrooms: 1,
+            priceFrom,
+            priceTo: priceTo ?? priceFrom,
+            sizeFrom: 900,
+            sizeTo: 900,
+            available: 1,
+            floorPlan: "",
+          },
+        ]
+      : []
   return {
     ...payload,
-    id: payload.id || row.id || "",
-    slug: payload.slug || row.slug || "",
-    heroImage: payload.heroImage || mediaHero || "",
-    gallery: mediaGallery || payload.gallery,
+    id: payload.id || row.id || canonicalSlug || "",
+    name: canonicalName,
+    slug: canonicalSlug,
+    heroImage: canonicalHero,
+    gallery: mediaGallery || payload.gallery || (canonicalHero ? [canonicalHero] : []),
+    units: fallbackUnits,
   }
 }
 
 const normalizeListingProject = (row: ProjectListingRow) => {
   const payload = normalizeProjectPayload(row)
+  const payloadRecord = payload as unknown as Record<string, unknown>
+  const primaryUnit = Array.isArray(payload.units) ? payload.units[0] : undefined
+  const rowSlug = pickString(row.slug, payload.slug, payloadRecord.pfSlug)
+  const resolvedName =
+    pickString(
+      row.name,
+      payload.name,
+      payloadRecord.projectName,
+      payloadRecord.title,
+      payloadRecord.pfName,
+      payloadRecord.pfTitle,
+      slugToTitle(rowSlug),
+    ) || "Property"
+  const from = pickNumber(
+    row.price_from_aed,
+    primaryUnit?.priceFrom,
+    primaryUnit?.priceTo,
+    payloadRecord.price_from_aed,
+    payloadRecord.priceFromAed,
+    payloadRecord.priceFromAED,
+    payloadRecord.priceFrom,
+  )
+  const to = pickNumber(
+    row.price_to_aed,
+    primaryUnit?.priceTo,
+    payloadRecord.price_to_aed,
+    payloadRecord.priceToAed,
+    payloadRecord.priceToAED,
+    payloadRecord.priceTo,
+    from,
+  )
   const enriched = {
     ...payload,
-    name: payload.name || row.name || "Property",
+    name: resolvedName,
     status: payload.status || (row.status as Project["status"]) || "selling",
     tagline: payload.tagline || (row.area ? `${row.area} · Dubai` : "Dubai property"),
-    heroImage: payload.heroImage || row.hero_image || "/logo.png",
+    heroImage: pickString(payload.heroImage, row.hero_image) || "/logo.png",
   } as Project
 
   const location = enriched.location || ({} as Project["location"])
@@ -243,9 +400,7 @@ const normalizeListingProject = (row: ProjectListingRow) => {
   }
 
   const hasUnits = Array.isArray(enriched.units) && enriched.units.length > 0
-  if (!hasUnits) {
-    const from = row.price_from_aed ?? 1500000
-    const to = row.price_to_aed ?? from
+  if (!hasUnits && from != null) {
     enriched.units = [
       {
         type: "Residence",
@@ -253,13 +408,21 @@ const normalizeListingProject = (row: ProjectListingRow) => {
         baths: 1,
         bathrooms: 1,
         priceFrom: from,
-        priceTo: to,
+        priceTo: to ?? from,
         sizeFrom: 900,
         sizeTo: 900,
         available: 1,
         floorPlan: "",
       },
     ]
+  } else if (hasUnits && from != null && enriched.units?.[0]) {
+    const nextUnits = [...enriched.units]
+    const first = { ...nextUnits[0] }
+    first.priceFrom = pickNumber(first.priceFrom, from) ?? 0
+    first.priceTo = pickNumber(first.priceTo, to, first.priceFrom) ?? first.priceFrom
+    first.type = pickString(first.type, first.bedrooms === 0 ? "Studio" : "Residence") || "Residence"
+    nextUnits[0] = first
+    enriched.units = nextUnits
   }
 
   const investment = enriched.investmentHighlights || ({} as Project["investmentHighlights"])
@@ -591,24 +754,31 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
 }
 
 export async function getPropertiesByArea(area: string, limit = 12) {
-  const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload
+  const rows = await query<ProjectListingRow>(
+    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      WHERE area ILIKE $1
      ORDER BY ${SORT_SCORE_ORDER}
      LIMIT $2`,
     [`%${area}%`, limit],
   )
-  return rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
+  return rows.map((row) => projectToProperty(normalizeListingProject(row)))
 }
 
 export async function getPropertyBySlug(slug: string) {
-  const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload FROM gc_projects WHERE slug = $1 OR payload->>'slug' = $1 LIMIT 1`,
-    [slug],
+  const cleanSlug = slug.trim().toLowerCase()
+  const rows = await query<ProjectListingRow>(
+    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+     FROM gc_projects
+     WHERE lower(slug) = $1
+        OR lower(payload->>'slug') = $1
+        OR lower(payload->>'slugified') = $1
+        OR lower(payload->>'pfSlug') = $1
+     LIMIT 1`,
+    [cleanSlug],
   )
   if (!rows[0]?.payload) return null
-  return projectToProperty(normalizeProjectPayload(rows[0]))
+  return projectToProperty(normalizeListingProject(rows[0]))
 }
 
 export async function getAreas() {
@@ -717,15 +887,15 @@ export async function getProjectsByDeveloper(developerName: string, limit = 6) {
 }
 
 export async function getPropertiesByDeveloper(developerName: string, limit = 6) {
-  const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload
+  const rows = await query<ProjectListingRow>(
+    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      WHERE developer_name ILIKE $1
      ORDER BY ${SORT_SCORE_ORDER}
      LIMIT $2`,
     [`%${developerName}%`, limit],
   )
-  return rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
+  return rows.map((row) => projectToProperty(normalizeListingProject(row)))
 }
 
 export async function getProjectsBySlugs(slugs: string[]) {
