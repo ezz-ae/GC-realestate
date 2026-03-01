@@ -7,6 +7,17 @@ type ProjectRow = {
   payload: Project
 }
 
+type ProjectListingRow = ProjectRow & {
+  name?: string | null
+  area?: string | null
+  status?: string | null
+  hero_image?: string | null
+  price_from_aed?: number | null
+  price_to_aed?: number | null
+  rental_yield?: number | null
+  golden_visa_eligible?: boolean | null
+}
+
 type AreaRow = {
   slug: string
   name: string
@@ -210,6 +221,62 @@ const normalizeProjectPayload = (row: ProjectRow) => {
   }
 }
 
+const normalizeListingProject = (row: ProjectListingRow) => {
+  const payload = normalizeProjectPayload(row)
+  const enriched = {
+    ...payload,
+    name: payload.name || row.name || "Property",
+    status: payload.status || (row.status as Project["status"]) || "selling",
+    tagline: payload.tagline || (row.area ? `${row.area} · Dubai` : "Dubai property"),
+    heroImage: payload.heroImage || row.hero_image || "/logo.png",
+  } as Project
+
+  const location = enriched.location || ({} as Project["location"])
+  enriched.location = {
+    ...location,
+    area: location.area || row.area || "Dubai",
+    district: location.district || "Dubai",
+    city: location.city || "Dubai",
+    coordinates: location.coordinates || { lat: 0, lng: 0 },
+    freehold: typeof location.freehold === "boolean" ? location.freehold : true,
+    nearbyLandmarks: Array.isArray(location.nearbyLandmarks) ? location.nearbyLandmarks : [],
+  }
+
+  const hasUnits = Array.isArray(enriched.units) && enriched.units.length > 0
+  if (!hasUnits) {
+    const from = row.price_from_aed ?? 1500000
+    const to = row.price_to_aed ?? from
+    enriched.units = [
+      {
+        type: "Residence",
+        bedrooms: 1,
+        baths: 1,
+        bathrooms: 1,
+        priceFrom: from,
+        priceTo: to,
+        sizeFrom: 900,
+        sizeTo: 900,
+        available: 1,
+        floorPlan: "",
+      },
+    ]
+  }
+
+  const investment = enriched.investmentHighlights || ({} as Project["investmentHighlights"])
+  const safeYield = typeof row.rental_yield === "number" ? row.rental_yield : 0
+  enriched.investmentHighlights = {
+    expectedROI: investment.expectedROI ?? safeYield,
+    rentalYield: investment.rentalYield ?? safeYield,
+    goldenVisaEligible:
+      typeof investment.goldenVisaEligible === "boolean"
+        ? investment.goldenVisaEligible
+        : Boolean(row.golden_visa_eligible),
+    paymentPlanAvailable: investment.paymentPlanAvailable ?? false,
+  }
+
+  return enriched
+}
+
 const mapAreaRow = (row: AreaRow): AreaProfile => {
   const payload = row.payload || {}
   const rawSlug = payload.slug || row.slug || payload.name || row.name || ""
@@ -315,20 +382,20 @@ export async function getProjectBySlug(slug: string) {
 }
 
 export async function getProperties(limit = 12) {
-  const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload
+  const rows = await query<ProjectListingRow>(
+    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      WHERE status = 'selling'
      ORDER BY ${SORT_SCORE_ORDER}
      LIMIT $1`,
     [limit],
   )
-  return rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
+  return rows.map((row) => projectToProperty(normalizeListingProject(row)))
 }
 
 export async function getFeaturedProperties(limit = 3) {
-  const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload
+  const rows = await query<ProjectListingRow>(
+    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      WHERE status = 'selling'
        AND featured = true
@@ -337,7 +404,7 @@ export async function getFeaturedProperties(limit = 3) {
     [limit],
   )
 
-  return rows.map((row) => projectToProperty(normalizeProjectPayload(row)))
+  return rows.map((row) => projectToProperty(normalizeListingProject(row)))
 }
 
 export interface PropertyListingFilters {
@@ -438,8 +505,8 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
     page === 1 && !hasActiveFilters && (!filters.sort || filters.sort === "score")
 
   if (usesFeaturedFirstPage) {
-    const featuredRows = await query<ProjectRow>(
-      `SELECT id, slug, payload
+    const featuredRows = await query<ProjectListingRow>(
+      `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
        FROM gc_projects
        WHERE status = 'selling'
          AND featured = true
@@ -451,8 +518,8 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
     let rows = featuredRows
     const remaining = pageSize - featuredRows.length
     if (remaining > 0) {
-      const fallbackRows = await query<ProjectRow>(
-        `SELECT id, slug, payload
+      const fallbackRows = await query<ProjectListingRow>(
+        `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
          FROM gc_projects
          WHERE status = 'selling'
            AND (featured IS DISTINCT FROM true)
@@ -469,7 +536,7 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
     const total = countRows[0]?.total ?? rows.length
     return {
       total,
-      properties: rows.map((row) => projectToProperty(normalizeProjectPayload(row))),
+      properties: rows.map((row) => projectToProperty(normalizeListingProject(row))),
     }
   }
 
@@ -508,8 +575,8 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
   const total = countRows[0]?.total || 0
 
   values.push(pageSize, offset)
-  const rows = await query<ProjectRow>(
-    `SELECT id, slug, payload
+  const rows = await query<ProjectListingRow>(
+    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      ${whereClause}
      ORDER BY ${orderBy}
@@ -519,7 +586,7 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
 
   return {
     total,
-    properties: rows.map((row) => projectToProperty(normalizeProjectPayload(row))),
+    properties: rows.map((row) => projectToProperty(normalizeListingProject(row))),
   }
 }
 

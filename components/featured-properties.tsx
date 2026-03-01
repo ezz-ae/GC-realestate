@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, Bed, Bath, Ruler, TrendingUp } from "lucide-react"
+import { MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { getFeaturedProperties } from "@/lib/entrestate"
@@ -53,10 +53,6 @@ export async function FeaturedProperties() {
               badges.push("Golden Visa")
             }
 
-            if (property.investmentMetrics.roi >= 8.5) {
-              badges.push("High ROI")
-            }
-
             return (
               <Card
                 key={property.id}
@@ -98,33 +94,10 @@ export async function FeaturedProperties() {
                       {property.currency === "AED"
                         ? formatPrice(Math.round(property.price / 3.67), "USD")
                         : formatPrice(Math.round(property.price * 3.67), "AED")}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-border">
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Bed className="h-4 w-4 text-muted-foreground" />
-                      <span>
-                        {property.specifications.bedrooms === 0
-                          ? "Studio"
-                          : `${property.specifications.bedrooms} Bed`}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Bath className="h-4 w-4 text-muted-foreground" />
-                      <span>{property.specifications.bathrooms} Bath</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Ruler className="h-4 w-4 text-muted-foreground" />
-                      <span>{property.specifications.sizeSqft} sqft</span>
-                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <TrendingUp className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{property.investmentMetrics.roi}% ROI</span>
-                    </div>
+                  <div className="flex items-center justify-end pt-3 border-t border-border">
                     <Button size="sm" variant="outline" asChild>
                       <Link href={`/properties/${property.slug}`}>View Details</Link>
                     </Button>
