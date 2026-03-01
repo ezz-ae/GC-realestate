@@ -106,6 +106,29 @@ const hasPropertyIntent = (message: string) => {
   return hasNoun && (hasKeyword || hasPrice || hasBeds)
 }
 
+const buildFallbackReply = (projects: Awaited<ReturnType<typeof searchProjects>>, wantsProperties: boolean) => {
+  if (!wantsProperties) {
+    return "I can help with Dubai property search, ROI, Golden Visa eligibility, and area comparison. Share your budget, preferred area, and unit type to get a precise shortlist."
+  }
+
+  if (!projects.length) {
+    return "I couldn't find an exact match right now. Share your budget range, preferred area, and bedroom count, and I'll refine your shortlist instantly."
+  }
+
+  const lines = projects.slice(0, 3).map((project) => {
+    const property = projectToProperty(project)
+    const priceText = property.price
+      ? `AED ${property.price.toLocaleString("en-AE")}`
+      : "price on request"
+    const roiText = Number.isFinite(project.investmentHighlights?.expectedROI)
+      ? `${project.investmentHighlights.expectedROI}% ROI`
+      : "investment-ready"
+    return `- ${property.title} (${property.location.area}) from ${priceText} • ${roiText}`
+  })
+
+  return `Here are strong matches right now:\n${lines.join("\n")}\n\nIf you share your name and WhatsApp/email, I can send live availability and a full ROI breakdown.`
+}
+
 export async function POST(req: NextRequest) {
   const resultLimit = 3
   let wantsProperties = false
@@ -159,8 +182,7 @@ export async function POST(req: NextRequest) {
 
     if (!hasGeminiKey) {
       return NextResponse.json({
-        reply:
-          "AI is temporarily unavailable, but I can still help. Tell me your budget, preferred area, and unit type, then share your name + phone so I can send the best shortlist.",
+        reply: buildFallbackReply(relevantProjects, wantsProperties),
         properties: wantsProperties
           ? relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
           : [],
@@ -326,8 +348,7 @@ IMPORTANT: If contact details are missing, prioritize asking for them naturally 
     try {
       const fallbackProjects = wantsProperties ? await searchProjects("Dubai", 5) : []
       return NextResponse.json({
-        reply:
-          "AI is temporarily unavailable. Tell me your budget and preferred area, then share your name and phone so I can send a tailored shortlist.",
+        reply: buildFallbackReply(fallbackProjects, wantsProperties),
         properties: wantsProperties
           ? fallbackProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
           : [],

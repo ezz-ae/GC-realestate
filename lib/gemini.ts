@@ -77,30 +77,42 @@ RESPONSE FORMAT:
 - Format data in tables when appropriate`
 
 export const DEFAULT_GEMINI_MODELS = [
-  "gemini-1.5-pro-latest",
+  // Current family first (preferred), legacy models below for backward compatibility.
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.0-flash",
   "gemini-1.5-flash-latest",
+  "gemini-1.5-pro-latest",
   "gemini-1.0-pro",
 ]
 
-export async function listGeminiModels() {
+export async function listGeminiModels(): Promise<string[]> {
   if (!geminiApiKey) return []
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`,
-    )
-    if (!response.ok) return []
-    const data = await response.json()
-    const models = Array.isArray(data?.models) ? data.models : []
-    return models
-      .filter((model: any) => model?.supportedGenerationMethods?.includes("generateContent"))
-      .map((model: any) => {
-        const name = String(model.name || "")
-        return name.startsWith("models/") ? name.slice("models/".length) : name
-      })
-      .filter(Boolean)
-  } catch {
-    return []
+  const endpoints = [
+    "https://generativelanguage.googleapis.com/v1/models",
+    "https://generativelanguage.googleapis.com/v1beta/models",
+  ]
+
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(`${endpoint}?key=${geminiApiKey}`)
+      if (!response.ok) continue
+      const data = await response.json()
+      const models = Array.isArray(data?.models) ? data.models : []
+      const names = models
+        .filter((model: any) => model?.supportedGenerationMethods?.includes("generateContent"))
+        .map((model: any) => {
+          const name = String(model.name || "")
+          return name.startsWith("models/") ? name.slice("models/".length) : name
+        })
+        .filter(Boolean)
+      if (names.length) return Array.from(new Set(names))
+    } catch {
+      continue
+    }
   }
+
+  return []
 }
 
 export function getGeminiModelByName(modelName: string) {
