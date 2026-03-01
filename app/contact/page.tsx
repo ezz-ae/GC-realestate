@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react"
+import { Phone, Mail, MapPin, MessageCircle, Instagram } from "lucide-react"
 import Link from "next/link"
 
 export const metadata = {
@@ -89,6 +89,23 @@ export default function ContactPage() {
                       </p>
                     </div>
                   </div>
+
+                  <div className="flex items-start gap-4 p-5 rounded-2xl border bg-card shadow-sm">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl gold-gradient">
+                      <Instagram className="h-6 w-6 text-black" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm">Instagram</div>
+                      <a
+                        href="https://www.instagram.com/goldcentury.ae/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        @goldcentury.ae
+                      </a>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="p-6 rounded-2xl border bg-muted/40 backdrop-blur-sm">
@@ -131,7 +148,7 @@ export default function ContactPage() {
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Phone Number</Label>
-                        <Input id="phone" type="tel" placeholder="+971 50 750 5175" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" />
+                        <Input id="phone" type="tel" placeholder="+97112345678" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="interest" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Investment Focus</Label>
@@ -196,6 +213,17 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <span className="font-medium text-foreground">Consultations:</span> By appointment
+                  </div>
+                  <div>
+                    <span className="font-medium text-foreground">Instagram:</span>{" "}
+                    <a
+                      href="https://www.instagram.com/goldcentury.ae/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-primary transition-colors"
+                    >
+                      @goldcentury.ae
+                    </a>
                   </div>
                 </div>
               </div>

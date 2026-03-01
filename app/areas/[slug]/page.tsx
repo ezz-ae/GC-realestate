@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { getAreaBySlug, getAreas, getProjectsByArea, getPropertiesByArea } from "@/lib/entrestate"
 
 export async function generateStaticParams() {
-  const areas = await getAreas()
+  const areas = await getAreas().catch(() => [])
   return areas.map((area) => ({ slug: area.slug }))
 }
 
@@ -23,14 +23,20 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
     notFound()
   }
 
-  const area = await getAreaBySlug(slug)
+  const area = await getAreaBySlug(slug).catch(() => null)
 
   if (!area) {
     notFound()
   }
 
-  const areaProjects = await getProjectsByArea(area.name, 6)
-  const areaProperties = await getPropertiesByArea(area.name, 6)
+  const areaName = area.name || "Dubai"
+  const [projectsResult, propertiesResult] = await Promise.allSettled([
+    getProjectsByArea(areaName, 6),
+    getPropertiesByArea(areaName, 6),
+  ])
+
+  const areaProjects = projectsResult.status === "fulfilled" ? projectsResult.value : []
+  const areaProperties = propertiesResult.status === "fulfilled" ? propertiesResult.value : []
 
   return (
     <div className="flex min-h-screen flex-col">

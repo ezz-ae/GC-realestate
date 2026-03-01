@@ -3,7 +3,7 @@ import { getAreas } from "@/lib/entrestate"
 import { AreasGuideClient } from "@/components/areas-guide-client"
 
 export default async function AreasGuidePage() {
-  const areas = await getAreas()
+  const areas = await getAreas().catch(() => [])
 
   return (
     <>

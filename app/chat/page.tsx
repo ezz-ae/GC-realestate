@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ChatMessage } from "@/components/chat-message"
 import { ChatInput } from "@/components/chat-input"
 import { PropertyCard } from "@/components/property-card"
@@ -12,7 +12,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { useAIChat } from "@/hooks/use-ai-chat"
 import type { Property } from "@/lib/types/project"
 import { ArrowLeft, Sparkles, ShieldCheck, Zap } from "lucide-react"
@@ -26,11 +25,13 @@ export default function ChatPage() {
   const { messages, sendMessage, isLoading, lastProperties, error } = useAIChat()
   const [resultProperties, setResultProperties] = useState<Property[]>([])
   const [isMobileView, setIsMobileView] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const scrollViewportRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages, isLoading])
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const viewport = scrollViewportRef.current
+    if (!viewport) return
+    viewport.scrollTo({ top: viewport.scrollHeight, behavior })
+  }, [])
 
   const formatShortPrice = (value: number) =>
     new Intl.NumberFormat("en-AE", {
@@ -70,19 +71,27 @@ export default function ChatPage() {
     return () => mediaQuery.removeEventListener("change", update)
   }, [])
 
+  const handleSendMessage = useCallback(async (content: string) => {
+    scrollToBottom("smooth")
+    await sendMessage(content, { isMobile: isMobileView })
+    scrollToBottom("smooth")
+  }, [isMobileView, scrollToBottom, sendMessage])
+
   useEffect(() => {
     if (initialQuery && messages.length === 0) {
       handleSendMessage(initialQuery)
     }
-  }, [initialQuery])
-
-  const handleSendMessage = async (content: string) => {
-    await sendMessage(content, { isMobile: isMobileView })
-  }
+  }, [handleSendMessage, initialQuery, messages.length])
 
   useEffect(() => {
     setResultProperties(lastProperties || [])
   }, [lastProperties])
+
+  useEffect(() => {
+    const behavior: ScrollBehavior = messages.length <= 1 ? "auto" : "smooth"
+    const frame = window.requestAnimationFrame(() => scrollToBottom(behavior))
+    return () => window.cancelAnimationFrame(frame)
+  }, [isLoading, messages.length, resultProperties.length, scrollToBottom])
 
   const suggestedQuestions = [
     "Show me 2BR apartments in Dubai Marina under AED 2M",
@@ -126,7 +135,7 @@ export default function ChatPage() {
             </div>
 
             <div className="h-full">
-              <ScrollArea className="h-full px-4 py-8 md:px-8">
+              <div ref={scrollViewportRef} className="h-full overflow-y-auto px-4 py-8 md:px-8">
                 <div className="mx-auto max-w-4xl space-y-10 pb-8">
                     {messages.length === 0 ? (
                          <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
@@ -194,11 +203,11 @@ export default function ChatPage() {
                                         </div>
                                     </div>
                                     <div className="p-4 md:p-6 bg-muted/10">
-                                        <Carousel opts={{ align: "start" }} className="w-full max-w-[90vw] md:max-w-none">
+                                        <Carousel opts={{ align: "start" }} className="w-full">
                                             <CarouselContent>
                                                 {resultProperties.map((property) => (
-                                                    <CarouselItem key={property.id} className="basis-[85%] md:basis-1/2 lg:basis-1/3 pl-4">
-                                                        <PropertyCard property={property} />
+                                                    <CarouselItem key={property.id} className="basis-[74%] sm:basis-[58%] md:basis-[44%] lg:basis-[36%] xl:basis-[32%] pl-4">
+                                                        <PropertyCard property={property} compact />
                                                     </CarouselItem>
                                                 ))}
                                             </CarouselContent>
@@ -208,11 +217,11 @@ export default function ChatPage() {
                                     </div>
                                 </div>
                              )}
-                             <div ref={messagesEndRef} className="h-4" />
+                             <div className="h-4" />
                         </>
                     )}
                 </div>
-              </ScrollArea>
+              </div>
             </div>
        </div>
 

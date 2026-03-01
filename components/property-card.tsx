@@ -9,9 +9,10 @@ import type { Property } from "@/lib/types/project"
 
 interface PropertyCardProps {
   property: Property
+  compact?: boolean
 }
 
-export function PropertyCard({ property }: PropertyCardProps) {
+export function PropertyCard({ property, compact = false }: PropertyCardProps) {
   const formatPrice = (price: number, currency: Property["currency"]) => {
     const locale = currency === "AED" ? "en-AE" : "en-US"
     return new Intl.NumberFormat(locale, {
@@ -37,30 +38,38 @@ export function PropertyCard({ property }: PropertyCardProps) {
   return (
     <Link href={`/properties/${property.slug}`} className="group block" prefetch={false}>
       <Card className="overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <div className={`relative overflow-hidden bg-muted ${compact ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
         <Image
           src={imageSrc}
           alt={property.title}
           fill
           className={imageClass}
         />
-        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-          <Badge variant="secondary" className="bg-background/95 backdrop-blur-md shadow-sm border-none">
+        <div className={`absolute left-3 z-10 flex flex-wrap gap-1.5 ${compact ? "top-2" : "top-3"}`}>
+          <Badge
+            variant="secondary"
+            className={`bg-background/95 backdrop-blur-md shadow-sm border-none ${compact ? "text-[10px] px-2 py-0.5" : ""}`}
+          >
             {property.type === "off-plan" ? "Off-Plan" : property.type === "secondary" ? "Secondary" : "Commercial"}
           </Badge>
           {property.investmentMetrics.goldenVisaEligible && (
-            <Badge className="gold-gradient border-none shadow-sm">
+            <Badge className={`gold-gradient border-none shadow-sm ${compact ? "text-[10px] px-2 py-0.5" : ""}`}>
               Golden Visa
             </Badge>
           )}
         </div>
       </div>
       
-      <CardContent className="p-5">
+      <CardContent className={compact ? "p-3" : "p-5"}>
         <div className="mb-2 flex items-start justify-between gap-2">
-          <h3 className="font-serif text-xl font-bold line-clamp-1 group-hover:text-primary transition-colors">{property.title}</h3>
+          <h3 className={`font-serif font-bold group-hover:text-primary transition-colors ${compact ? "text-base line-clamp-2" : "text-xl line-clamp-1"}`}>
+            {property.title}
+          </h3>
           {property.investmentMetrics.roi && (
-            <Badge variant="outline" className="shrink-0 text-[10px] h-5 border-primary/20 bg-primary/5 text-primary">
+            <Badge
+              variant="outline"
+              className={`shrink-0 border-primary/20 bg-primary/5 text-primary ${compact ? "text-[9px] h-4 px-1.5" : "text-[10px] h-5"}`}
+            >
               <TrendingUp className="mr-1 h-3 w-3" />
               {property.investmentMetrics.roi}% ROI
             </Badge>
@@ -72,7 +81,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <span className="line-clamp-1">{property.location.area}, Dubai</span>
         </div>
 
-        <div className="mb-5 flex items-center gap-4 text-xs text-muted-foreground border-y border-border/50 py-3">
+        <div className={`flex items-center text-xs text-muted-foreground border-y border-border/50 ${compact ? "mb-3 gap-3 py-2" : "mb-5 gap-4 py-3"}`}>
           <div className="flex items-center gap-1.5">
             <BedDouble className="h-4 w-4 text-foreground/70" />
             <span>{bedLabel}</span>
@@ -81,19 +90,23 @@ export function PropertyCard({ property }: PropertyCardProps) {
             <Bath className="h-4 w-4 text-foreground/70" />
             <span>{bathLabel}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Maximize className="h-4 w-4 text-foreground/70" />
-            <span>{property.specifications.sizeSqft.toLocaleString()} sqft</span>
-          </div>
+          {!compact && (
+            <div className="flex items-center gap-1.5">
+              <Maximize className="h-4 w-4 text-foreground/70" />
+              <span>{property.specifications.sizeSqft.toLocaleString()} sqft</span>
+            </div>
+          )}
         </div>
 
-        <div className="text-2xl font-bold gold-text-gradient tracking-tight">
+        <div className={`${compact ? "text-xl" : "text-2xl"} font-bold gold-text-gradient tracking-tight`}>
           {formatPrice(property.price, property.currency)}
         </div>
       </CardContent>
 
-      <CardFooter className="p-5 pt-0">
-        <div className="w-full rounded-full border border-primary/20 bg-primary/5 px-4 py-2.5 text-center text-[10px] font-bold uppercase tracking-widest text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary">
+      <CardFooter className={compact ? "p-3 pt-0" : "p-5 pt-0"}>
+        <div
+          className={`w-full rounded-full border border-primary/20 bg-primary/5 text-center font-bold uppercase tracking-widest text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary ${compact ? "px-3 py-2 text-[9px]" : "px-4 py-2.5 text-[10px]"}`}
+        >
           Explore Unit
         </div>
       </CardFooter>

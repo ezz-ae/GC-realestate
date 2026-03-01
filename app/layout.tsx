@@ -133,8 +133,8 @@ export default function RootLayout({
       "closes": "18:00"
     },
     "sameAs": [
-      "https://www.facebook.com/goldcentury",
-      "https://www.instagram.com/goldcentury",
+      "https://www.facebook.com/goldcentury.ae",
+      "https://www.instagram.com/goldcentury.ae/",
       "https://www.linkedin.com/company/goldcentury"
     ]
   }

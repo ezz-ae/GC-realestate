@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import Link from "next/link"
+import { useMemo, useRef, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
@@ -20,7 +21,8 @@ const formatPrice = (value: number) =>
 
 const getPriceRange = (project?: Project) => {
   if (!project) return "-"
-  const prices = project.units.flatMap((unit) => [unit.priceFrom, unit.priceTo])
+  const units = Array.isArray(project.units) ? project.units : []
+  const prices = units.flatMap((unit) => [unit.priceFrom, unit.priceTo]).filter((price) => Number.isFinite(price))
   if (!prices.length) return "Pricing on request"
   return `${formatPrice(Math.min(...prices))} - ${formatPrice(Math.max(...prices))}`
 }
@@ -29,6 +31,7 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
   const [leftId, setLeftId] = useState(projects[0]?.id || "")
   const [rightId, setRightId] = useState(projects[1]?.id || projects[0]?.id || "")
   const [loading, setLoading] = useState(false)
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   const leftProject = useMemo(
     () => projects.find((project) => project.id === leftId),
@@ -39,8 +42,12 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
     [rightId, projects],
   )
 
+  const handleScrollToResults = () => {
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
   const handleDownload = async () => {
-    if (!leftProject || !rightProject) return
+    if (!leftProject?.slug || !rightProject?.slug) return
     setLoading(true)
     try {
       const response = await fetch("/api/pdf/comparison", {
@@ -113,13 +120,16 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
         </Card>
       </div>
 
-      <div className="mt-10 flex items-center justify-end">
+      <div className="mt-10 flex flex-wrap items-center justify-end gap-3">
+        <Button variant="outline" onClick={handleScrollToResults}>
+          View Comparison
+        </Button>
         <Button className="gold-gradient" disabled={loading || !leftProject || !rightProject} onClick={handleDownload}>
           {loading ? "Preparing PDF..." : "Download Comparison PDF"}
         </Button>
       </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+      <div ref={resultsRef} className="scroll-mt-24 mt-10 grid gap-6 lg:grid-cols-2">
         {[leftProject, rightProject].map((project, index) => (
           <Card key={project?.id || index} className="rounded-[2rem] border-border shadow-md overflow-hidden bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
             <CardContent className="p-8 space-y-6">
@@ -132,7 +142,7 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
               <div className="space-y-4 pt-6 border-t border-border/50">
                 <div className="flex items-center justify-between group">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Area</span>
-                  <span className="font-semibold text-foreground">{project?.location.area || "-"}</span>
+                  <span className="font-semibold text-foreground">{project?.location?.area || "-"}</span>
                 </div>
                 <div className="flex items-center justify-between group">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Starting Price</span>
@@ -141,31 +151,35 @@ export function ProjectComparatorClient({ projects }: ProjectComparatorClientPro
                 <div className="flex items-center justify-between group">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Expected ROI</span>
                   <span className="font-bold text-green-600">
-                    {project ? `${project.investmentHighlights.expectedROI}%` : "-"}
+                    {typeof project?.investmentHighlights?.expectedROI === "number"
+                      ? `${project.investmentHighlights.expectedROI}%`
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between group">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Rental Yield</span>
                   <span className="font-bold text-foreground">
-                    {project ? `${project.investmentHighlights.rentalYield}%` : "-"}
+                    {typeof project?.investmentHighlights?.rentalYield === "number"
+                      ? `${project.investmentHighlights.rentalYield}%`
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between group">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Entry Threshold</span>
                   <span className="font-semibold text-foreground">
-                    {project ? `${project.paymentPlan.downPayment}% Down` : "-"}
+                    {typeof project?.paymentPlan?.downPayment === "number" ? `${project.paymentPlan.downPayment}% Down` : "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between group">
                   <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">Completion</span>
-                  <span className="font-semibold text-foreground">{project?.timeline.handoverDate || "-"}</span>
+                  <span className="font-semibold text-foreground">{project?.timeline?.handoverDate || "-"}</span>
                 </div>
               </div>
               
               {project && (
                 <div className="pt-6">
                   <Button variant="outline" className="w-full h-11 rounded-xl font-bold border-primary/20 text-primary hover:bg-primary/5" asChild>
-                    <Link href={`/projects/${project.slug}`}>View Full Profile</Link>
+                    <Link href={project.slug ? `/projects/${project.slug}` : "/projects"}>View Full Profile</Link>
                   </Button>
                 </div>
               )}

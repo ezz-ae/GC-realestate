@@ -14,8 +14,23 @@ import {
   getDeveloperStats,
 } from "@/lib/entrestate"
 
+const fallbackStats = {
+  listings: 0,
+  active: 0,
+  completed: 0,
+  avgYield: 0,
+  avgScore: 0,
+  goldenVisaCount: 0,
+  minPrice: 0,
+  maxPrice: 0,
+  onTimeDeliveryRate: null,
+  firstProjectYear: null,
+  topAreas: [] as Array<{ area: string; count: number }>,
+  flagshipProjects: [] as Array<{ id: string; slug: string; name: string; marketScore: number | null }>,
+}
+
 export async function generateStaticParams() {
-  const developers = await getDevelopers()
+  const developers = await getDevelopers().catch(() => [])
   return developers
     .map((developer) => ({ slug: developer.slug }))
     .filter((params) => Boolean(params.slug))
@@ -27,7 +42,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const developer = await getDeveloperBySlug(slug)
+  const developer = await getDeveloperBySlug(slug).catch(() => null)
   if (!developer) {
     return { title: "Developer Not Found" }
   }
@@ -43,15 +58,22 @@ export default async function DeveloperDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const developer = await getDeveloperBySlug(slug)
+  const developer = await getDeveloperBySlug(slug).catch(() => null)
 
   if (!developer) {
     notFound()
   }
 
-  const developerProjects = await getProjectsByDeveloper(developer.name, 6)
-  const developerProperties = await getPropertiesByDeveloper(developer.name, 6)
-  const stats = await getDeveloperStats(developer.name)
+  const developerName = developer.name || "Unknown Developer"
+  const [projectsResult, propertiesResult, statsResult] = await Promise.allSettled([
+    getProjectsByDeveloper(developerName, 6),
+    getPropertiesByDeveloper(developerName, 6),
+    getDeveloperStats(developerName),
+  ])
+
+  const developerProjects = projectsResult.status === "fulfilled" ? projectsResult.value : []
+  const developerProperties = propertiesResult.status === "fulfilled" ? propertiesResult.value : []
+  const stats = statsResult.status === "fulfilled" ? statsResult.value : fallbackStats
 
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("en-AE", {

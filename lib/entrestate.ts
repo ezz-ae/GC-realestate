@@ -92,10 +92,23 @@ const parseBedrooms = (unitType?: string) => {
 }
 
 const SORT_SCORE_ORDER =
-  "COALESCE(NULLIF(payload->>'sortScore', '')::numeric, market_score) DESC NULLS LAST"
+  "COALESCE(market_score, NULLIF(payload->>'sortScore', '')::numeric) DESC NULLS LAST"
 
 export const projectToProperty = (project: Project): Property => {
   const primaryUnit = project.units?.[0]
+  const safeLocation = project.location || ({} as Project["location"])
+  const safeDeveloper = project.developer || ({} as Project["developer"])
+  const safeInvestment = project.investmentHighlights || ({} as Project["investmentHighlights"])
+  const safeTimeline = project.timeline || ({} as Project["timeline"])
+  const area = safeLocation.area || "Dubai"
+  const district = safeLocation.district || "Dubai"
+  const city = safeLocation.city || "Dubai"
+  const coordinates = safeLocation.coordinates || { lat: 0, lng: 0 }
+  const freehold = typeof safeLocation.freehold === "boolean" ? safeLocation.freehold : true
+  const developerId = safeDeveloper.id || project.id || "developer"
+  const developerName = safeDeveloper.name || "Gold Century"
+  const developerSlug = safeDeveloper.slug || normalizeSlug(developerName) || "gold-century"
+  const developerLogo = safeDeveloper.pfLogo || safeDeveloper.logo || "/logo.png"
   const bedrooms =
     typeof primaryUnit?.bedrooms === "number"
       ? primaryUnit.bedrooms
@@ -115,22 +128,21 @@ export const projectToProperty = (project: Project): Property => {
     Array.isArray(project.mediaSource?.gallery) && project.mediaSource?.gallery?.length
       ? project.mediaSource?.gallery
       : project.gallery
-  const developerLogo = project.developer?.pfLogo || project.developer?.logo
 
   return {
-    id: project.id,
-    title: `${project.name} ${primaryUnit?.type || "Residence"}`,
-    slug: project.slug,
+    id: project.id || project.slug || normalizeSlug(project.name) || "property",
+    title: `${project.name || "Property"} ${primaryUnit?.type || "Residence"}`,
+    slug: project.slug || normalizeSlug(project.name) || "property",
     type: "off-plan",
     category: "apartment",
     price,
     currency: "AED",
     location: {
-      area: project.location.area,
-      district: project.location.district || "Dubai",
-      city: project.location.city || "Dubai",
-      coordinates: project.location.coordinates,
-      freehold: project.location.freehold,
+      area,
+      district,
+      city,
+      coordinates,
+      freehold,
     },
     specifications: {
       bedrooms,
@@ -144,34 +156,41 @@ export const projectToProperty = (project: Project): Property => {
     images: gallery?.length ? gallery : heroImage ? [heroImage] : [],
     video: project.heroVideo,
     virtualTour: project.virtualTour,
-    description: project.description,
+    description: project.description || `${project.name || "Property"} in ${area}, Dubai.`,
     highlights: project.highlights || [],
     amenities: project.amenities || [],
     developer: {
-      ...project.developer,
-      logo: developerLogo || project.developer.logo,
+      ...safeDeveloper,
+      id: safeDeveloper.id || developerId,
+      name: safeDeveloper.name || developerName,
+      slug: safeDeveloper.slug || developerSlug,
+      logo: developerLogo,
     },
-    project: { id: project.id, name: project.name, slug: project.slug },
+    project: {
+      id: project.id || project.slug || normalizeSlug(project.name) || "property",
+      name: project.name || "Property",
+      slug: project.slug || normalizeSlug(project.name) || "property",
+    },
     investmentMetrics: {
-      roi: project.investmentHighlights.expectedROI,
-      rentalYield: project.investmentHighlights.rentalYield,
-      appreciationRate: project.investmentHighlights.rentalYield,
-      goldenVisaEligible: project.investmentHighlights.goldenVisaEligible,
+      roi: safeInvestment.expectedROI ?? 0,
+      rentalYield: safeInvestment.rentalYield ?? 0,
+      appreciationRate: safeInvestment.rentalYield ?? 0,
+      goldenVisaEligible: safeInvestment.goldenVisaEligible ?? false,
     },
     paymentPlan: project.paymentPlan,
-    completionDate: project.timeline.expectedCompletion,
-    handoverDate: project.timeline.handoverDate,
+    completionDate: safeTimeline.expectedCompletion,
+    handoverDate: safeTimeline.handoverDate,
     status: "available",
     featured: project.featured,
-    seoTitle: project.seoTitle,
-    seoDescription: project.seoDescription,
-    seoKeywords: project.seoKeywords,
-    nearbyLandmarks: project.location.nearbyLandmarks?.map((landmark) => ({
+    seoTitle: project.seoTitle || project.name || "Property",
+    seoDescription: project.seoDescription || project.description || `${project.name || "Property"} in Dubai.`,
+    seoKeywords: project.seoKeywords || [],
+    nearbyLandmarks: safeLocation.nearbyLandmarks?.map((landmark) => ({
       name: landmark.name,
       distance: landmark.distance,
     })),
-    createdAt: project.createdAt,
-    updatedAt: project.updatedAt,
+    createdAt: project.createdAt || new Date().toISOString(),
+    updatedAt: project.updatedAt || new Date().toISOString(),
   }
 }
 

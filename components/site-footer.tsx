@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { Mail, MapPin, Phone, Instagram, Linkedin, MessageCircle } from "lucide-react"
+import { Mail, MapPin, Phone, Instagram, Linkedin, MessageCircle, Facebook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LeadFormPopup } from "@/components/lead-form-popup"
@@ -111,15 +111,33 @@ export function SiteFooter() {
                 </div>
                 <span>hello@goldcentury.ae</span>
               </div>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground group">
+                <div className="h-8 w-8 rounded-full border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                  <Instagram className="h-4 w-4 text-primary" />
+                </div>
+                <a
+                  href="https://www.instagram.com/goldcentury.ae/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  Gold Century Real Estate (@goldcentury.ae) · Dubai
+                </a>
+              </div>
             </div>
             <div className="flex items-center gap-3">
+              <Button size="icon" variant="outline" className="rounded-full h-10 w-10" aria-label="Facebook" asChild>
+                <a href="https://www.facebook.com/goldcentury.ae" target="_blank" rel="noopener noreferrer">
+                  <Facebook className="h-5 w-5" />
+                </a>
+              </Button>
               <Button size="icon" variant="outline" className="rounded-full h-10 w-10" aria-label="LinkedIn" asChild>
                 <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
                   <Linkedin className="h-5 w-5" />
                 </a>
               </Button>
               <Button size="icon" variant="outline" className="rounded-full h-10 w-10" aria-label="Instagram" asChild>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.instagram.com/goldcentury.ae/" target="_blank" rel="noopener noreferrer">
                   <Instagram className="h-5 w-5" />
                 </a>
               </Button>

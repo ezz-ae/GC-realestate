@@ -1,32 +1,17 @@
 import { Button } from "@/components/ui/button"
-import { Award, Users, Globe, Shield, TrendingUp, Heart, Target, Eye } from "lucide-react"
+import { Target, Eye, Instagram, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import { TeamMemberCard } from "@/components/team-member-card"
 
 export const metadata = {
   title: "About Us | Gold Century Real Estate",
   description: "Learn about Gold Century Real Estate - Dubai's trusted partner for international property investment with 15+ years of experience.",
 }
 
-const teamMembers = [
-  {
-    name: "Johnathan Doe",
-    title: "Founder & CEO",
-    bio: "With over 20 years in international real estate, Johnathan leads Gold Century's strategic vision, focusing on data-driven growth.",
-  },
-  {
-    name: "Jane Smith",
-    title: "Head of Sales",
-    bio: "Jane manages a team of 50+ consultants, ensuring our clients receive unparalleled service and market intelligence.",
-  },
-  {
-    name: "Peter Jones",
-    title: "Chief Technology Officer",
-    bio: "Peter is the architect of our AI-powered platform, turning complex market data into actionable investment insights.",
-  },
-]
-
 export default function AboutPage() {
+  const chairmanReelUrl =
+    "https://www.instagram.com/reel/DT-xFjfESjt/?utm_source=ig_web_button_share_sheet"
+  const chairmanReelEmbedUrl = "https://www.instagram.com/reel/DT-xFjfESjt/embed"
+
   return (
     <>
         {/* Hero Section */}
@@ -73,21 +58,62 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Meet the Team */}
+        {/* Leadership */}
         <section className="bg-muted/30 py-20">
           <div className="container">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="font-serif text-3xl font-bold tracking-tight md:text-4xl">
-                Meet Our Leadership
+                Leadership
               </h2>
               <p className="mt-4 text-muted-foreground">
-                The experts guiding your investment journey
+                Chairman
               </p>
             </div>
-            <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {teamMembers.map((member) => (
-                <TeamMemberCard key={member.name} {...member} />
-              ))}
+            <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+              <div className="text-sm uppercase tracking-widest text-muted-foreground">Chairman</div>
+              <div className="mt-3 font-serif text-3xl font-bold tracking-tight">MOUSTAFA ABOU HICHME</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Chairman Reel */}
+        <section className="py-20 border-b">
+          <div className="container">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <h2 className="font-serif text-3xl font-bold tracking-tight md:text-4xl">
+                Chairman On Instagram
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Watch the latest reel from Gold Century Real Estate.
+              </p>
+            </div>
+
+            <div className="grid gap-8 lg:grid-cols-[1.15fr,1fr]">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                <iframe
+                  src={chairmanReelEmbedUrl}
+                  title="Gold Century Instagram Reel"
+                  className="w-full min-h-[560px]"
+                  loading="lazy"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                />
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl gold-gradient">
+                  <Instagram className="h-6 w-6 text-black" />
+                </div>
+                <h3 className="mt-4 font-serif text-2xl font-bold">Gold Century Real Estate</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Follow <span className="font-semibold">@goldcentury.ae</span> for market updates, leadership insights, and Dubai investment highlights.
+                </p>
+                <Button className="mt-6 gold-gradient text-black font-semibold" asChild>
+                  <a href={chairmanReelUrl} target="_blank" rel="noopener noreferrer">
+                    Open Reel On Instagram
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </section>

@@ -27,7 +27,7 @@ export async function GET() {
       FROM gc_projects
       WHERE hero_image IS NOT NULL
         AND price_from_aed > 0
-      ORDER BY (payload->>'sortScore')::float DESC NULLS LAST
+      ORDER BY COALESCE(market_score, NULLIF(payload->>'sortScore', '')::float) DESC NULLS LAST
       LIMIT 6
     `,
 

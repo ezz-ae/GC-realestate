@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,10 +11,15 @@ export default function RoiCalculatorPage() {
   const [price, setPrice] = useState(1500000)
   const [annualRent, setAnnualRent] = useState(120000)
   const [annualCosts, setAnnualCosts] = useState(15000)
+  const resultRef = useRef<HTMLDivElement>(null)
 
   const grossYield = price > 0 ? (annualRent / price) * 100 : 0
   const netYield = price > 0 ? ((annualRent - annualCosts) / price) * 100 : 0
   const monthlyCashflow = (annualRent - annualCosts) / 12
+
+  const handleSubmit = () => {
+    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -75,11 +80,17 @@ export default function RoiCalculatorPage() {
                     </div>
                   </div>
                 </div>
-                <Button className="gold-gradient w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Update Intelligence</Button>
+                <Button
+                  type="button"
+                  className="gold-gradient w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20"
+                  onClick={handleSubmit}
+                >
+                  Update Intelligence
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="rounded-[2rem] bg-muted/30 border-border shadow-inner overflow-hidden">
+            <Card ref={resultRef} className="scroll-mt-24 rounded-[2rem] bg-muted/30 border-border shadow-inner overflow-hidden">
               <CardContent className="p-8 space-y-10">
                 <h3 className="font-serif text-xl font-bold">Yield Analysis</h3>
                 <div className="grid gap-8">

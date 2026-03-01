@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ export default function PaymentSimulatorPage() {
   const [duringConstruction, setDuringConstruction] = useState(50)
   const [onHandover, setOnHandover] = useState(30)
   const [postHandover, setPostHandover] = useState(0)
+  const resultRef = useRef<HTMLDivElement>(null)
 
   const calcAmount = (percent: number) => (price * percent) / 100
   const totalPercent = downPayment + duringConstruction + onHandover + postHandover
@@ -22,6 +23,10 @@ export default function PaymentSimulatorPage() {
     { id: "onHandover", label: "On Handover (%)", percent: onHandover, setter: setOnHandover },
     { id: "postHandover", label: "Post Handover (%)", percent: postHandover, setter: setPostHandover },
   ]
+
+  const handleSubmit = () => {
+    resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -77,11 +82,17 @@ export default function PaymentSimulatorPage() {
                     ))}
                   </div>
                 </div>
-                <Button className="gold-gradient w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20">Analyze Payment Flow</Button>
+                <Button
+                  type="button"
+                  className="gold-gradient w-full h-12 rounded-xl font-bold shadow-lg shadow-primary/20"
+                  onClick={handleSubmit}
+                >
+                  Analyze Payment Flow
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="rounded-[2rem] bg-muted/30 border-border shadow-inner overflow-hidden">
+            <Card ref={resultRef} className="scroll-mt-24 rounded-[2rem] bg-muted/30 border-border shadow-inner overflow-hidden">
               <CardContent className="p-8 space-y-8">
                 <div className="flex items-center justify-between border-b border-border/50 pb-6">
                   <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Plan Allocation</div>

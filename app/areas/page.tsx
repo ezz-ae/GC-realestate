@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function AreasPage() {
-  const areas = await getAreas()
+  const areas = await getAreas().catch(() => [])
   const topYieldAreas = [...areas].sort((a, b) => b.rentalYield - a.rentalYield).slice(0, 3)
   const bestValueAreas = [...areas].sort((a, b) => a.avgPricePerSqft - b.avgPricePerSqft).slice(0, 3)
   const topScoreAreas = [...areas].sort((a, b) => b.investmentScore - a.investmentScore).slice(0, 3)
