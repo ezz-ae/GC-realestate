@@ -5,14 +5,16 @@ import { getBrokerPerformanceSummary, getUserProfileByEmail } from "@/lib/entres
 import { getSessionUser, isAdminRole } from "@/lib/auth"
 
 interface DashboardProfilePageProps {
-  searchParams?: { email?: string }
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
 export default async function DashboardProfilePage({ searchParams }: DashboardProfilePageProps) {
   const sessionUser = await getSessionUser()
   const canViewOther = isAdminRole(sessionUser?.role)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const requestedEmail = typeof resolvedSearchParams?.email === "string" ? resolvedSearchParams.email : undefined
   const email =
-    canViewOther && searchParams?.email ? searchParams.email : sessionUser?.email
+    canViewOther && requestedEmail ? requestedEmail : sessionUser?.email
   const profile = email ? await getUserProfileByEmail(email) : null
   const brokerId = profile?.id || sessionUser?.id
   const snapshot = brokerId ? await getBrokerPerformanceSummary(brokerId) : null

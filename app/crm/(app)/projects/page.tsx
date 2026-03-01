@@ -11,7 +11,7 @@ import {
 } from "@/lib/entrestate"
 
 interface DashboardProjectsPageProps {
-  searchParams?: Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
 const formatCurrency = (value: number | null) => {
@@ -24,17 +24,22 @@ const formatCurrency = (value: number | null) => {
 }
 
 export default async function DashboardProjectsPage({ searchParams }: DashboardProjectsPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+
   const filters: DashboardProjectFilters = {
-    page: Number(searchParams?.page ?? 1),
+    page: Number(resolvedSearchParams?.page ?? 1),
     pageSize: 20,
-    search: typeof searchParams?.search === "string" ? searchParams.search : "",
-    area: typeof searchParams?.area === "string" ? searchParams.area : "",
-    developer: typeof searchParams?.developer === "string" ? searchParams.developer : "",
-    status: typeof searchParams?.status === "string" ? searchParams.status : "",
-    minPrice: searchParams?.minPrice ? Number(searchParams.minPrice) : undefined,
-    maxPrice: searchParams?.maxPrice ? Number(searchParams.maxPrice) : undefined,
-    minRoi: searchParams?.minRoi ? Number(searchParams.minRoi) : undefined,
-    sort: typeof searchParams?.sort === "string" ? (searchParams.sort as DashboardProjectFilters["sort"]) : "market",
+    search: typeof resolvedSearchParams?.search === "string" ? resolvedSearchParams.search : "",
+    area: typeof resolvedSearchParams?.area === "string" ? resolvedSearchParams.area : "",
+    developer: typeof resolvedSearchParams?.developer === "string" ? resolvedSearchParams.developer : "",
+    status: typeof resolvedSearchParams?.status === "string" ? resolvedSearchParams.status : "",
+    minPrice: resolvedSearchParams?.minPrice ? Number(resolvedSearchParams.minPrice) : undefined,
+    maxPrice: resolvedSearchParams?.maxPrice ? Number(resolvedSearchParams.maxPrice) : undefined,
+    minRoi: resolvedSearchParams?.minRoi ? Number(resolvedSearchParams.minRoi) : undefined,
+    sort:
+      typeof resolvedSearchParams?.sort === "string"
+        ? (resolvedSearchParams.sort as DashboardProjectFilters["sort"])
+        : "market",
   }
 
   const { projects, total } = await getDashboardProjects(filters)
