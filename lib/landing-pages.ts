@@ -3,6 +3,7 @@ import { query } from "@/lib/db"
 type JsonValue = Record<string, unknown> | Array<unknown> | string | number | boolean | null
 
 type LandingPageRow = Record<string, unknown>
+let ensureLandingSchemaPromise: Promise<void> | null = null
 
 type ProjectRow = {
   id: string
@@ -280,6 +281,71 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
   ]
 }
 
+const ensureLandingPagesSchema = async () => {
+  await query(`
+    CREATE TABLE IF NOT EXISTS gc_project_landing_pages (
+      id text PRIMARY KEY,
+      slug text UNIQUE,
+      project_slug text,
+      headline text,
+      subheadline text,
+      hero_image text,
+      cta_text text,
+      status text DEFAULT 'draft',
+      publish_from timestamptz,
+      publish_to timestamptz,
+      sections_json jsonb,
+      seo_title text,
+      seo_description text,
+      og_image text,
+      meta_pixel_id text,
+      google_tag_id text,
+      google_conversion_id text,
+      tiktok_pixel_id text,
+      created_at timestamptz DEFAULT now(),
+      updated_at timestamptz DEFAULT now()
+    )
+  `)
+
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS id text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS slug text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS project_slug text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS headline text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS title text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS subheadline text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS subtitle text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS hero_image text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS cta_text text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS status text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS publish_status text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS publish_from timestamptz`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS publish_to timestamptz`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS sections_json jsonb`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS sections jsonb`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS content_json jsonb`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS seo_title text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS seo_description text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS og_image text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS meta_title text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS meta_description text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS meta_pixel_id text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS google_tag_id text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS google_conversion_id text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS tiktok_pixel_id text`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now()`)
+  await query(`ALTER TABLE gc_project_landing_pages ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now()`)
+}
+
+const ensureLandingPagesSchemaOnce = async () => {
+  if (!ensureLandingSchemaPromise) {
+    ensureLandingSchemaPromise = ensureLandingPagesSchema().catch((error) => {
+      ensureLandingSchemaPromise = null
+      throw error
+    })
+  }
+  await ensureLandingSchemaPromise
+}
+
 const normalizeSections = (
   sectionsRaw: unknown,
   project: LandingProjectSummary | null,
@@ -397,6 +463,7 @@ const getProjectSummary = async (projectSlug: string): Promise<LandingProjectSum
 }
 
 export async function getLandingPageBySlug(slug: string): Promise<LandingPageData | null> {
+  await ensureLandingPagesSchemaOnce()
   const normalizedSlug = slug.trim().toLowerCase()
   const rows = await query<LandingPageRow>(
     `SELECT *
@@ -453,6 +520,7 @@ export async function getLandingPageBySlug(slug: string): Promise<LandingPageDat
 }
 
 export async function getLandingPagesForDashboard(limit = 100): Promise<LandingPageDashboardRow[]> {
+  await ensureLandingPagesSchemaOnce()
   const safeLimit = Math.max(1, Math.min(limit, 500))
 
   const pages = await query<
