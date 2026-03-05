@@ -57,17 +57,17 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
   if (filters.sort) baseParams.set("sort", filters.sort)
   const baseQuery = baseParams.toString()
   const buildPageHref = (page: number) =>
-    `/crm/projects${baseQuery ? `?${baseQuery}&page=${page}` : `?page=${page}`}`
+    `/crm/inventory${baseQuery ? `?${baseQuery}&page=${page}` : `?page=${page}`}`
 
   return (
     <div className="space-y-8">
       <section className="rounded-2xl border border-border bg-gradient-to-b from-background to-muted/70 p-6">
         <Badge className="mb-3 gold-gradient" variant="secondary">
-          Projects Management
+          Inventory Management
         </Badge>
-        <h1 className="font-serif text-3xl font-bold">All Projects</h1>
+        <h1 className="font-serif text-3xl font-bold">Project Inventory</h1>
         <p className="text-sm text-muted-foreground">
-          Manage listings, performance, and broker assignments across 3,655 projects.
+          View all inventory and launch campaign landing pages per project.
         </p>
       </section>
 
@@ -108,7 +108,7 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
             <div className="flex gap-2 md:col-span-3 lg:col-span-6">
               <Button type="submit" className="gold-gradient">Apply Filters</Button>
               <Button type="reset" variant="outline" asChild>
-                <Link href="/crm/projects">Reset</Link>
+                <Link href="/crm/inventory">Reset</Link>
               </Button>
             </div>
           </form>
@@ -117,9 +117,14 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <DashboardProjectsExport projects={projects} />
-        <Button className="gold-gradient" asChild>
-          <Link href="/crm/projects/add">Add New Project</Link>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/crm/landing-pages/create">Create Landing Page</Link>
+          </Button>
+          <Button className="gold-gradient" asChild>
+            <Link href="/crm/projects/add">Add New Project</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -153,6 +158,11 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
             <div className="text-muted-foreground">{project.expectedRoi ?? "—"}%</div>
             <div className="text-muted-foreground">{project.unitsAvailable || "—"}</div>
             <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" asChild>
+                <Link href={`/crm/landing-pages/create?projectSlug=${encodeURIComponent(project.slug)}`}>
+                  Create LP
+                </Link>
+              </Button>
               <Button size="sm" variant="outline" asChild>
                 <Link href={`/projects/${project.slug}`}>View</Link>
               </Button>

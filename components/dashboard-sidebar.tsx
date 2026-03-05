@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { href: "/crm/overview", label: "Overview", icon: LayoutDashboard },
   { href: "/crm/ai-assistant", label: "AI Assistant", icon: Bot },
-  { href: "/crm/projects", label: "Projects", icon: FolderKanban },
+  { href: "/crm/inventory", label: "Inventory", icon: FolderKanban },
   { href: "/crm/projects/add", label: "Add Project", icon: PlusCircle },
   { href: "/crm/landing-pages", label: "Landing Pages", icon: Rocket },
   { href: "/crm/leads", label: "Leads", icon: Users },

@@ -45,13 +45,25 @@ export default async function CrmLandingPagesPage() {
   return (
     <div className="space-y-8">
       <section className="rounded-2xl border border-border bg-gradient-to-b from-background to-muted/70 p-6">
-        <Badge className="mb-3 gold-gradient" variant="secondary">
-          Campaign Landing Pages
-        </Badge>
-        <h1 className="font-serif text-3xl font-bold">LP Campaign Control</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage project-specific campaign pages under <code>/lp/[slug]</code> with tracking and lead attribution.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <Badge className="mb-3 gold-gradient" variant="secondary">
+              Campaign Landing Pages
+            </Badge>
+            <h1 className="font-serif text-3xl font-bold">LP Campaign Control</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage project-specific campaign pages under <code>/lp/[slug]</code> with tracking and lead attribution.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/crm/inventory">Open Inventory</Link>
+            </Button>
+            <Button className="gold-gradient" asChild>
+              <Link href="/crm/landing-pages/create">Create Landing Page</Link>
+            </Button>
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
