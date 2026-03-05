@@ -460,7 +460,6 @@ export async function getLandingPagesForDashboard(limit = 100): Promise<LandingP
       slug: string | null
       project_slug: string | null
       headline: string | null
-      title: string | null
       status: string | null
       publish_status: string | null
       publish_from: string | null
@@ -469,7 +468,7 @@ export async function getLandingPagesForDashboard(limit = 100): Promise<LandingP
       created_at: string | null
     }
   >(
-    `SELECT slug, project_slug, headline, title, status, publish_status, publish_from, publish_to, updated_at, created_at
+    `SELECT slug, project_slug, headline, status, publish_status, publish_from, publish_to, updated_at, created_at
      FROM gc_project_landing_pages
      ORDER BY COALESCE(updated_at, created_at) DESC NULLS LAST
      LIMIT $1`,
@@ -515,7 +514,7 @@ export async function getLandingPagesForDashboard(limit = 100): Promise<LandingP
       return {
         slug,
         projectSlug: pickString(row.project_slug),
-        headline: pickString(row.headline, row.title) || slug,
+        headline: pickString(row.headline) || slug,
         status: pickString(row.status, row.publish_status) || "draft",
         publishFrom: row.publish_from || null,
         publishTo: row.publish_to || null,
