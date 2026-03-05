@@ -128,52 +128,56 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
-        <div className="grid grid-cols-8 gap-4 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <div className="col-span-2">Project</div>
-          <div>Area</div>
-          <div>Status</div>
-          <div>Price Range</div>
-          <div>ROI</div>
-          <div>Units</div>
-          <div>Actions</div>
-        </div>
-        {projects.map((project) => (
-          <div
-            key={project.id}
-            className="grid grid-cols-8 gap-4 border-b border-border px-4 py-4 text-sm last:border-b-0"
-          >
-            <div className="col-span-2">
-              <div className="font-semibold">{project.name}</div>
-              <div className="text-xs text-muted-foreground">
-                {project.developerName || "Unknown developer"}
+        <div className="overflow-x-auto">
+          <div className="min-w-[1024px]">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1.4fr_0.7fr_0.7fr_1.6fr] gap-4 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <div>Project</div>
+              <div>Area</div>
+              <div>Status</div>
+              <div>Price Range</div>
+              <div>ROI</div>
+              <div>Units</div>
+              <div>Actions</div>
+            </div>
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                className="grid grid-cols-[2fr_1fr_1fr_1.4fr_0.7fr_0.7fr_1.6fr] gap-4 border-b border-border px-4 py-4 text-sm last:border-b-0"
+              >
+                <div>
+                  <div className="font-semibold">{project.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {project.developerName || "Unknown developer"}
+                  </div>
+                </div>
+                <div className="text-muted-foreground">{project.area || "Dubai"}</div>
+                <div className="text-muted-foreground capitalize">
+                  {project.status || "—"}
+                </div>
+                <div className="text-muted-foreground">
+                  {formatCurrency(project.priceFrom)} {project.priceTo ? `- ${formatCurrency(project.priceTo)}` : ""}
+                </div>
+                <div className="text-muted-foreground">{project.expectedRoi ?? "—"}%</div>
+                <div className="text-muted-foreground">{project.unitsAvailable || "—"}</div>
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href={`/crm/landing-pages/create?projectSlug=${encodeURIComponent(project.slug)}`}>
+                      Create LP
+                    </Link>
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href={`/projects/${project.slug}`}>View</Link>
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="text-muted-foreground">{project.area || "Dubai"}</div>
-            <div className="text-muted-foreground capitalize">
-              {project.status || "—"}
-            </div>
-            <div className="text-muted-foreground">
-              {formatCurrency(project.priceFrom)} {project.priceTo ? `- ${formatCurrency(project.priceTo)}` : ""}
-            </div>
-            <div className="text-muted-foreground">{project.expectedRoi ?? "—"}%</div>
-            <div className="text-muted-foreground">{project.unitsAvailable || "—"}</div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" asChild>
-                <Link href={`/crm/landing-pages/create?projectSlug=${encodeURIComponent(project.slug)}`}>
-                  Create LP
-                </Link>
-              </Button>
-              <Button size="sm" variant="outline" asChild>
-                <Link href={`/projects/${project.slug}`}>View</Link>
-              </Button>
-            </div>
+            ))}
+            {projects.length === 0 && (
+              <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+                No projects match the current filters.
+              </div>
+            )}
           </div>
-        ))}
-        {projects.length === 0 && (
-          <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-            No projects match the current filters.
-          </div>
-        )}
+        </div>
       </div>
 
       <div className="flex items-center justify-between text-sm text-muted-foreground">
