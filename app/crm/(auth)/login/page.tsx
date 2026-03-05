@@ -11,12 +11,25 @@ import { Input } from "@/components/ui/input"
 export default function DashboardLoginPage() {
   const router = useRouter()
   const [form, setForm] = useState({ email: "", password: "" })
+  const [setupForm, setSetupForm] = useState({
+    name: "CRM Admin",
+    email: "",
+    password: "",
+    setupKey: "",
+  })
   const [isLoading, setIsLoading] = useState(false)
+  const [isSetupLoading, setIsSetupLoading] = useState(false)
   const [error, setError] = useState("")
+  const [setupError, setSetupError] = useState("")
 
   const handleChange = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [key]: event.target.value }))
   }
+
+  const handleSetupChange =
+    (key: keyof typeof setupForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSetupForm((prev) => ({ ...prev, [key]: event.target.value }))
+    }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -37,6 +50,28 @@ export default function DashboardLoginPage() {
       setError(err?.message || "Login failed.")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleSetupSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setIsSetupLoading(true)
+    setSetupError("")
+    try {
+      const response = await fetch("/api/auth/bootstrap-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(setupForm),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to initialize admin access.")
+      }
+      router.push("/crm/overview")
+    } catch (err: any) {
+      setSetupError(err?.message || "Failed to initialize admin access.")
+    } finally {
+      setIsSetupLoading(false)
     }
   }
 
@@ -84,6 +119,51 @@ export default function DashboardLoginPage() {
             </Link>
             .
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-4 border-primary/20">
+        <CardHeader>
+          <CardTitle>Initialize Admin Access</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-3" onSubmit={handleSetupSubmit}>
+            <Input
+              type="text"
+              placeholder="Admin name"
+              value={setupForm.name}
+              onChange={handleSetupChange("name")}
+              required
+            />
+            <Input
+              type="email"
+              placeholder="admin@company.com"
+              value={setupForm.email}
+              onChange={handleSetupChange("email")}
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Admin password (min 8)"
+              value={setupForm.password}
+              onChange={handleSetupChange("password")}
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Setup key (CRM_ADMIN_SETUP_KEY)"
+              value={setupForm.setupKey}
+              onChange={handleSetupChange("setupKey")}
+              required
+            />
+            {setupError && <div className="text-xs text-destructive">{setupError}</div>}
+            <Button type="submit" variant="outline" className="w-full" disabled={isSetupLoading}>
+              {isSetupLoading ? "Initializing..." : "Create / Reset Admin Login"}
+            </Button>
+          </form>
+          <p className="mt-3 text-xs text-muted-foreground">
+            This uses a secure setup key and should be used only by the website owner.
+          </p>
         </CardContent>
       </Card>
     </div>
