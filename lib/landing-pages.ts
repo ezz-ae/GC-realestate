@@ -150,6 +150,17 @@ const toDate = (value: unknown) => {
   return Number.isNaN(date.getTime()) ? null : date
 }
 
+const getTableColumns = async (tableName: string) => {
+  const rows = await query<{ column_name: string }>(
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = 'public'
+       AND table_name = $1`,
+    [tableName],
+  )
+  return new Set(rows.map((row) => row.column_name))
+}
+
 const normalizeType = (value: string): LandingSectionType | null => {
   const normalized = value.toLowerCase().replace(/[_\s]+/g, "-")
   switch (normalized) {
@@ -543,25 +554,40 @@ export async function getLandingPagesForDashboard(limit = 100): Promise<LandingP
     [safeLimit],
   )
 
-  const leads = await query<{ slug: string; total: number }>(
-    `SELECT
-       COALESCE(NULLIF(landing_slug, ''), NULLIF(REGEXP_REPLACE(source, '^lp:', '', 'g'), '')) AS slug,
-       COUNT(*)::int AS total
-     FROM gc_leads
-     WHERE COALESCE(NULLIF(landing_slug, ''), NULLIF(REGEXP_REPLACE(source, '^lp:', '', 'g'), '')) IS NOT NULL
-     GROUP BY 1`,
-  )
+  const leadColumns = await getTableColumns("gc_leads")
+  const leadSlugExpression = leadColumns.has("landing_slug")
+    ? leadColumns.has("source")
+      ? "COALESCE(NULLIF(landing_slug, ''), NULLIF(REGEXP_REPLACE(source, '^lp:', '', 'g'), ''))"
+      : "NULLIF(landing_slug, '')"
+    : leadColumns.has("source")
+      ? "NULLIF(REGEXP_REPLACE(source, '^lp:', '', 'g'), '')"
+      : null
 
-  const analytics = await query<{ slug: string; page_views: number; form_submissions: number }>(
-    `SELECT
-       landing_slug AS slug,
-       COUNT(*) FILTER (WHERE event_name = 'page_view')::int AS page_views,
-       COUNT(*) FILTER (WHERE event_name = 'form_submit')::int AS form_submissions
-     FROM gc_lp_analytics
-     WHERE landing_slug IS NOT NULL
-       AND landing_slug <> ''
-     GROUP BY landing_slug`,
-  )
+  const leads = leadSlugExpression
+    ? await query<{ slug: string; total: number }>(
+        `SELECT
+           ${leadSlugExpression} AS slug,
+           COUNT(*)::int AS total
+         FROM gc_leads
+         WHERE ${leadSlugExpression} IS NOT NULL
+         GROUP BY 1`,
+      )
+    : []
+
+  const analyticsColumns = await getTableColumns("gc_lp_analytics")
+  const analytics =
+    analyticsColumns.has("landing_slug") && analyticsColumns.has("event_name")
+      ? await query<{ slug: string; page_views: number; form_submissions: number }>(
+          `SELECT
+             landing_slug AS slug,
+             COUNT(*) FILTER (WHERE event_name = 'page_view')::int AS page_views,
+             COUNT(*) FILTER (WHERE event_name = 'form_submit')::int AS form_submissions
+           FROM gc_lp_analytics
+           WHERE landing_slug IS NOT NULL
+             AND landing_slug <> ''
+           GROUP BY landing_slug`,
+        )
+      : []
 
   const leadMap = new Map(leads.map((row) => [row.slug, Number(row.total) || 0]))
   const analyticsMap = new Map(
