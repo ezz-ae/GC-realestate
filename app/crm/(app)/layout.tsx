@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
         <div className="container py-8">
-          <div className="grid gap-6 lg:grid-cols-[260px,1fr]">
+          <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
             <DashboardSidebar user={user} />
             <div className="min-w-0">{children}</div>
           </div>
