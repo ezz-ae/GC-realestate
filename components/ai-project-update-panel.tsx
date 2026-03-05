@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
 import type { AiProjectUpdateRecord } from "@/lib/ai-project-updates"
 
+const CUSTOM_PROJECT_VALUE = "__custom_project__"
+
 export type ProjectOption = {
   slug: string
   name: string
@@ -26,18 +28,21 @@ interface AiProjectUpdatePanelProps {
 export function AiProjectUpdatePanel({ projects, updates }: AiProjectUpdatePanelProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const [projectSlug, setProjectSlug] = useState(projects[0]?.slug || "")
+  const [projectSlug, setProjectSlug] = useState(projects[0]?.slug || CUSTOM_PROJECT_VALUE)
   const [customProject, setCustomProject] = useState("")
   const [updateType, setUpdateType] = useState("status")
   const [targetStatus, setTargetStatus] = useState("expired")
   const [notes, setNotes] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const projectName = customProject.trim() || projects.find((project) => project.slug === projectSlug)?.name || ""
+  const projectName =
+    customProject.trim() ||
+    (projectSlug === CUSTOM_PROJECT_VALUE ? "" : projects.find((project) => project.slug === projectSlug)?.name || "")
+  const resolvedProjectSlug = projectSlug === CUSTOM_PROJECT_VALUE ? "" : projectSlug
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!projectSlug && !projectName) {
+    if (!resolvedProjectSlug && !projectName) {
       toast({ title: "Select or name a project" , variant: "destructive"})
       return
     }
@@ -51,7 +56,7 @@ export function AiProjectUpdatePanel({ projects, updates }: AiProjectUpdatePanel
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          projectSlug: projectSlug || projectName,
+          projectSlug: resolvedProjectSlug || projectName,
           projectName,
           updateType,
           targetStatus: targetStatus || null,
@@ -93,7 +98,7 @@ export function AiProjectUpdatePanel({ projects, updates }: AiProjectUpdatePanel
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None (custom)</SelectItem>
+                    <SelectItem value={CUSTOM_PROJECT_VALUE}>None (custom)</SelectItem>
                     {projects.map((project) => (
                       <SelectItem key={project.slug} value={project.slug}>
                         {project.name} {project.area ? `· ${project.area}` : ""}
