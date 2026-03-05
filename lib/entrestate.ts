@@ -1266,6 +1266,7 @@ export async function ensureLeadsTable() {
   `)
   await query(`
     ALTER TABLE gc_leads
+      ADD COLUMN IF NOT EXISTS assigned_broker_id text,
       ADD COLUMN IF NOT EXISTS status text,
       ADD COLUMN IF NOT EXISTS priority text,
       ADD COLUMN IF NOT EXISTS last_contact_at timestamptz,

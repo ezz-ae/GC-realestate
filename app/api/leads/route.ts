@@ -22,6 +22,12 @@ const ensureLeadSchema = async () => {
   `)
 
   await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS landing_slug text`)
+  await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS assigned_broker_id text`)
+  await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS priority text`)
+  await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS last_contact_at timestamptz`)
+  await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS country text`)
+  await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS budget_aed numeric`)
+  await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS interest text`)
   await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS budget text`)
   await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS utm_source text`)
   await query(`ALTER TABLE gc_leads ADD COLUMN IF NOT EXISTS utm_medium text`)
