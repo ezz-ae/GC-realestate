@@ -9,7 +9,7 @@ export function LocationSection({ data }: LocationSectionProps) {
   const title = (typeof data.title === "string" && data.title) || "RIO"
   const subtitle =
     (typeof data.subtitle === "string" && data.subtitle) ||
-    "Hardcoded investment benchmarks for campaign qualification."
+    "Curated investment benchmarks for campaign qualification."
 
   return (
     <SectionShell id="rio" title={title} subtitle={subtitle}>
