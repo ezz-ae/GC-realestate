@@ -84,7 +84,7 @@ export default function DashboardResetRequestPage() {
             </div>
           )}
 
-          <Link href="/dashboard/login" className="text-xs text-muted-foreground underline-offset-4 hover:underline">
+          <Link href="/crm/login" className="text-xs text-muted-foreground underline-offset-4 hover:underline">
             Return to login
           </Link>
         </CardContent>

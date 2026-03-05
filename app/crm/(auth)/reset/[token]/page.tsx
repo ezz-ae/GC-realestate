@@ -31,7 +31,7 @@ export default function DashboardResetPage() {
         throw new Error(data?.error || "Failed to reset password.")
       }
       setStatus("success")
-      setTimeout(() => router.push("/dashboard/login"), 800)
+      setTimeout(() => router.push("/crm/login"), 800)
     } catch (err: any) {
       setStatus("error")
       setError(err?.message || "Failed to reset password.")
@@ -75,7 +75,7 @@ export default function DashboardResetPage() {
             </div>
           )}
 
-          <Link href="/dashboard/login" className="text-xs text-muted-foreground underline-offset-4 hover:underline">
+          <Link href="/crm/login" className="text-xs text-muted-foreground underline-offset-4 hover:underline">
             Return to login
           </Link>
         </CardContent>

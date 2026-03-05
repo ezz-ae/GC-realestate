@@ -47,7 +47,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             </p>
           </div>
           <Button variant="outline" asChild>
-            <Link href="/dashboard/leads">Back to leads</Link>
+            <Link href="/crm/leads">Back to leads</Link>
           </Button>
         </div>
       </section>

@@ -57,7 +57,7 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
   if (filters.sort) baseParams.set("sort", filters.sort)
   const baseQuery = baseParams.toString()
   const buildPageHref = (page: number) =>
-    `/dashboard/projects${baseQuery ? `?${baseQuery}&page=${page}` : `?page=${page}`}`
+    `/crm/projects${baseQuery ? `?${baseQuery}&page=${page}` : `?page=${page}`}`
 
   return (
     <div className="space-y-8">
@@ -108,7 +108,7 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
             <div className="flex gap-2 md:col-span-3 lg:col-span-6">
               <Button type="submit" className="gold-gradient">Apply Filters</Button>
               <Button type="reset" variant="outline" asChild>
-                <Link href="/dashboard/projects">Reset</Link>
+                <Link href="/crm/projects">Reset</Link>
               </Button>
             </div>
           </form>
@@ -118,7 +118,7 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
       <div className="flex flex-wrap items-center justify-between gap-3">
         <DashboardProjectsExport projects={projects} />
         <Button className="gold-gradient" asChild>
-          <Link href="/dashboard/projects/add">Add New Project</Link>
+          <Link href="/crm/projects/add">Add New Project</Link>
         </Button>
       </div>
 

@@ -76,6 +76,19 @@ export interface LandingPageData {
   project: LandingProjectSummary | null
 }
 
+export interface LandingPageDashboardRow {
+  slug: string
+  projectSlug: string
+  headline: string
+  status: string
+  publishFrom: string | null
+  publishTo: string | null
+  updatedAt: string | null
+  leadCount: number
+  pageViews: number
+  formSubmissions: number
+}
+
 const toObject = (value: unknown): Record<string, unknown> => {
   if (!value) return {}
   if (typeof value === "string") {
@@ -437,4 +450,80 @@ export async function getLandingPageBySlug(slug: string): Promise<LandingPageDat
     sections: normalizeSections(sectionsRaw, project, row),
     project,
   }
+}
+
+export async function getLandingPagesForDashboard(limit = 100): Promise<LandingPageDashboardRow[]> {
+  const safeLimit = Math.max(1, Math.min(limit, 500))
+
+  const pages = await query<
+    {
+      slug: string | null
+      project_slug: string | null
+      headline: string | null
+      title: string | null
+      status: string | null
+      publish_status: string | null
+      publish_from: string | null
+      publish_to: string | null
+      updated_at: string | null
+      created_at: string | null
+    }
+  >(
+    `SELECT slug, project_slug, headline, title, status, publish_status, publish_from, publish_to, updated_at, created_at
+     FROM gc_project_landing_pages
+     ORDER BY COALESCE(updated_at, created_at) DESC NULLS LAST
+     LIMIT $1`,
+    [safeLimit],
+  )
+
+  const leads = await query<{ slug: string; total: number }>(
+    `SELECT
+       COALESCE(NULLIF(landing_slug, ''), NULLIF(REGEXP_REPLACE(source, '^lp:', '', 'g'), '')) AS slug,
+       COUNT(*)::int AS total
+     FROM gc_leads
+     WHERE COALESCE(NULLIF(landing_slug, ''), NULLIF(REGEXP_REPLACE(source, '^lp:', '', 'g'), '')) IS NOT NULL
+     GROUP BY 1`,
+  )
+
+  const analytics = await query<{ slug: string; page_views: number; form_submissions: number }>(
+    `SELECT
+       landing_slug AS slug,
+       COUNT(*) FILTER (WHERE event_name = 'page_view')::int AS page_views,
+       COUNT(*) FILTER (WHERE event_name = 'form_submit')::int AS form_submissions
+     FROM gc_lp_analytics
+     WHERE landing_slug IS NOT NULL
+       AND landing_slug <> ''
+     GROUP BY landing_slug`,
+  )
+
+  const leadMap = new Map(leads.map((row) => [row.slug, Number(row.total) || 0]))
+  const analyticsMap = new Map(
+    analytics.map((row) => [
+      row.slug,
+      {
+        pageViews: Number(row.page_views) || 0,
+        formSubmissions: Number(row.form_submissions) || 0,
+      },
+    ]),
+  )
+
+  return pages
+    .map((row) => {
+      const slug = pickString(row.slug).toLowerCase()
+      if (!slug) return null
+      const metric = analyticsMap.get(slug)
+      return {
+        slug,
+        projectSlug: pickString(row.project_slug),
+        headline: pickString(row.headline, row.title) || slug,
+        status: pickString(row.status, row.publish_status) || "draft",
+        publishFrom: row.publish_from || null,
+        publishTo: row.publish_to || null,
+        updatedAt: row.updated_at || row.created_at || null,
+        leadCount: leadMap.get(slug) || 0,
+        pageViews: metric?.pageViews || 0,
+        formSubmissions: metric?.formSubmissions || 0,
+      } satisfies LandingPageDashboardRow
+    })
+    .filter(Boolean) as LandingPageDashboardRow[]
 }

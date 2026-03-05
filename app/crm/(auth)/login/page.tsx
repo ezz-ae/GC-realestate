@@ -32,7 +32,7 @@ export default function DashboardLoginPage() {
       if (!response.ok) {
         throw new Error(data?.error || "Login failed.")
       }
-      router.push("/dashboard/overview")
+      router.push("/crm/overview")
     } catch (err: any) {
       setError(err?.message || "Login failed.")
     } finally {
@@ -79,7 +79,7 @@ export default function DashboardLoginPage() {
           </form>
           <div className="mt-4 text-xs text-muted-foreground">
             Forgot your password?{" "}
-            <Link href="/dashboard/reset" className="text-primary underline-offset-4 hover:underline">
+            <Link href="/crm/reset" className="text-primary underline-offset-4 hover:underline">
               Reset it here
             </Link>
             .

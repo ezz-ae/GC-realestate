@@ -10,6 +10,7 @@ import {
   Users,
   BarChart3,
   Settings,
+  Rocket,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/crm/ai-assistant", label: "AI Assistant", icon: Bot },
   { href: "/crm/projects", label: "Projects", icon: FolderKanban },
   { href: "/crm/projects/add", label: "Add Project", icon: PlusCircle },
+  { href: "/crm/landing-pages", label: "Landing Pages", icon: Rocket },
   { href: "/crm/leads", label: "Leads", icon: Users },
   { href: "/crm/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/crm/profile", label: "Profile", icon: Settings },
