@@ -29,30 +29,31 @@ export function RoiSection({ data }: RoiSectionProps) {
   const expectedRoi = toNumber(data.expectedRoi)
   const rentalYield = toNumber(data.rentalYield)
   const startPriceAed = toNumber(data.startPriceAed)
+  const metrics = [
+    expectedRoi > 0
+      ? { label: "Expected ROI", value: `${expectedRoi.toFixed(1)}%` }
+      : null,
+    rentalYield > 0
+      ? { label: "Rental Yield", value: `${rentalYield.toFixed(1)}%` }
+      : null,
+    startPriceAed > 0
+      ? { label: "Starting Price", value: formatAed(startPriceAed) }
+      : null,
+  ].filter(Boolean) as Array<{ label: string; value: string }>
+
+  if (!metrics.length) return null
 
   return (
     <SectionShell id="roi" title={title} subtitle={subtitle}>
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Expected ROI</p>
-            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">{expectedRoi.toFixed(1)}%</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Rental Yield</p>
-            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">{rentalYield.toFixed(1)}%</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Starting Price</p>
-            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">
-              {startPriceAed ? formatAed(startPriceAed) : "On request"}
-            </p>
-          </CardContent>
-        </Card>
+        {metrics.map((metric) => (
+          <Card key={metric.label}>
+            <CardContent className="p-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">{metric.label}</p>
+              <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">{metric.value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </SectionShell>
   )

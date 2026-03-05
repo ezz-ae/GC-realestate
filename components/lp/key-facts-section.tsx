@@ -5,6 +5,19 @@ interface KeyFactsSectionProps {
   data: Record<string, unknown>
 }
 
+const isZeroLike = (value: unknown) => {
+  if (typeof value === "number") return value === 0
+  if (typeof value !== "string") return false
+  const normalized = value.trim().toLowerCase()
+  if (!normalized || normalized === "-" || normalized === "0" || normalized === "0%" || normalized === "0.0%") {
+    return true
+  }
+  const numericToken = normalized.replace(/[^0-9.-]/g, "")
+  if (!numericToken) return false
+  const parsed = Number(numericToken)
+  return Number.isFinite(parsed) && parsed === 0
+}
+
 export function KeyFactsSection({ data }: KeyFactsSectionProps) {
   const title = (typeof data.title === "string" && data.title) || "Key Facts"
   const subtitle =
@@ -13,14 +26,22 @@ export function KeyFactsSection({ data }: KeyFactsSectionProps) {
     ? data.items
         .map((item) => (item && typeof item === "object" ? (item as Record<string, unknown>) : null))
         .filter(Boolean)
+        .filter((item) => !isZeroLike(item?.value))
     : []
+
+  if (!items.length) return null
 
   return (
     <SectionShell id="key-facts" title={title} subtitle={subtitle}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((item, idx) => {
           const label = typeof item?.label === "string" ? item.label : "Fact"
-          const value = typeof item?.value === "string" ? item.value : "-"
+          const value =
+            typeof item?.value === "string"
+              ? item.value
+              : typeof item?.value === "number"
+                ? String(item.value)
+                : "-"
           return (
             <Card key={`${label}-${idx}`}>
               <CardContent className="p-5">

@@ -204,6 +204,14 @@ export async function POST(req: NextRequest) {
         },
       },
       {
+        type: "why-dubai",
+        data: {},
+      },
+      {
+        type: "download-brochure",
+        data: {},
+      },
+      {
         type: "lead-form",
         data: {
           title: "Get brochure & latest inventory",

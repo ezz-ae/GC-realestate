@@ -24,9 +24,11 @@ export type LandingSectionType =
   | "key-facts"
   | "payment-plan"
   | "roi"
+  | "why-dubai"
   | "amenities"
   | "location"
   | "faq"
+  | "download-brochure"
   | "lead-form"
 
 export interface LandingSection {
@@ -176,6 +178,9 @@ const normalizeType = (value: string): LandingSectionType | null => {
     case "roi":
     case "returns":
       return "roi"
+    case "why-dubai":
+    case "whydubai":
+      return "why-dubai"
     case "amenities":
       return "amenities"
     case "location":
@@ -183,6 +188,9 @@ const normalizeType = (value: string): LandingSectionType | null => {
     case "faq":
     case "faqs":
       return "faq"
+    case "download-brochure":
+    case "brochure":
+      return "download-brochure"
     case "lead-form":
     case "lead":
     case "form":
@@ -265,6 +273,10 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
       },
     },
     {
+      type: "why-dubai",
+      data: {},
+    },
+    {
       type: "amenities",
       data: {
         items: project?.amenities || [],
@@ -281,6 +293,10 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
       data: {
         items: project?.faqs || [],
       },
+    },
+    {
+      type: "download-brochure",
+      data: {},
     },
     {
       type: "lead-form",
@@ -408,9 +424,11 @@ const normalizeSections = (
     "key-facts",
     "payment-plan",
     "roi",
+    "why-dubai",
     "amenities",
     "location",
     "faq",
+    "download-brochure",
     "lead-form",
   ]
 

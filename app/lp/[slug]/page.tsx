@@ -81,6 +81,9 @@ export default async function LandingPage({
         fallbackSubtitle={landing.subtitle}
         heroImage={landing.heroImage}
         ctaText={landing.ctaText}
+        landingSlug={landing.slug}
+        projectSlug={landing.projectSlug}
+        pixels={landing.pixels}
       />
 
       <SectionRenderer

@@ -30,7 +30,9 @@ export function PaymentPlanSection({ data }: PaymentPlanSectionProps) {
     { label: "During Construction", value: duringConstruction },
     { label: "On Handover", value: onHandover },
     { label: "Post Handover", value: postHandover },
-  ]
+  ].filter((row) => row.value > 0)
+
+  if (!rows.length) return null
 
   return (
     <SectionShell id="payment-plan" title={title} subtitle={subtitle}>

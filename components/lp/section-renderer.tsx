@@ -1,10 +1,12 @@
 import { AmenitiesSection } from "@/components/lp/amenities-section"
+import { BrochureDownloadSection } from "@/components/lp/brochure-download-section"
 import { FaqSection } from "@/components/lp/faq-section"
 import { KeyFactsSection } from "@/components/lp/key-facts-section"
 import { LeadFormSection } from "@/components/lp/lead-form-section"
 import { LocationSection } from "@/components/lp/location-section"
 import { PaymentPlanSection } from "@/components/lp/payment-plan-section"
 import { RoiSection } from "@/components/lp/roi-section"
+import { WhyDubaiSection } from "@/components/lp/why-dubai-section"
 import type { CampaignPixelIds, LandingSection } from "@/lib/landing-pages"
 
 interface SectionRendererProps {
@@ -32,6 +34,18 @@ export function SectionRenderer({ sections, landingSlug, projectSlug, ctaText, p
             return <LocationSection key={`${section.type}-${index}`} data={section.data} />
           case "faq":
             return <FaqSection key={`${section.type}-${index}`} data={section.data} />
+          case "why-dubai":
+            return <WhyDubaiSection key={`${section.type}-${index}`} data={section.data} />
+          case "download-brochure":
+            return (
+              <BrochureDownloadSection
+                key={`${section.type}-${index}`}
+                data={section.data}
+                landingSlug={landingSlug}
+                projectSlug={projectSlug}
+                pixels={pixels}
+              />
+            )
           case "lead-form":
             return (
               <LeadFormSection

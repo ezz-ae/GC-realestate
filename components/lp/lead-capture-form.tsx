@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import type { CampaignPixelIds } from "@/lib/landing-pages"
 
 declare global {
@@ -24,9 +24,18 @@ interface LeadCaptureFormProps {
   projectSlug: string
   pixels: CampaignPixelIds
   ctaText: string
+  formId?: string
+  cardClassName?: string
 }
 
-export function LeadCaptureForm({ landingSlug, projectSlug, pixels, ctaText }: LeadCaptureFormProps) {
+export function LeadCaptureForm({
+  landingSlug,
+  projectSlug,
+  pixels,
+  ctaText,
+  formId = "lead-form",
+  cardClassName,
+}: LeadCaptureFormProps) {
   const params = useSearchParams()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -35,8 +44,6 @@ export function LeadCaptureForm({ landingSlug, projectSlug, pixels, ctaText }: L
     name: "",
     phone: "",
     email: "",
-    budget: "",
-    message: "",
   })
 
   const utm = useMemo(
@@ -112,7 +119,7 @@ export function LeadCaptureForm({ landingSlug, projectSlug, pixels, ctaText }: L
 
       trackConversion()
       setSubmitted(true)
-      setForm({ name: "", phone: "", email: "", budget: "", message: "" })
+      setForm({ name: "", phone: "", email: "" })
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Submission failed")
     } finally {
@@ -121,7 +128,7 @@ export function LeadCaptureForm({ landingSlug, projectSlug, pixels, ctaText }: L
   }
 
   return (
-    <Card id="lead-form" className="border-primary/20 shadow-lg">
+    <Card id={formId} className={cn("border-primary/20 shadow-lg", cardClassName)}>
       <CardContent className="p-6 md:p-8">
         {submitted ? (
           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-5 text-emerald-300">
@@ -155,35 +162,14 @@ export function LeadCaptureForm({ landingSlug, projectSlug, pixels, ctaText }: L
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="lead-email">Email</Label>
-                <Input
-                  id="lead-email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => onChange("email", e.target.value)}
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lead-budget">Budget (AED)</Label>
-                <Input
-                  id="lead-budget"
-                  value={form.budget}
-                  onChange={(e) => onChange("budget", e.target.value)}
-                  placeholder="e.g. 2,500,000"
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label htmlFor="lead-message">Message</Label>
-              <Textarea
-                id="lead-message"
-                value={form.message}
-                onChange={(e) => onChange("message", e.target.value)}
-                placeholder="Tell us about your requirements"
+              <Label htmlFor="lead-email">Email</Label>
+              <Input
+                id="lead-email"
+                type="email"
+                value={form.email}
+                onChange={(e) => onChange("email", e.target.value)}
+                placeholder="you@example.com"
               />
             </div>
 
