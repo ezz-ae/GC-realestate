@@ -11,6 +11,7 @@ import {
   BarChart3,
   Settings,
   Rocket,
+  BookOpen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/crm/landing-pages", label: "Landing Pages", icon: Rocket },
   { href: "/crm/leads", label: "Leads", icon: Users },
   { href: "/crm/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/crm/playbook", label: "Playbook", icon: BookOpen },
   { href: "/crm/profile", label: "Profile", icon: Settings },
 ]
 
