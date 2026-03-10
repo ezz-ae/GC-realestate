@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,7 @@ const suggestions = [
 
 export default function DashboardAIAssistantPage() {
   const { messages, sendMessage, isLoading, error } = useAIChat("broker")
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [history, setHistory] = useState<Array<{ id: string; title?: string | null; pinned: boolean; updated_at: string }>>(
     [],
   )
@@ -77,6 +78,16 @@ export default function DashboardAIAssistantPage() {
       loadHistory()
     }
   }, [messages.length])
+
+  // Auto-scroll chat to bottom on new messages or loading change
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const frame = requestAnimationFrame(() => {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [messages.length, isLoading])
 
   const togglePin = async (id: string, pinned: boolean) => {
     await fetch("/api/ai/conversations/pin", {
@@ -173,7 +184,7 @@ export default function DashboardAIAssistantPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6 p-8">
-            <div className="max-h-[580px] space-y-4 overflow-y-auto rounded-3xl border border-border/40 bg-card/40 p-6 shadow-inner">
+            <div ref={scrollRef} className="max-h-[580px] space-y-4 overflow-y-auto overscroll-contain rounded-3xl border border-border/40 bg-card/40 p-6 shadow-inner">
               {messages.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
                   Start a conversation to see project lists, lead insights, and AI coaching.

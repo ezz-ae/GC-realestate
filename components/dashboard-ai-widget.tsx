@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { useAIChat } from "@/hooks/use-ai-chat"
 import { ChatMessage } from "@/components/chat-message"
 import { ChatInput } from "@/components/chat-input"
@@ -17,6 +18,17 @@ export function DashboardAIWidget() {
   const { messages, sendMessage, isLoading, error } = useAIChat("broker")
   const recentMessages = messages.slice(-6)
   const hasMessages = recentMessages.length > 0
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom when messages or loading state changes
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const frame = requestAnimationFrame(() => {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [recentMessages.length, isLoading])
 
   return (
     <Card className="rounded-[2rem] border-primary/20 bg-primary/5 shadow-sm overflow-hidden">
@@ -41,7 +53,7 @@ export function DashboardAIWidget() {
                 key={label}
                 onClick={() => sendMessage(prompt)}
                 disabled={isLoading}
-                className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/70 px-3 py-2.5 text-left text-xs font-semibold text-foreground transition-all hover:border-primary/35 hover:bg-primary/8 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-xl border border-primary/15 bg-card/70 px-3 py-2.5 text-left text-xs font-semibold text-foreground transition-all hover:border-primary/35 hover:bg-primary/8 disabled:opacity-50 touch-manipulation"
               >
                 <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
                 <span className="truncate">{label}</span>
@@ -51,7 +63,10 @@ export function DashboardAIWidget() {
         )}
 
         {/* Messages */}
-        <div className="max-h-[340px] space-y-3 overflow-y-auto rounded-[1.5rem] border border-primary/10 bg-card/60 px-4 py-4 shadow-inner">
+        <div
+          ref={scrollRef}
+          className="max-h-[340px] space-y-3 overflow-y-auto overscroll-contain rounded-[1.5rem] border border-primary/10 bg-card/60 px-4 py-4 shadow-inner"
+        >
           {!hasMessages ? (
             <div className="py-4 text-center text-sm text-muted-foreground">
               Use the quick actions above or type any question.
@@ -72,6 +87,8 @@ export function DashboardAIWidget() {
               <span>AI is thinking...</span>
             </div>
           )}
+          {/* Scroll anchor */}
+          <div aria-hidden />
         </div>
 
         {error && (

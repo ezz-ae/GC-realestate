@@ -72,10 +72,8 @@ export default function ChatPage() {
   }, [])
 
   const handleSendMessage = useCallback(async (content: string) => {
-    scrollToBottom("smooth")
     await sendMessage(content, { isMobile: isMobileView })
-    scrollToBottom("smooth")
-  }, [isMobileView, scrollToBottom, sendMessage])
+  }, [isMobileView, sendMessage])
 
   useEffect(() => {
     if (initialQuery && messages.length === 0) {
@@ -135,7 +133,7 @@ export default function ChatPage() {
             </div>
 
             <div className="h-full">
-              <div ref={scrollViewportRef} className="h-full overflow-y-auto px-4 py-8 md:px-8">
+              <div ref={scrollViewportRef} className="h-full overflow-y-auto overscroll-contain px-4 py-8 md:px-8">
                 <div className="mx-auto max-w-4xl space-y-10 pb-8">
                     {messages.length === 0 ? (
                          <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
