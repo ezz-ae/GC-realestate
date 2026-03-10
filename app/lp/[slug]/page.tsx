@@ -77,7 +77,7 @@ export default async function LandingPage({
   }
 
   return (
-    <div className="bg-[linear-gradient(180deg,rgba(255,248,235,0.9),transparent_18%),linear-gradient(180deg,#fff,#faf7f1_62%,#fff)]">
+    <div className="dark bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.14),transparent_26%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted))_64%,hsl(var(--background)))] text-foreground">
       <PixelScripts pixels={landing.pixels} />
       <LpAnalyticsTracker landingSlug={landing.slug} projectSlug={landing.projectSlug} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
