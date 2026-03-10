@@ -67,7 +67,7 @@ export function CreateLandingPageForm({ projects }: CreateLandingPageFormProps) 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       <Card>
         <CardHeader>
           <CardTitle>Create Campaign Landing Page</CardTitle>
@@ -76,14 +76,14 @@ export function CreateLandingPageForm({ projects }: CreateLandingPageFormProps) 
           </p>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="projectSlug">Project (from inventory)</Label>
               <select
                 id="projectSlug"
                 value={projectSlug}
                 onChange={(event) => setProjectSlug(event.target.value)}
-                className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm"
+                className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm touch-manipulation"
                 required
               >
                 {projects.map((project) => (
@@ -142,11 +142,13 @@ export function CreateLandingPageForm({ projects }: CreateLandingPageFormProps) 
 
             {error && <p className="text-sm text-destructive">{error}</p>}
 
-            <div className="flex flex-wrap gap-3">
-              <Button type="submit" className="gold-gradient" disabled={isSubmitting}>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button type="submit" className="gold-gradient sm:min-w-[220px]" disabled={isSubmitting}>
                 {isSubmitting ? "Creating..." : "Create Landing Page"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => router.push("/crm/inventory")}>Back to Inventory</Button>
+              <Button type="button" variant="outline" onClick={() => router.push("/crm/inventory")}>
+                Back to Inventory
+              </Button>
             </div>
           </form>
         </CardContent>

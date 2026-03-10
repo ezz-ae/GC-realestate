@@ -26,9 +26,10 @@ const formSchema = z.object({
 
 interface ProjectLeadFormProps {
   projectName: string
+  projectSlug: string
 }
 
-export function ProjectLeadForm({ projectName }: ProjectLeadFormProps) {
+export function ProjectLeadForm({ projectName, projectSlug }: ProjectLeadFormProps) {
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,17 +42,41 @@ export function ProjectLeadForm({ projectName }: ProjectLeadFormProps) {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // In a real app, you would send this data to your CRM or API
-    // For now, we just show a success toast
-    // console.log("Lead Form Submitted:", values)
-    
-    toast({
-      title: "Enquiry Sent!",
-      description: "Thank you for your interest. Our team will be in touch with you shortly.",
-    })
-    
-    form.reset()
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          interest: "project-enquiry",
+          source: `project:${projectSlug}`,
+          projectSlug,
+        }),
+      })
+      const payload = await response.json()
+      if (!response.ok) {
+        throw new Error(payload?.error || "Unable to send enquiry.")
+      }
+
+      toast({
+        title: "Enquiry Sent",
+        description: "Your request is in our CRM. A property consultant will contact you shortly.",
+      })
+
+      form.reset({
+        name: "",
+        email: "",
+        phone: "",
+        message: `I'm interested in ${projectName}. Please send me more details.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Submission failed",
+        description: error instanceof Error ? error.message : "Unable to send enquiry.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -130,8 +155,8 @@ export function ProjectLeadForm({ projectName }: ProjectLeadFormProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full gold-gradient text-black font-semibold">
-              Send Enquiry
+            <Button type="submit" className="w-full gold-gradient text-black font-semibold" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Sending..." : "Send Enquiry"}
             </Button>
           </form>
         </Form>

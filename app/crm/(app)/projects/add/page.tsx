@@ -207,7 +207,7 @@ export default function DashboardAddProjectPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-24">
       <section className="rounded-2xl border border-border bg-gradient-to-b from-background to-muted/70 p-6">
         <Badge className="mb-3 gold-gradient" variant="secondary">
           {editSlug ? "Edit Project" : "Add Project"}
@@ -228,7 +228,7 @@ export default function DashboardAddProjectPage() {
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
-          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+          <label className="flex min-h-[88px] cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground touch-manipulation">
             <UploadCloud className="h-5 w-5 text-primary" />
             <span>
               {brochure ? brochure.name : "Drop or select a PDF brochure"}
@@ -255,7 +255,7 @@ export default function DashboardAddProjectPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+      <div className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
         <Card>
           <CardHeader>
             <CardTitle>Project Details</CardTitle>
@@ -315,7 +315,7 @@ export default function DashboardAddProjectPage() {
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <pre className="max-h-[420px] overflow-auto rounded-lg border border-border bg-background/70 p-3 text-xs">
+            <pre className="max-h-[320px] overflow-auto rounded-lg border border-border bg-background/70 p-3 text-[11px] md:max-h-[420px] md:text-xs">
               {JSON.stringify(previewPayload, null, 2)}
             </pre>
             <div className="grid gap-2">
@@ -334,6 +334,18 @@ export default function DashboardAddProjectPage() {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="sticky bottom-4 z-20 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl backdrop-blur lg:hidden">
+        <div className="grid gap-2">
+          <Button className="w-full gold-gradient" onClick={handleSaveProject} disabled={isSaving || isLoadingProject}>
+            {isSaving ? "Saving..." : editSlug ? "Update Project in CRM" : "Create Project in CRM"}
+          </Button>
+          <Button className="w-full" variant="outline" onClick={downloadJson}>
+            <Download className="mr-2 h-4 w-4" />
+            Download Draft JSON
+          </Button>
+        </div>
       </div>
     </div>
   )

@@ -144,20 +144,20 @@ export default function DashboardAIAssistantPage() {
   }
 
   return (
-    <div className="space-y-10">
-      <section className="rounded-3xl border border-border bg-gradient-to-br from-card to-muted/40 p-8 shadow-sm">
+    <div className="space-y-8 pb-16">
+      <section className="rounded-3xl border border-border bg-gradient-to-br from-card to-muted/40 p-6 shadow-sm md:p-8">
         <Badge className="mb-3 gold-gradient border-none px-3" variant="secondary">
           AI Workspace
         </Badge>
-        <h1 className="font-serif text-4xl font-bold tracking-tight">Your Real Estate AI Assistant</h1>
-        <p className="text-sm text-muted-foreground max-w-2xl mt-2">
+        <h1 className="font-serif text-3xl font-bold tracking-tight md:text-4xl">Your Real Estate AI Assistant</h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Ask for follow-up ideas, shortlist the right property, prepare client messages, or update listings without leaving the CRM.
         </p>
       </section>
 
       <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
-        <Card className="rounded-[2rem] border-border shadow-md overflow-hidden bg-card/50 backdrop-blur-sm">
-          <CardHeader className="border-b border-border/50 bg-muted/20 pb-6">
+        <Card className="overflow-hidden rounded-[2rem] border-border bg-card/50 shadow-md backdrop-blur-sm">
+          <CardHeader className="border-b border-border/50 bg-muted/20 p-5 pb-6 md:p-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl gold-gradient shadow-lg shadow-primary/20">
                 <Sparkles className="h-6 w-6 text-primary-foreground" />
@@ -169,13 +169,13 @@ export default function DashboardAIAssistantPage() {
                 </p>
               </div>
             </div>
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="-mx-1 mt-6 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {suggestions.map((text) => (
                 <Button
                   key={text}
                   variant="outline"
                   size="sm"
-                  className="rounded-full text-[10px] font-bold uppercase tracking-tight h-8 border-border/60 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
+                  className="h-8 shrink-0 rounded-full border-border/60 text-[10px] font-bold uppercase tracking-tight touch-manipulation hover:border-primary/20 hover:bg-primary/5 hover:text-primary"
                   onClick={() => sendMessage(text)}
                 >
                   {text}
@@ -183,8 +183,8 @@ export default function DashboardAIAssistantPage() {
               ))}
             </div>
           </CardHeader>
-          <CardContent className="space-y-6 p-8">
-            <div ref={scrollRef} className="max-h-[580px] space-y-4 overflow-y-auto overscroll-contain rounded-3xl border border-border/40 bg-card/40 p-6 shadow-inner">
+          <CardContent className="space-y-6 p-4 md:p-8">
+            <div ref={scrollRef} className="max-h-[65dvh] space-y-4 overflow-y-auto overscroll-contain rounded-3xl border border-border/40 bg-card/40 p-4 shadow-inner md:max-h-[580px] md:p-6">
               {messages.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
                   Start with a buyer question, a listing task, or a follow-up request.
@@ -312,7 +312,7 @@ export default function DashboardAIAssistantPage() {
                 history.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between rounded-lg border border-border/60 bg-background/70 px-3 py-2 text-sm"
+                    className="flex flex-col gap-3 rounded-lg border border-border/60 bg-background/70 px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
                       <div className="font-semibold">{item.title || "AI Conversation"}</div>
@@ -320,7 +320,7 @@ export default function DashboardAIAssistantPage() {
                         Updated {new Date(item.updated_at).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
                       <Button
                         size="icon"
                         variant="outline"

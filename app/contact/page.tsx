@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { Phone, Mail, MapPin, MessageCircle, Instagram } from "lucide-react"
 import Link from "next/link"
+import { ContactEnquiryForm } from "@/components/contact-enquiry-form"
 
 export const metadata = {
   title: "Contact Us | Gold Century Real Estate",
@@ -133,54 +131,7 @@ export default function ContactPage() {
                     Fill out the form and a senior investment consultant will contact you with a curated portfolio.
                   </p>
 
-                  <form className="mt-10 space-y-6">
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Full Name</Label>
-                        <Input id="name" placeholder="John Smith" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Email Address</Label>
-                        <Input id="email" type="email" placeholder="john@example.com" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" required />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Phone Number</Label>
-                        <Input id="phone" type="tel" placeholder="+97112345678" className="h-14 rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="interest" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Investment Focus</Label>
-                        <select 
-                          id="interest" 
-                          className="flex h-14 w-full rounded-2xl border-0 bg-muted/30 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                          required
-                        >
-                          <option value="">Select an option</option>
-                          <option value="buying">Buying Property</option>
-                          <option value="investment">Investment Consultation</option>
-                          <option value="golden-visa">Golden Visa</option>
-                          <option value="other">Other Inquiry</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message" className="text-xs font-bold uppercase tracking-wider px-1 opacity-70">Your Message</Label>
-                      <Textarea 
-                        id="message" 
-                        placeholder="Tell us about your requirements, budget, or preferred areas..."
-                        rows={5}
-                        className="rounded-2xl bg-muted/30 border-0 focus-visible:ring-primary/50 resize-none"
-                        required
-                      />
-                    </div>
-
-                    <Button type="submit" size="lg" className="w-full gold-gradient text-black font-bold h-16 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] text-lg">
-                      Secure My Consultation
-                    </Button>
-                  </form>
+                  <ContactEnquiryForm />
                 </div>
               </div>
             </div>

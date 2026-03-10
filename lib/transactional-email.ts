@@ -1,3 +1,6 @@
+import { query } from "@/lib/db"
+import { ensureUsersTable } from "@/lib/entrestate"
+
 interface ShortProjectEmailItem {
   slug: string
   name: string
@@ -15,12 +18,41 @@ interface LeadAckEmailInput {
   projects?: ShortProjectEmailItem[]
 }
 
+interface LeadershipRecipient {
+  name: string | null
+  email: string | null
+  phone: string | null
+  orgTitle: string | null
+}
+
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim() || "https://goldcentury.ae"
 const resendApiKey = process.env.RESEND_API_KEY?.trim() || ""
 const fromEmail =
   process.env.LEADS_FROM_EMAIL?.trim() ||
   process.env.NOTIFICATIONS_FROM_EMAIL?.trim() ||
   "Gold Century <hello@goldcentury.ae>"
+const whatsappWebhookUrl =
+  process.env.LEADS_WHATSAPP_WEBHOOK_URL?.trim() ||
+  process.env.CRM_WHATSAPP_WEBHOOK_URL?.trim() ||
+  ""
+
+const uniqueValues = (values: Array<string | null | undefined>) =>
+  Array.from(
+    new Set(
+      values
+        .map((value) => value?.trim().toLowerCase())
+        .filter((value): value is string => Boolean(value)),
+    ),
+  )
+
+const uniquePhones = (values: Array<string | null | undefined>) =>
+  Array.from(
+    new Set(
+      values
+        .map((value) => String(value || "").replace(/[^\d+]/g, ""))
+        .filter(Boolean),
+    ),
+  )
 
 const formatAed = (value: number) =>
   new Intl.NumberFormat("en-AE", {
@@ -126,6 +158,8 @@ Gold Century Real Estate`
 
 export async function sendInternalLeadAlertEmail(input: {
   to: string[]
+  subject?: string
+  headline?: string
   lead: {
     name?: string | null
     email?: string | null
@@ -148,7 +182,9 @@ export async function sendInternalLeadAlertEmail(input: {
     })
     .join("\n")
 
-  const text = `New AI lead captured
+  const headline = input.headline?.trim() || "New lead registered"
+  const subject = input.subject?.trim() || headline
+  const text = `${headline}
 
 Name: ${input.lead.name || "Unknown"}
 Phone: ${input.lead.phone || "—"}
@@ -163,7 +199,7 @@ ${projectLines || "- No shortlist attached"}
 
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827">
-      <p><strong>New AI lead captured</strong></p>
+      <p><strong>${headline}</strong></p>
       <p>Name: ${input.lead.name || "Unknown"}<br/>
       Phone: ${input.lead.phone || "—"}<br/>
       Email: ${input.lead.email || "—"}<br/>
@@ -190,7 +226,7 @@ ${projectLines || "- No shortlist attached"}
     body: JSON.stringify({
       from: fromEmail,
       to: input.to,
-      subject: "New AI lead captured",
+      subject,
       text,
       html,
     }),
@@ -199,6 +235,110 @@ ${projectLines || "- No shortlist attached"}
   if (!response.ok) {
     const payload = await response.text().catch(() => "")
     console.error("[email] internal resend error", payload)
+    return { sent: false, reason: "provider-error" as const }
+  }
+
+  return { sent: true as const }
+}
+
+export async function getLeadershipLeadRecipients() {
+  const configuredEmails = uniqueValues(
+    (
+      process.env.LEADS_NOTIFICATION_EMAIL ||
+      process.env.CRM_NOTIFICATION_EMAIL ||
+      process.env.SALES_NOTIFICATION_EMAIL ||
+      ""
+    ).split(","),
+  )
+
+  const configuredPhones = uniquePhones((process.env.LEADS_NOTIFICATION_WHATSAPP || "").split(","))
+
+  if (configuredEmails.length || configuredPhones.length) {
+    return {
+      emails: configuredEmails,
+      whatsappTargets: configuredPhones,
+      recipients: configuredEmails.map((email) => ({
+        name: email.split("@")[0],
+        email,
+        phone: null,
+        orgTitle: "Leadership",
+      })),
+    }
+  }
+
+  await ensureUsersTable()
+  const rows = await query<LeadershipRecipient>(
+    `SELECT name, email, phone, org_title AS "orgTitle"
+     FROM gc_users
+     WHERE regexp_replace(lower(COALESCE(org_title, role, '')), '\s+', '_', 'g') IN ('ceo', 'general_manager')`,
+  )
+
+  const recipients = rows.filter(
+    (row) => Boolean(row.email?.trim()) || Boolean(String(row.phone || "").replace(/[^\d+]/g, "")),
+  )
+
+  return {
+    emails: uniqueValues(recipients.map((row) => row.email)),
+    whatsappTargets: uniquePhones(recipients.map((row) => row.phone)),
+    recipients,
+  }
+}
+
+export async function sendLeadWhatsAppAlert(input: {
+  recipients: Array<{
+    name?: string | null
+    email?: string | null
+    phone?: string | null
+    orgTitle?: string | null
+  }>
+  lead: {
+    name?: string | null
+    email?: string | null
+    phone?: string | null
+    source?: string | null
+    projectSlug?: string | null
+    message?: string | null
+  }
+  projects?: ShortProjectEmailItem[]
+}) {
+  const phones = uniquePhones(input.recipients.map((recipient) => recipient.phone))
+  if (!whatsappWebhookUrl || !phones.length) {
+    return { sent: false, reason: "missing-config" as const }
+  }
+
+  const projectSummary = (input.projects || [])
+    .slice(0, 3)
+    .map((project) => `${project.name}${project.area ? ` (${project.area})` : ""}`)
+    .join(", ")
+
+  const textLines = [
+    "New lead registered",
+    `Name: ${input.lead.name || "Unknown"}`,
+    `Phone: ${input.lead.phone || "—"}`,
+    `Email: ${input.lead.email || "—"}`,
+    `Source: ${input.lead.source || "website"}`,
+    `Project: ${input.lead.projectSlug || "—"}`,
+    `Message: ${input.lead.message || "—"}`,
+    `Shortlist: ${projectSummary || "No shortlist attached"}`,
+  ]
+
+  const response = await fetch(whatsappWebhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      event: "lead_registered",
+      channel: "whatsapp",
+      targets: phones,
+      recipients: input.recipients,
+      lead: input.lead,
+      projects: input.projects || [],
+      text: textLines.join("\n"),
+    }),
+  })
+
+  if (!response.ok) {
+    const payload = await response.text().catch(() => "")
+    console.error("[whatsapp] webhook error", payload)
     return { sent: false, reason: "provider-error" as const }
   }
 

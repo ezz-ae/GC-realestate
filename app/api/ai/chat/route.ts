@@ -14,7 +14,6 @@ import {
 } from "@/lib/gemini"
 import {
   ensureLeadsTable,
-  ensureUsersTable,
   getGoldenVisaProjects,
   getLlmContextByArea,
   getProjectsByArea,
@@ -23,7 +22,12 @@ import {
   searchProjects,
 } from "@/lib/entrestate"
 import { query } from "@/lib/db"
-import { sendInternalLeadAlertEmail, sendLeadAcknowledgementEmail } from "@/lib/transactional-email"
+import {
+  getLeadershipLeadRecipients,
+  sendInternalLeadAlertEmail,
+  sendLeadAcknowledgementEmail,
+  sendLeadWhatsAppAlert,
+} from "@/lib/transactional-email"
 
 type PublicLeadRow = {
   id: string
@@ -283,30 +287,6 @@ const maybeSendLeadAck = async (input: {
   return true
 }
 
-const getInternalLeadRecipients = async () => {
-  await ensureUsersTable()
-  const configured = (
-    process.env.LEADS_NOTIFICATION_EMAIL ||
-    process.env.CRM_NOTIFICATION_EMAIL ||
-    process.env.SALES_NOTIFICATION_EMAIL ||
-    ""
-  )
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean)
-
-  if (configured.length) return Array.from(new Set(configured))
-
-  const rows = await query<{ email: string }>(
-    `SELECT email
-     FROM gc_users
-     WHERE lower(role) <> 'broker'
-       AND email IS NOT NULL
-       AND email <> ''`,
-  )
-  return Array.from(new Set(rows.map((row) => row.email.toLowerCase()).filter(Boolean)))
-}
-
 const maybeNotifyInternalTeam = async (input: {
   lead: PublicLeadRow | null
   contact: ReturnType<typeof extractContactDetails>
@@ -315,31 +295,57 @@ const maybeNotifyInternalTeam = async (input: {
 }) => {
   const { lead, contact, message, relevantProjects } = input
   if (!lead || lead.ai_broker_notified_at) return false
-  const recipients = await getInternalLeadRecipients()
-  if (!recipients.length) return false
+  const leadershipRecipients = await getLeadershipLeadRecipients()
+  if (!leadershipRecipients.emails.length && !leadershipRecipients.whatsappTargets.length) return false
 
-  const result = await sendInternalLeadAlertEmail({
-    to: recipients,
-    lead: {
-      name: contact.name,
-      email: contact.email,
-      phone: contact.phone,
-      source: "ai-chat",
-      projectSlug: relevantProjects[0]?.slug || null,
-      message,
-    },
-    projects: relevantProjects.slice(0, 3).map((project) => ({
-      slug: project.slug,
-      name: project.name,
-      area: project.location.area,
-      priceFrom: project.units?.[0]?.priceFrom ?? null,
-      roi: project.investmentHighlights.expectedROI ?? null,
-      brochureUrl: project.brochure || null,
-      projectUrl: `${process.env.NEXT_PUBLIC_BASE_URL?.trim() || "https://goldcentury.ae"}/projects/${project.slug}`,
-    })),
-  })
+  const projects = relevantProjects.slice(0, 3).map((project) => ({
+    slug: project.slug,
+    name: project.name,
+    area: project.location.area,
+    priceFrom: project.units?.[0]?.priceFrom ?? null,
+    roi: project.investmentHighlights.expectedROI ?? null,
+    brochureUrl: project.brochure || null,
+    projectUrl: `${process.env.NEXT_PUBLIC_BASE_URL?.trim() || "https://goldcentury.ae"}/projects/${project.slug}`,
+  }))
 
-  if (!result.sent) return false
+  const emailResult = leadershipRecipients.emails.length
+    ? await sendInternalLeadAlertEmail({
+        to: leadershipRecipients.emails,
+        subject: "New AI lead captured",
+        headline: "New AI lead captured",
+        lead: {
+          name: contact.name,
+          email: contact.email,
+          phone: contact.phone,
+          source: "ai-chat",
+          projectSlug: relevantProjects[0]?.slug || null,
+          message,
+        },
+        projects,
+      })
+    : { sent: false as const }
+
+  const whatsappResult = leadershipRecipients.whatsappTargets.length
+    ? await sendLeadWhatsAppAlert({
+      recipients: leadershipRecipients.recipients.map((recipient) => ({
+        name: recipient.name,
+        email: recipient.email,
+        phone: recipient.phone,
+        orgTitle: recipient.orgTitle,
+      })),
+      lead: {
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+        source: "ai-chat",
+        projectSlug: relevantProjects[0]?.slug || null,
+        message,
+      },
+      projects,
+    })
+    : { sent: false as const }
+
+  if (!emailResult.sent && !whatsappResult.sent) return false
 
   await query(
     `UPDATE gc_leads

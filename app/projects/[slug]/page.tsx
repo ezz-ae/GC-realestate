@@ -958,7 +958,7 @@ export default async function ProjectPage({
               </div>
 
               <aside id="contact" className="lg:col-span-1 space-y-8 lg:sticky lg:top-24 self-start scroll-m-20">
-                <ProjectLeadForm projectName={project.name} />
+                <ProjectLeadForm projectName={project.name} projectSlug={project.slug} />
                 
                 {/* Market Intelligence Loop */}
                 <Card>
