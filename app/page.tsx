@@ -44,7 +44,7 @@ export default async function Home() {
                     <Link
                       key={prompt}
                       href={`/chat?q=${encodeURIComponent(prompt)}`}
-                      className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-white hover:text-white"
+                      className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary/40 hover:bg-primary/8 hover:text-foreground"
                     >
                       {prompt}
                     </Link>

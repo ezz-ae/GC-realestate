@@ -18,7 +18,7 @@ export function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
       {!isUser && (
         <Avatar className="mt-0.5 h-8 w-8 border border-border/50 shadow-sm shrink-0">
           <AvatarImage src="/images/ai-avatar.png" alt="AI" />
-          <AvatarFallback className="gold-gradient text-white">
+          <AvatarFallback className="gold-gradient text-black">
             <Bot className="h-4 w-4" />
           </AvatarFallback>
         </Avatar>

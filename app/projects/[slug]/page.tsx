@@ -319,7 +319,7 @@ export default async function ProjectPage({
                       {project.status?.replace("-", " ")}
                     </Badge>
                     {project.investmentHighlights?.goldenVisaEligible && (
-                      <Badge className="gold-gradient text-white border-none">Golden Visa Eligible</Badge>
+                      <Badge className="gold-gradient text-black border-none">Golden Visa Eligible</Badge>
                     )}
                     {location.freehold && (
                       <Badge variant="outline">Freehold</Badge>

@@ -79,7 +79,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               {statusLabel}
             </Badge>
             {investmentHighlights.goldenVisaEligible && (
-              <Badge className="gold-gradient text-white shadow-sm border-none">
+              <Badge className="gold-gradient text-black shadow-sm border-none">
                 Golden Visa
               </Badge>
             )}
