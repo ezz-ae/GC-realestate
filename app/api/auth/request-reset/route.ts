@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      resetLink: `/dashboard/reset/${token}`,
+      resetLink: `/crm/reset/${token}`,
       expiresAt: expiresAt.toISOString(),
     })
   } catch (error) {
