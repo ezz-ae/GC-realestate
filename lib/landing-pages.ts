@@ -154,6 +154,32 @@ const pickNumber = (...values: unknown[]) => {
   return null
 }
 
+const normalizePaymentPlan = (plan?: {
+  downPayment?: number
+  duringConstruction?: number
+  onHandover?: number
+  postHandover?: number
+}) => {
+  const normalized = {
+    downPayment: Math.max(0, plan?.downPayment ?? 20),
+    duringConstruction: Math.max(0, plan?.duringConstruction ?? 50),
+    onHandover: Math.max(0, plan?.onHandover ?? 30),
+    postHandover: Math.max(0, plan?.postHandover ?? 0),
+  }
+
+  const total =
+    normalized.downPayment +
+    normalized.duringConstruction +
+    normalized.onHandover +
+    normalized.postHandover
+
+  if (total > 0 && total < 100) {
+    normalized.postHandover += 100 - total
+  }
+
+  return normalized
+}
+
 const toDate = (value: unknown) => {
   if (!value) return null
   const raw = typeof value === "string" ? value : String(value)
@@ -299,12 +325,7 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
     },
     {
       type: "payment-plan",
-      data: {
-        downPayment: project?.paymentPlan?.downPayment ?? 20,
-        duringConstruction: project?.paymentPlan?.duringConstruction ?? 50,
-        onHandover: project?.paymentPlan?.onHandover ?? 30,
-        postHandover: project?.paymentPlan?.postHandover ?? 0,
-      },
+      data: normalizePaymentPlan(project?.paymentPlan),
     },
     {
       type: "roi",
@@ -544,12 +565,12 @@ const getProjectSummary = async (projectSlug: string): Promise<LandingProjectSum
     priceFromAed: pickNumber(row.price_from_aed, toArray(payload.units)[0] ? toObject(toArray(payload.units)[0]).priceFrom : null),
     priceToAed: pickNumber(row.price_to_aed, toArray(payload.units)[0] ? toObject(toArray(payload.units)[0]).priceTo : null),
     rentalYield: pickNumber(row.rental_yield, toObject(payload.investmentHighlights).rentalYield),
-    paymentPlan: {
+    paymentPlan: normalizePaymentPlan({
       downPayment: pickNumber(paymentPlan.downPayment) ?? undefined,
       duringConstruction: pickNumber(paymentPlan.duringConstruction) ?? undefined,
       onHandover: pickNumber(paymentPlan.onHandover) ?? undefined,
       postHandover: pickNumber(paymentPlan.postHandover) ?? undefined,
-    },
+    }),
     amenities,
     faqs,
   }

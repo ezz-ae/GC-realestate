@@ -13,22 +13,50 @@ const toNumber = (value: unknown, fallback: number) => {
   return fallback
 }
 
+const normalizePaymentPlan = (plan: {
+  downPayment: number
+  duringConstruction: number
+  onHandover: number
+  postHandover: number
+}) => {
+  const normalized = {
+    downPayment: Math.max(0, plan.downPayment),
+    duringConstruction: Math.max(0, plan.duringConstruction),
+    onHandover: Math.max(0, plan.onHandover),
+    postHandover: Math.max(0, plan.postHandover),
+  }
+
+  const total =
+    normalized.downPayment +
+    normalized.duringConstruction +
+    normalized.onHandover +
+    normalized.postHandover
+
+  if (total > 0 && total < 100) {
+    normalized.postHandover += 100 - total
+  }
+
+  return normalized
+}
+
 export function PaymentPlanSection({ data }: PaymentPlanSectionProps) {
   const title = (typeof data.title === "string" && data.title) || "Payment Plan"
   const subtitle =
     (typeof data.subtitle === "string" && data.subtitle) ||
     "Flexible milestone structure aligned to project progress."
 
-  const downPayment = toNumber(data.downPayment, 20)
-  const duringConstruction = toNumber(data.duringConstruction, 50)
-  const onHandover = toNumber(data.onHandover, 30)
-  const postHandover = toNumber(data.postHandover, 0)
+  const plan = normalizePaymentPlan({
+    downPayment: toNumber(data.downPayment, 20),
+    duringConstruction: toNumber(data.duringConstruction, 50),
+    onHandover: toNumber(data.onHandover, 30),
+    postHandover: toNumber(data.postHandover, 0),
+  })
 
   const rows = [
-    { label: "Down Payment", sub: "Paid on reservation", value: downPayment, step: 1 },
-    { label: "During Construction", sub: "Phased installments", value: duringConstruction, step: 2 },
-    { label: "On Handover", sub: "Keys released", value: onHandover, step: 3 },
-    { label: "Post Handover", sub: "Post-completion", value: postHandover, step: 4 },
+    { label: "Down Payment", sub: "Paid on reservation", value: plan.downPayment, step: 1 },
+    { label: "During Construction", sub: "Phased installments", value: plan.duringConstruction, step: 2 },
+    { label: "On Handover", sub: "Keys released", value: plan.onHandover, step: 3 },
+    { label: "Post Handover", sub: "Post-completion", value: plan.postHandover, step: 4 },
   ].filter((row) => row.value > 0)
 
   if (!rows.length) return null

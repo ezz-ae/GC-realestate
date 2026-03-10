@@ -31,6 +31,36 @@ const toObject = (value: unknown) =>
 
 const toArray = (value: unknown) => (Array.isArray(value) ? value : [])
 
+const toNumber = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) return value
+  if (typeof value === "string") {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return null
+}
+
+const normalizePaymentPlan = (plan: Record<string, unknown>) => {
+  const normalized = {
+    downPayment: Math.max(0, toNumber(plan.downPayment) ?? 20),
+    duringConstruction: Math.max(0, toNumber(plan.duringConstruction) ?? 50),
+    onHandover: Math.max(0, toNumber(plan.onHandover) ?? 30),
+    postHandover: Math.max(0, toNumber(plan.postHandover) ?? 0),
+  }
+
+  const total =
+    normalized.downPayment +
+    normalized.duringConstruction +
+    normalized.onHandover +
+    normalized.postHandover
+
+  if (total > 0 && total < 100) {
+    normalized.postHandover += 100 - total
+  }
+
+  return normalized
+}
+
 const ensureLandingTable = async () => {
   await query(`
     CREATE TABLE IF NOT EXISTS gc_project_landing_pages (
@@ -211,7 +241,7 @@ export async function POST(req: NextRequest) {
       },
       {
         type: "payment-plan",
-        data: toObject(payload.paymentPlan),
+        data: normalizePaymentPlan(toObject(payload.paymentPlan)),
       },
       {
         type: "roi",
