@@ -12,9 +12,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="crm-shell flex min-h-screen flex-col">
+    <div className="crm-shell dark flex min-h-screen flex-col bg-background text-foreground">
       <CrmHeader user={user} />
-      <main className="flex-1 bg-[linear-gradient(180deg,#faf7f1,transparent_18%),linear-gradient(180deg,#ffffff,#f8f5ef_72%,#ffffff)]">
+      <main className="flex-1 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.12),transparent_28%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted))_72%,hsl(var(--background)))]">
         <div className="container py-4 md:py-6">
           <DashboardMobileNav userRole={user.role} />
           <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
