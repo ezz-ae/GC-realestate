@@ -9,7 +9,7 @@ import { getLeadActivity, getLeadById, getProjectBySlug, getUserProfileById } fr
 import { getSessionUser, isAdminRole } from "@/lib/auth"
 
 interface LeadDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 const formatDateTime = (value?: string | null) => {
@@ -20,8 +20,9 @@ const formatDateTime = (value?: string | null) => {
 }
 
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
+  const { id } = await params
   const user = await getSessionUser()
-  const lead = await getLeadById(params.id)
+  const lead = await getLeadById(id)
   if (!lead) {
     notFound()
   }
@@ -34,6 +35,19 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const activity = await getLeadActivity(lead.id)
   const project = lead.project_slug ? await getProjectBySlug(lead.project_slug) : null
   const assignedBroker = lead.assigned_broker_id ? await getUserProfileById(lead.assigned_broker_id) : null
+  const creatorIds = [
+    ...new Set(
+      activity
+        .map((item) => item.created_by)
+        .filter((value): value is string => Boolean(value)),
+    ),
+  ]
+  const activityUsers = await Promise.all(creatorIds.map((creatorId) => getUserProfileById(creatorId)))
+  const activityUserMap = new Map(
+    activityUsers
+      .filter((profile): profile is NonNullable<typeof profile> => Boolean(profile))
+      .map((profile) => [profile.id, profile.name || profile.email]),
+  )
 
   return (
     <div className="space-y-8">
@@ -154,7 +168,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                   {item.description && <div className="mt-1 text-sm">{item.description}</div>}
                   {item.created_by && (
                     <div className="mt-1 text-[11px] text-muted-foreground">
-                      By {item.created_by}
+                      By {activityUserMap.get(item.created_by) || item.created_by}
                     </div>
                   )}
                 </div>
