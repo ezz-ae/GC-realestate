@@ -14,12 +14,28 @@ export interface SessionUser {
   name: string
   email: string
   role: string
+  org_title?: string | null
   phone?: string | null
   commission_rate?: number | null
   language?: string | null
   ai_tone?: string | null
   ai_verbosity?: string | null
   notifications?: Record<string, boolean> | null
+}
+
+export const normalizeCrmRole = (role?: string | null) =>
+  String(role || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+
+const resolvePermissionRole = (role?: string | null, orgTitle?: string | null) =>
+  normalizeCrmRole(orgTitle || role)
+
+export const resolveStoredCrmRole = (role?: string | null) => {
+  const normalized = normalizeCrmRole(role)
+  if (normalized === "broker") return "broker"
+  return "admin"
 }
 
 type UserAuthRecord = UserProfileRecord & {
@@ -32,8 +48,21 @@ const hashToken = (value: string) =>
   createHash("sha256").update(value).digest("hex")
 
 export const isAdminRole = (role?: string | null) => {
-  const normalized = String(role || "").toLowerCase()
+  const normalized = normalizeCrmRole(role)
   return normalized !== "broker"
+}
+
+export const canManageCrmUsers = (role?: string | null, orgTitle?: string | null) => {
+  const normalized = resolvePermissionRole(role, orgTitle)
+  return normalized === "ceo" || normalized === "general_manager" || normalized === "admin"
+}
+
+export const canDeleteCrmUsers = (role?: string | null, orgTitle?: string | null) =>
+  resolvePermissionRole(role, orgTitle) === "ceo"
+
+export const canDeleteCrmRecords = (role?: string | null, orgTitle?: string | null) => {
+  const normalized = resolvePermissionRole(role, orgTitle)
+  return normalized === "ceo" || normalized === "admin"
 }
 
 export async function ensureAuthTables() {
@@ -95,7 +124,7 @@ export async function getUserByEmailForAuth(email: string) {
   await ensureUsersTable()
   const rows = await query<UserAuthRecord>(
     `SELECT id, name, email, role, phone, commission_rate, language, ai_tone, ai_verbosity,
-            notifications, password_hash, password_reset_token_hash, password_reset_expires
+            org_title, notifications, password_hash, password_reset_token_hash, password_reset_expires
      FROM gc_users
      WHERE email = $1
      LIMIT 1`,
@@ -158,7 +187,7 @@ export async function getSessionUserFromToken(token?: string | null): Promise<Se
   if (!token) return null
   await ensureAuthTables()
   const rows = await query<SessionUser & { expires_at: string }>(
-    `SELECT u.id, u.name, u.email, u.role, u.phone, u.commission_rate, u.language, u.ai_tone, u.ai_verbosity,
+    `SELECT u.id, u.name, u.email, u.role, u.org_title, u.phone, u.commission_rate, u.language, u.ai_tone, u.ai_verbosity,
             u.notifications, s.expires_at
      FROM gc_user_sessions s
      JOIN gc_users u ON u.id = s.user_id

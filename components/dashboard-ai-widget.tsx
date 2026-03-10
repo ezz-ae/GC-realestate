@@ -48,7 +48,7 @@ export function DashboardAIWidget() {
         <ChatInput
           onSend={sendMessage}
           disabled={isLoading}
-          placeholder="Ask about ROI, lead follow-ups, or project insights..."
+          placeholder="Ask about ROI, create listings, draft offers, or prioritize leads..."
         />
       </CardContent>
     </Card>

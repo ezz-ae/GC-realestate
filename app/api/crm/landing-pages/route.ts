@@ -159,9 +159,39 @@ export async function POST(req: NextRequest) {
       `Campaign landing page for ${toText(project.name) || finalProjectSlug} in ${toText(project.area) || "Dubai"}.`
     const heroImage = toText(body.heroImage) || toText(project.hero_image) || "/logo.png"
     const ctaText = toText(body.ctaText) || "Request Availability"
+    const formattedPrice =
+      typeof project.price_from_aed === "number" && project.price_from_aed > 0
+        ? `AED ${project.price_from_aed.toLocaleString("en-AE")}`
+        : "Price on request"
+    const formattedYield =
+      typeof project.rental_yield === "number" && project.rental_yield > 0
+        ? `${project.rental_yield.toFixed(1)}% rental yield`
+        : "Yield details on request"
 
     const sections = [
-      { type: "hero", data: { title: headline, subtitle: subheadline } },
+      {
+        type: "hero",
+        data: {
+          title: headline,
+          subtitle: subheadline,
+          eyebrow: `${toText(project.area) || "Dubai"} · ${toText(toObject(payload.developer).name) || "Gold Century"}`,
+          chips: [toText(project.area) || "Dubai", formattedPrice, formattedYield],
+        },
+      },
+      {
+        type: "market-intelligence",
+        data: {
+          title: "AI Market Read",
+          subtitle: "A smarter campaign narrative derived from the listing.",
+          summary: `${toText(project.name) || finalProjectSlug} is being positioned in ${toText(project.area) || "Dubai"} for buyers seeking ${formattedYield.toLowerCase()} and guided access to live availability.`,
+          bullets: [
+            `Area focus: ${toText(project.area) || "Dubai"}`,
+            `Entry point: ${formattedPrice}`,
+            `Income lens: ${formattedYield}`,
+            `Campaign path: /lp/${finalSlug}`,
+          ],
+        },
+      },
       {
         type: "key-facts",
         data: {
@@ -170,19 +200,25 @@ export async function POST(req: NextRequest) {
             { label: "Area", value: toText(project.area) || "Dubai" },
             {
               label: "Starting Price",
-              value:
-                typeof project.price_from_aed === "number"
-                  ? `AED ${project.price_from_aed.toLocaleString("en-AE")}`
-                  : "On request",
+              value: formattedPrice,
             },
             {
               label: "Rental Yield",
-              value:
-                typeof project.rental_yield === "number"
-                  ? `${project.rental_yield.toFixed(1)}%`
-                  : "On request",
+              value: formattedYield,
             },
           ],
+        },
+      },
+      {
+        type: "payment-plan",
+        data: toObject(payload.paymentPlan),
+      },
+      {
+        type: "roi",
+        data: {
+          expectedRoi: typeof project.rental_yield === "number" ? project.rental_yield : 0,
+          rentalYield: typeof project.rental_yield === "number" ? project.rental_yield : 0,
+          startPriceAed: typeof project.price_from_aed === "number" ? project.price_from_aed : 0,
         },
       },
       {
@@ -208,6 +244,32 @@ export async function POST(req: NextRequest) {
         data: {},
       },
       {
+        type: "location",
+        data: {
+          area: toText(project.area) || "Dubai",
+          developer: toText(toObject(payload.developer).name) || "Gold Century",
+          title: "Location & Positioning",
+          subtitle: "Use this page to qualify the buyer and frame the project quickly.",
+          highlights: [
+            `${toText(project.area) || "Dubai"} market focus`,
+            `Developer: ${toText(toObject(payload.developer).name) || "Gold Century"}`,
+            `Starting price: ${formattedPrice}`,
+          ],
+        },
+      },
+      {
+        type: "ai-concierge",
+        data: {
+          title: "Ask Gold Century AI",
+          subtitle: "Use AI to compare this launch, explain ROI, and qualify the lead before a broker handoff.",
+          prompts: [
+            `Is ${toText(project.name) || finalProjectSlug} better for yield or appreciation?`,
+            `Compare ${toText(project.area) || "this area"} with Downtown Dubai`,
+            `What type of investor usually buys in this project?`,
+          ],
+        },
+      },
+      {
         type: "download-brochure",
         data: {},
       },
@@ -215,7 +277,7 @@ export async function POST(req: NextRequest) {
         type: "lead-form",
         data: {
           title: "Get brochure & latest inventory",
-          subtitle: "Submit your details and our team will contact you shortly.",
+          subtitle: "Submit your details and our team will contact you with AI-backed talking points and live availability.",
         },
       },
     ]

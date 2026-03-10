@@ -6,33 +6,47 @@ interface LocationSectionProps {
 }
 
 export function LocationSection({ data }: LocationSectionProps) {
-  const title = (typeof data.title === "string" && data.title) || "RIO"
+  const title = (typeof data.title === "string" && data.title) || "Location & Positioning"
   const subtitle =
     (typeof data.subtitle === "string" && data.subtitle) ||
-    "Curated investment benchmarks for campaign qualification."
+    "Commercial positioning points derived from the listing and campaign."
+  const area = (typeof data.area === "string" && data.area) || "Dubai"
+  const developer = (typeof data.developer === "string" && data.developer) || "Gold Century"
+  const highlights = Array.isArray(data.highlights)
+    ? data.highlights.map((item) => (typeof item === "string" ? item : "")).filter(Boolean)
+    : []
 
   return (
-    <SectionShell id="rio" title={title} subtitle={subtitle}>
+    <SectionShell id="location" title={title} subtitle={subtitle}>
       <div className="grid gap-5 md:grid-cols-3">
         <Card>
           <CardContent className="p-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Expected RIO</p>
-            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">8.5%</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Area</p>
+            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">{area}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Rental Yield</p>
-            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">6.8%</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Developer</p>
+            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">{developer}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Capital Upside</p>
-            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">11.5%</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Campaign Use</p>
+            <p className="mt-2 font-serif text-3xl font-bold gold-text-gradient">Qualification</p>
           </CardContent>
         </Card>
       </div>
+      {highlights.length ? (
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          {highlights.map((highlight) => (
+            <Card key={highlight} className="border-border/70">
+              <CardContent className="p-4 text-sm font-medium">{highlight}</CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : null}
     </SectionShell>
   )
 }

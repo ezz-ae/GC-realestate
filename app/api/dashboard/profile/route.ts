@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { randomUUID } from "node:crypto"
 import { upsertUserProfile } from "@/lib/entrestate"
-import { getSessionUser, hashPassword, isAdminRole, logActivity } from "@/lib/auth"
+import {
+  canManageCrmUsers,
+  getSessionUser,
+  hashPassword,
+  logActivity,
+  resolveStoredCrmRole,
+} from "@/lib/auth"
 
 export const runtime = "nodejs"
 
@@ -16,7 +22,11 @@ export async function POST(req: NextRequest) {
     const name = String(body?.name || "").trim()
     const email = String(body?.email || "").trim().toLowerCase()
     const requestedRole = String(body?.role || sessionUser.role || "broker").trim()
-    const role = isAdminRole(sessionUser.role) ? requestedRole : sessionUser.role
+    const canManageUsers = canManageCrmUsers(sessionUser.role, sessionUser.org_title)
+    const role = canManageUsers ? resolveStoredCrmRole(requestedRole) : resolveStoredCrmRole(sessionUser.role)
+    const orgTitle = canManageUsers
+      ? requestedRole
+      : sessionUser.org_title || sessionUser.role
     const phone = body?.phone ? String(body.phone).trim() : null
     const commissionRate = body?.commission_rate ?? body?.commissionRate
     const language = body?.language ? String(body.language).trim() : null
@@ -29,7 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name and email are required." }, { status: 400 })
     }
 
-    if (!isAdminRole(sessionUser.role) && email !== sessionUser.email) {
+    if (!canManageUsers && email !== sessionUser.email) {
       return NextResponse.json({ error: "You can only update your own profile." }, { status: 403 })
     }
 
@@ -45,6 +55,7 @@ export async function POST(req: NextRequest) {
       name,
       email,
       role,
+      org_title: orgTitle,
       phone,
       commission_rate: Number.isFinite(parsedCommission) ? parsedCommission : null,
       language,

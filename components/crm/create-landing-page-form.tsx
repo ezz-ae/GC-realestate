@@ -71,6 +71,9 @@ export function CreateLandingPageForm({ projects }: CreateLandingPageFormProps) 
       <Card>
         <CardHeader>
           <CardTitle>Create Campaign Landing Page</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            New pages now inherit a smarter structure from the listing: AI market read, positioning blocks, and AI concierge prompts.
+          </p>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleSubmit}>

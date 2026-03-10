@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { LeadActivityForm } from "@/components/lead-activity-form"
+import { LeadAiComposer } from "@/components/lead-ai-composer"
 import { getLeadActivity, getLeadById, getProjectBySlug } from "@/lib/entrestate"
 import { getSessionUser, isAdminRole } from "@/lib/auth"
 
@@ -165,6 +166,10 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             <LeadActivityForm leadId={lead.id} />
           </CardContent>
         </Card>
+      </section>
+
+      <section>
+        <LeadAiComposer leadId={lead.id} phone={lead.phone} email={lead.email} />
       </section>
     </div>
   )

@@ -11,6 +11,7 @@ interface ProfileFormProps {
     name?: string
     email?: string
     role?: string
+    org_title?: string | null
     phone?: string | null
     commission_rate?: number | null
     language?: string | null
@@ -21,7 +22,7 @@ interface ProfileFormProps {
   canEditRole?: boolean
 }
 
-const roles = ["CEO", "Sales Manager", "Broker", "Admin"]
+const roles = ["CEO", "General Manager", "Admin", "Sales Manager", "Broker"]
 const tones = ["Professional", "Concise", "Consultative", "Executive"]
 const verbosityLevels = ["Short", "Balanced", "Detailed"]
 const languages = ["English", "Arabic"]
@@ -31,7 +32,7 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
     id: initialProfile?.id || "",
     name: initialProfile?.name || "",
     email: initialProfile?.email || "",
-    role: initialProfile?.role || "Broker",
+    role: initialProfile?.org_title || initialProfile?.role || "Broker",
     phone: initialProfile?.phone || "",
     commissionRate: initialProfile?.commission_rate?.toString() || "",
     language: initialProfile?.language || "English",
@@ -61,7 +62,7 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
     setStatus("saving")
     setMessage("")
     try {
-      const response = await fetch("/api/crm/profile", {
+      const response = await fetch("/api/dashboard/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -78,7 +79,7 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
         id: data.profile.id,
         name: data.profile.name,
         email: data.profile.email,
-        role: data.profile.role,
+        role: data.profile.org_title || data.profile.role,
         phone: data.profile.phone || "",
         commissionRate: data.profile.commission_rate?.toString() || "",
         language: data.profile.language || "English",

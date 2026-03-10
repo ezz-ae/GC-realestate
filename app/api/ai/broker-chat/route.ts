@@ -2,23 +2,288 @@ import { NextRequest, NextResponse } from "next/server"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+
 import {
   DEFAULT_GEMINI_MODELS,
+  BROKER_SYSTEM_PROMPT,
+  buildConversationHistory,
   getGeminiModel,
   getGeminiModelByName,
   listGeminiModels,
-  BROKER_SYSTEM_PROMPT,
-  buildConversationHistory,
 } from "@/lib/gemini"
 import {
+  getDashboardProjectBySlug,
   getRecentLeads,
   getTopROIProjects,
-  projectToProperty,
   resolveAccessRole,
+  searchCrmLeads,
   searchProjects,
+  upsertDashboardProject,
 } from "@/lib/entrestate"
 import { getSessionUser, logActivity } from "@/lib/auth"
 import { appendConversationMessage, upsertConversationMessage } from "@/lib/ai-conversations"
+import type { AiMessageRecord } from "@/lib/ai-conversations"
+
+type BrokerIntent =
+  | "list_leads"
+  | "list_projects"
+  | "create_project"
+  | "update_project"
+  | "create_offer"
+  | "general"
+
+type BrokerAction = {
+  intent: BrokerIntent
+  query?: string
+  projectSlug?: string
+  projectName?: string
+  leadQuery?: string
+  fields?: {
+    slug?: string
+    name?: string
+    area?: string
+    developer?: string
+    status?: string
+    priceFrom?: number | null
+    priceTo?: number | null
+    roi?: number | null
+    paymentPlan?: string
+    handoverDate?: string
+    description?: string
+    highlights?: string[]
+    amenities?: string[]
+    heroImage?: string
+  }
+}
+
+const extractJson = (value: string) => {
+  const start = value.indexOf("{")
+  const end = value.lastIndexOf("}")
+  if (start === -1 || end === -1) return null
+  try {
+    return JSON.parse(value.slice(start, end + 1))
+  } catch {
+    return null
+  }
+}
+
+const toSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/^gc-/, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+
+const extractField = (message: string, field: string) => {
+  const patterns = [
+    new RegExp(`${field}\\s*[:=]\\s*([^,\\n]+)`, "i"),
+    new RegExp(`${field}\\s+is\\s+([^,\\n]+)`, "i"),
+  ]
+  for (const pattern of patterns) {
+    const match = message.match(pattern)
+    if (match?.[1]) return match[1].trim()
+  }
+  return ""
+}
+
+const extractNumberField = (message: string, field: string) => {
+  const raw = extractField(message, field)
+  if (!raw) return null
+  const parsed = Number(raw.replace(/[^0-9.]/g, ""))
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+const heuristicAction = (message: string): BrokerAction => {
+  const lower = message.toLowerCase()
+  const isCreateProject =
+    lower.includes("create listing") ||
+    lower.includes("add listing") ||
+    lower.includes("create project") ||
+    lower.includes("add project")
+  const isUpdateProject =
+    lower.includes("update listing") ||
+    lower.includes("edit listing") ||
+    lower.includes("update project") ||
+    lower.includes("edit project")
+  const isOffer = lower.includes("offer") || lower.includes("proposal")
+  const isLeadList = lower.includes("lead")
+  const isProjectList =
+    lower.includes("project") ||
+    lower.includes("property") ||
+    lower.includes("inventory") ||
+    lower.includes("roi")
+
+  const name = extractField(message, "name") || extractField(message, "project")
+  const explicitSlug = extractField(message, "slug")
+  const slug = explicitSlug ? `gc-${toSlug(explicitSlug)}` : name ? `gc-${toSlug(name)}` : undefined
+
+  if (isCreateProject || isUpdateProject) {
+    return {
+      intent: isCreateProject ? "create_project" : "update_project",
+      projectSlug: slug,
+      projectName: name,
+      fields: {
+        slug,
+        name,
+        area: extractField(message, "area"),
+        developer: extractField(message, "developer"),
+        status: extractField(message, "status"),
+        priceFrom: extractNumberField(message, "priceFrom") ?? extractNumberField(message, "price"),
+        priceTo: extractNumberField(message, "priceTo"),
+        roi: extractNumberField(message, "roi"),
+        paymentPlan: extractField(message, "payment plan"),
+        handoverDate: extractField(message, "handover"),
+        description: extractField(message, "description"),
+      },
+    }
+  }
+
+  if (isOffer) {
+    return {
+      intent: "create_offer",
+      query: message,
+      projectSlug: slug,
+      projectName: name,
+      leadQuery: extractField(message, "lead") || extractField(message, "client"),
+    }
+  }
+
+  if (isLeadList) {
+    return {
+      intent: "list_leads",
+      query: message,
+      leadQuery: extractField(message, "lead") || extractField(message, "client"),
+    }
+  }
+
+  if (isProjectList) {
+    return {
+      intent: "list_projects",
+      query: message,
+      projectSlug: slug,
+      projectName: name,
+    }
+  }
+
+  return { intent: "general", query: message }
+}
+
+const classifyWithGemini = async (message: string, history: Array<{ role: string; content: string }>) => {
+  const prompt = `Classify the broker request and return ONLY JSON.
+Schema:
+{
+  "intent": "list_leads" | "list_projects" | "create_project" | "update_project" | "create_offer" | "general",
+  "query": string | null,
+  "projectSlug": string | null,
+  "projectName": string | null,
+  "leadQuery": string | null,
+  "fields": {
+    "slug": string | null,
+    "name": string | null,
+    "area": string | null,
+    "developer": string | null,
+    "status": string | null,
+    "priceFrom": number | null,
+    "priceTo": number | null,
+    "roi": number | null,
+    "paymentPlan": string | null,
+    "handoverDate": string | null,
+    "description": string | null,
+    "highlights": string[] | null,
+    "amenities": string[] | null,
+    "heroImage": string | null
+  }
+}
+
+Only choose create/update intents if the user clearly wants the CRM changed.
+If the project slug is missing but the project name is clear, generate a slug starting with "gc-".
+Conversation:
+${history.slice(-6).map((entry) => `${entry.role}: ${entry.content}`).join("\n")}
+user: ${message}`
+
+  const model = getGeminiModel("broker")
+  const modelCandidates = [
+    process.env.GEMINI_MODEL,
+    ...(process.env.GEMINI_MODEL_FALLBACKS?.split(",").map((item) => item.trim()).filter(Boolean) || []),
+    ...DEFAULT_GEMINI_MODELS,
+  ].filter(Boolean) as string[]
+
+  for (const candidate of modelCandidates) {
+    try {
+      const modelInstance =
+        candidate === (process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODELS[0])
+          ? model
+          : getGeminiModelByName(candidate)
+      const result = await modelInstance.generateContent(prompt)
+      const text = result.response.text()
+      const parsed = extractJson(text)
+      if (parsed?.intent) {
+        return parsed as BrokerAction
+      }
+    } catch (error: any) {
+      const messageText = String(error?.message || "")
+      if (!messageText.includes("not found") && !messageText.includes("not supported")) {
+        throw error
+      }
+    }
+  }
+
+  const discoveredModels = await listGeminiModels()
+  for (const candidate of discoveredModels) {
+    try {
+      const result = await getGeminiModelByName(candidate).generateContent(prompt)
+      const text = result.response.text()
+      const parsed = extractJson(text)
+      if (parsed?.intent) {
+        return parsed as BrokerAction
+      }
+    } catch (error: any) {
+      const messageText = String(error?.message || "")
+      if (!messageText.includes("not found") && !messageText.includes("not supported")) {
+        throw error
+      }
+    }
+  }
+
+  return null
+}
+
+const generateOfferMarkdown = (input: {
+  lead?: { name?: string | null; budget_aed?: number | null; interest?: string | null }
+  project?: { name: string; area?: string | null; price?: number | null; roi?: number | null }
+}) => {
+  const budgetText =
+    input.lead?.budget_aed && input.lead.budget_aed > 0
+      ? `Budget reference: AED ${Number(input.lead.budget_aed).toLocaleString("en-AE")}`
+      : "Budget reference: to be confirmed"
+  const projectName = input.project?.name || "Recommended Dubai project"
+  const areaText = input.project?.area || "Dubai"
+  const priceText =
+    input.project?.price && input.project.price > 0
+      ? `Starting from AED ${input.project.price.toLocaleString("en-AE")}`
+      : "Price on request"
+  const roiText =
+    typeof input.project?.roi === "number" && Number.isFinite(input.project.roi)
+      ? `${input.project.roi}% expected ROI`
+      : "ROI to be confirmed"
+
+  return [
+    `Gold Century Branded Offer`,
+    ``,
+    `Client: ${input.lead?.name || "Prospective buyer"}`,
+    budgetText,
+    ``,
+    `Recommended Project: ${projectName}`,
+    `Location: ${areaText}`,
+    `Commercial Positioning: ${priceText} · ${roiText}`,
+    ``,
+    `Why this fits`,
+    `- Strong alignment with stated Dubai investment brief`,
+    `- Suitable for immediate follow-up with brochure, availability, and payment plan`,
+    `- Ready for broker outreach and branded presentation packaging`,
+  ].join("\n")
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,158 +293,221 @@ export async function POST(req: NextRequest) {
     }
 
     const { message, conversationHistory, conversationId } = await req.json()
-
-    if (!message || typeof message !== 'string') {
-      return NextResponse.json(
-        { error: "Message is required" },
-        { status: 400 }
-      )
+    if (!message || typeof message !== "string") {
+      return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
-    // Build context based on broker query type
-    let context = ""
+    const history = Array.isArray(conversationHistory) ? conversationHistory : []
     const lowerMessage = message.toLowerCase()
-
-    // Database queries
-    if (lowerMessage.includes('project') || lowerMessage.includes('propert')) {
-      const previewProjects = await searchProjects("", 3)
-      context += `\n\nAVAILABLE PROJECTS:\n`
-      previewProjects.forEach(project => {
-        const prop = projectToProperty(project)
-        context += `- ${project.name} | ${project.location.area} | AED ${prop.price.toLocaleString()} | ROI: ${project.investmentHighlights.expectedROI}%\n`
-      })
-    }
-
-    if (lowerMessage.includes('pdf') || lowerMessage.includes('brochure')) {
-      context += `\n\nPDF GENERATION:\n- You can generate branded project or comparison PDFs on request.\n`
-    }
-
-    // CRM queries
     const accessRole = resolveAccessRole(sessionUser.role)
     const brokerId = accessRole === "broker" ? sessionUser.id : undefined
-
-    if (lowerMessage.includes('lead') || lowerMessage.includes('follow up')) {
-      const leads = await getRecentLeads(5, accessRole, brokerId)
-      if (leads.length) {
-        context += `\n\nRECENT LEADS:\n`
-        leads.forEach(lead => {
-          context += `- ${lead.name} | Phone: ${lead.phone} | Email: ${lead.email || "N/A"} | Source: ${lead.source || "N/A"}\n`
-        })
-      }
-    }
-
-    // Best ROI query
-    if (lowerMessage.includes('best roi') || lowerMessage.includes('top perform')) {
-      const topProjects = await getTopROIProjects(3)
-      context += `\n\nTOP ROI PROJECTS:\n`
-      topProjects.forEach(project => {
-        context += `- ${project.name} | ROI: ${project.investmentHighlights.expectedROI}% | Yield: ${project.investmentHighlights.rentalYield}%\n`
-      })
-    }
-
-    let aiReply = ""
     const hasGeminiKey =
       Boolean(process.env.GEMINI_API_KEY || process.env.Gemini_API_KEY || process.env.google_api_key)
 
-    if (!hasGeminiKey) {
-      aiReply =
-        "AI is temporarily unavailable. I can still pull projects or leads if you tell me what you need."
-    } else {
-      // Prepare conversation for Gemini
-      const model = getGeminiModel('broker')
-
-      const createChat = (modelInstance: ReturnType<typeof getGeminiModel>) =>
-        modelInstance.startChat({
-        history: [
-          {
-            role: "user",
-            parts: [{ text: BROKER_SYSTEM_PROMPT }],
+    let action = heuristicAction(message)
+    if (hasGeminiKey) {
+      const aiAction = await classifyWithGemini(message, history)
+      if (aiAction?.intent) {
+        action = {
+          ...action,
+          ...aiAction,
+          fields: {
+            ...action.fields,
+            ...aiAction.fields,
           },
-          {
-            role: "model",
-            parts: [{ text: "Ready to assist. I can help you query projects, analyze leads, draft communications, and provide sales insights. What do you need?" }],
-          },
-          ...buildConversationHistory(conversationHistory || [])
-        ],
-      })
-
-      // Send message with context
-      const modelCandidates = [
-        process.env.GEMINI_MODEL,
-        ...(process.env.GEMINI_MODEL_FALLBACKS?.split(",").map((m) => m.trim()).filter(Boolean) || []),
-        ...DEFAULT_GEMINI_MODELS,
-      ].filter(Boolean) as string[]
-
-      let lastError: unknown = null
-      for (const candidate of modelCandidates) {
-        try {
-          const candidateModel = candidate === (process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODELS[0])
-            ? model
-            : getGeminiModelByName(candidate)
-          const chat = createChat(candidateModel)
-          const result = await chat.sendMessage(message + context)
-          const response = await result.response
-          aiReply = response.text()
-          lastError = null
-          break
-        } catch (modelError: any) {
-          lastError = modelError
-          const errorMessage = String(modelError?.message || "")
-          if (!errorMessage.includes("not found") && !errorMessage.includes("not supported")) {
-            throw modelError
-          }
         }
-      }
-
-      if (!aiReply) {
-        const discoveredModels = await listGeminiModels()
-        if (discoveredModels.length) {
-          for (const candidate of discoveredModels) {
-            try {
-              const candidateModel = getGeminiModelByName(candidate)
-              const chat = createChat(candidateModel)
-              const result = await chat.sendMessage(message + context)
-              const response = await result.response
-              aiReply = response.text()
-              break
-            } catch (modelError: any) {
-              const errorMessage = String(modelError?.message || "")
-              if (!errorMessage.includes("not found") && !errorMessage.includes("not supported")) {
-                throw modelError
-              }
-            }
-          }
-        }
-      }
-
-      if (!aiReply && lastError) {
-        throw lastError
       }
     }
 
-    // Extract any data the AI might be referencing
-    let attachedData = null
-    if (lowerMessage.includes('lead')) {
-      const leads = await getRecentLeads(10, accessRole, brokerId)
-      attachedData = { type: 'leads', data: leads }
-    } else if (lowerMessage.includes('project') || lowerMessage.includes('roi')) {
-      const topProjects = await getTopROIProjects(5)
-      attachedData = { 
-        type: 'projects', 
-        data: topProjects.map(project => ({
+    let aiReply = ""
+    let attachedData: any = null
+
+    if (action.intent === "list_leads") {
+      const term = action.leadQuery || action.query || ""
+      const leads = term ? await searchCrmLeads(term, accessRole, brokerId, 10) : await getRecentLeads(10, accessRole, brokerId)
+      attachedData = { type: "leads", data: leads }
+      aiReply = leads.length
+        ? `I found ${leads.length} matching leads. Prioritize ${leads[0].name} first based on recency and CRM completeness.`
+        : "No leads matched that request."
+    } else if (action.intent === "list_projects") {
+      const projects = await searchProjects(action.query || message, 5)
+      attachedData = {
+        type: "projects",
+        data: projects.map((project) => ({
           id: project.id,
           title: project.name,
           area: project.location.area,
           priceFrom: project.units?.[0]?.priceFrom ?? 0,
-          roi: project.investmentHighlights.expectedROI
-        }))
+          roi: project.investmentHighlights.expectedROI,
+        })),
+      }
+      aiReply = projects.length
+        ? `I shortlisted ${projects.length} inventory matches. The strongest fit is ${projects[0].name} in ${projects[0].location.area}.`
+        : "I could not find matching inventory for that request."
+    } else if (action.intent === "create_project" || action.intent === "update_project") {
+      const fields = action.fields || {}
+      const slug = fields.slug || action.projectSlug || (fields.name ? `gc-${toSlug(fields.name)}` : "")
+      const name = fields.name || action.projectName || ""
+
+      if (!slug || !name) {
+        aiReply =
+          "I can create or update the listing, but I need at least the project name. Best format: name, area, developer, priceFrom, roi, status."
+      } else {
+        const savedProject = await upsertDashboardProject({
+          slug,
+          name,
+          area: fields.area,
+          developer: fields.developer,
+          status: fields.status || "selling",
+          priceFrom: fields.priceFrom ?? null,
+          priceTo: fields.priceTo ?? null,
+          roi: fields.roi ?? null,
+          paymentPlan: fields.paymentPlan,
+          handoverDate: fields.handoverDate,
+          description: fields.description,
+          highlights: fields.highlights || [],
+          amenities: fields.amenities || [],
+          heroImage: fields.heroImage,
+        })
+        attachedData = {
+          type: "project-action",
+          data: {
+            slug: savedProject.slug,
+            name: savedProject.name,
+            area: savedProject.area,
+            status: savedProject.status,
+            priceFrom: savedProject.price_from_aed,
+            priceTo: savedProject.price_to_aed,
+          },
+        }
+        aiReply = `${action.intent === "create_project" ? "Created" : "Updated"} listing ${savedProject.name} (${savedProject.slug}) in CRM.`
+      }
+    } else if (action.intent === "create_offer") {
+      const candidateLead = action.leadQuery
+        ? (await searchCrmLeads(action.leadQuery, accessRole, brokerId, 1))[0]
+        : undefined
+      const candidateProject =
+        (action.projectSlug ? await getDashboardProjectBySlug(action.projectSlug) : null) ||
+        (await searchProjects(action.projectName || action.query || message, 1)).map((project) => ({
+          slug: project.slug,
+          name: project.name,
+          area: project.location.area,
+          priceFrom: project.units?.[0]?.priceFrom ?? null,
+          roi: project.investmentHighlights.expectedROI ?? null,
+        }))[0]
+
+      const offer = generateOfferMarkdown({
+        lead: candidateLead,
+        project: candidateProject
+          ? {
+              name: candidateProject.name,
+              area: candidateProject.area,
+              price: "priceFrom" in candidateProject ? candidateProject.priceFrom : null,
+              roi: candidateProject.roi,
+            }
+          : undefined,
+      })
+      attachedData = {
+        type: "offer",
+        data: {
+          title: candidateProject ? `${candidateProject.name} branded offer` : "Branded offer draft",
+          content: offer,
+        },
+      }
+      aiReply = `I prepared a branded offer draft${candidateProject ? ` for ${candidateProject.name}` : ""}. You can copy it from the panel and send it to the client.`
+    } else {
+      let context = ""
+
+      if (lowerMessage.includes("lead") || lowerMessage.includes("follow up")) {
+        const leads = await getRecentLeads(5, accessRole, brokerId)
+        if (leads.length) {
+          context += `\n\nRECENT LEADS:\n${leads
+            .map((lead) => `- ${lead.name} | ${lead.phone} | ${lead.email || "No email"} | ${lead.source || "Unknown source"}`)
+            .join("\n")}`
+        }
+      }
+
+      if (lowerMessage.includes("project") || lowerMessage.includes("propert") || lowerMessage.includes("roi")) {
+        const topProjects = await getTopROIProjects(3)
+        context += `\n\nTOP ROI PROJECTS:\n${topProjects
+          .map((project) => `- ${project.name} | ${project.location.area} | ROI ${project.investmentHighlights.expectedROI}%`)
+          .join("\n")}`
+      }
+
+      if (!hasGeminiKey) {
+        aiReply =
+          "AI is temporarily unavailable. I can still list leads, shortlist projects, create listings, update listings, and draft branded offers if you phrase the request directly."
+      } else {
+        const model = getGeminiModel("broker")
+        const createChat = (modelInstance: ReturnType<typeof getGeminiModel>) =>
+          modelInstance.startChat({
+            history: [
+              {
+                role: "user",
+                parts: [{ text: `${BROKER_SYSTEM_PROMPT}\nYou can also tell brokers when you created a project, updated a listing, or drafted an offer.` }],
+              },
+              {
+                role: "model",
+                parts: [{ text: "Ready to assist with CRM operations, lead intelligence, listings, and branded sales materials." }],
+              },
+              ...buildConversationHistory(history),
+            ],
+          })
+
+        const modelCandidates = [
+          process.env.GEMINI_MODEL,
+          ...(process.env.GEMINI_MODEL_FALLBACKS?.split(",").map((item) => item.trim()).filter(Boolean) || []),
+          ...DEFAULT_GEMINI_MODELS,
+        ].filter(Boolean) as string[]
+
+        let lastError: unknown = null
+        for (const candidate of modelCandidates) {
+          try {
+            const modelInstance =
+              candidate === (process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODELS[0])
+                ? model
+                : getGeminiModelByName(candidate)
+            const chat = createChat(modelInstance)
+            const result = await chat.sendMessage(`${message}${context}`)
+            aiReply = result.response.text()
+            lastError = null
+            break
+          } catch (error: any) {
+            lastError = error
+            const messageText = String(error?.message || "")
+            if (!messageText.includes("not found") && !messageText.includes("not supported")) {
+              throw error
+            }
+          }
+        }
+
+        if (!aiReply) {
+          const discoveredModels = await listGeminiModels()
+          for (const candidate of discoveredModels) {
+            try {
+              const chat = createChat(getGeminiModelByName(candidate))
+              const result = await chat.sendMessage(`${message}${context}`)
+              aiReply = result.response.text()
+              break
+            } catch (error: any) {
+              const messageText = String(error?.message || "")
+              if (!messageText.includes("not found") && !messageText.includes("not supported")) {
+                throw error
+              }
+            }
+          }
+        }
+
+        if (!aiReply && lastError) {
+          throw lastError
+        }
       }
     }
 
     let conversation = null
     const now = new Date().toISOString()
-    const userMessageRecord = { role: "user", content: message, timestamp: now }
-    const assistantMessageRecord = { role: "assistant", content: aiReply, timestamp: now }
+    const userMessageRecord: AiMessageRecord = { role: "user", content: message, timestamp: now }
+    const assistantMessageRecord: AiMessageRecord = { role: "assistant", content: aiReply, timestamp: now }
 
     if (conversationId) {
       conversation = await appendConversationMessage(conversationId, userMessageRecord)
@@ -193,6 +521,7 @@ export async function POST(req: NextRequest) {
 
     await logActivity("ai_broker_chat", sessionUser.id, {
       conversationId: conversation?.id,
+      intent: action.intent,
     })
 
     return NextResponse.json({
@@ -200,12 +529,11 @@ export async function POST(req: NextRequest) {
       data: attachedData,
       conversationId: conversation?.id || null,
     })
-
   } catch (error) {
-    console.error("[v0] Broker AI Chat API Error:", error)
+    console.error("[broker-ai] error", error)
     return NextResponse.json(
       { error: "Failed to process message. Please try again." },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

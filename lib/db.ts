@@ -1,4 +1,4 @@
-import { Pool } from "pg"
+import { Pool, type QueryResultRow } from "pg"
 
 const rawConnectionString =
   process.env.NEON_DATABASE_URL || process.env.DATABASE_URL
@@ -23,7 +23,7 @@ if (process.env.NODE_ENV !== "production") {
   globalForPool.pgPool = pool
 }
 
-export async function query<T>(text: string, params: Array<string | number> = []) {
+export async function query<T extends QueryResultRow = QueryResultRow>(text: string, params: unknown[] = []) {
   const result = await pool.query<T>(text, params)
   return result.rows
 }

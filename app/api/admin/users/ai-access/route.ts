@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
-import { getSessionUser } from "@/lib/auth"
+import { canManageCrmUsers, getSessionUser } from "@/lib/auth"
 import { resolveAccessRole, setUserAiAccess } from "@/lib/entrestate"
 
 const ensureAdmin = (user: Awaited<ReturnType<typeof getSessionUser>>) => {
   if (!user) return false
-  return resolveAccessRole(user.role) === "admin"
+  return resolveAccessRole(user.role) === "admin" && canManageCrmUsers(user.role, user.org_title)
 }
 
 export async function PATCH(req: Request) {

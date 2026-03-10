@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
       name: name || existing?.name || "CRM Admin",
       email,
       role: "admin",
+      org_title: existing?.org_title || existing?.role || "Admin",
       phone: existing?.phone || null,
       commission_rate: existing?.commission_rate || null,
       language: existing?.language || null,
@@ -82,4 +83,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to bootstrap admin." }, { status: 500 })
   }
 }
-

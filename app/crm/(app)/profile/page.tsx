@@ -1,8 +1,9 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { DashboardProfileForm } from "@/components/dashboard-profile-form"
-import { getBrokerPerformanceSummary, getUserProfileByEmail } from "@/lib/entrestate"
-import { getSessionUser, isAdminRole } from "@/lib/auth"
+import { TeamAccountsPanel } from "@/components/team-accounts-panel"
+import { getBrokerPerformanceSummary, getUserAccessList, getUserProfileByEmail } from "@/lib/entrestate"
+import { canDeleteCrmUsers, canManageCrmUsers, getSessionUser } from "@/lib/auth"
 
 interface DashboardProfilePageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
@@ -10,7 +11,7 @@ interface DashboardProfilePageProps {
 
 export default async function DashboardProfilePage({ searchParams }: DashboardProfilePageProps) {
   const sessionUser = await getSessionUser()
-  const canViewOther = isAdminRole(sessionUser?.role)
+  const canViewOther = canManageCrmUsers(sessionUser?.role, sessionUser?.org_title)
   const resolvedSearchParams = searchParams ? await searchParams : undefined
   const requestedEmail = typeof resolvedSearchParams?.email === "string" ? resolvedSearchParams.email : undefined
   const email =
@@ -18,6 +19,7 @@ export default async function DashboardProfilePage({ searchParams }: DashboardPr
   const profile = email ? await getUserProfileByEmail(email) : null
   const brokerId = profile?.id || sessionUser?.id
   const snapshot = brokerId ? await getBrokerPerformanceSummary(brokerId) : null
+  const users = canViewOther ? await getUserAccessList() : []
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-AE", {
@@ -41,7 +43,7 @@ export default async function DashboardProfilePage({ searchParams }: DashboardPr
         </p>
         {canViewOther && (
           <p className="mt-2 text-xs text-muted-foreground">
-            Admin view: open with <code>?email=broker@company.com</code> to load another profile.
+            Management view: open with <code>?email=broker@company.com</code> to load another profile.
           </p>
         )}
       </section>
@@ -81,6 +83,13 @@ export default async function DashboardProfilePage({ searchParams }: DashboardPr
       )}
 
       <DashboardProfileForm initialProfile={profile} canEditRole={canViewOther} />
+      {canViewOther ? (
+        <TeamAccountsPanel
+          users={users}
+          currentUserId={sessionUser?.id}
+          canDeleteUsers={canDeleteCrmUsers(sessionUser?.role, sessionUser?.org_title)}
+        />
+      ) : null}
     </div>
   )
 }

@@ -161,6 +161,11 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
                 <div className="text-muted-foreground">{project.unitsAvailable || "—"}</div>
                 <div className="flex items-center gap-2 whitespace-nowrap">
                   <Button size="sm" variant="outline" asChild>
+                    <Link href={`/crm/projects/add?slug=${encodeURIComponent(project.slug)}`}>
+                      Edit
+                    </Link>
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
                     <Link href={`/crm/landing-pages/create?projectSlug=${encodeURIComponent(project.slug)}`}>
                       Create LP
                     </Link>

@@ -1126,6 +1126,43 @@ export interface DashboardProjectFilters {
   sort?: "market" | "price-low" | "price-high" | "roi"
 }
 
+export interface DashboardProjectInput {
+  slug: string
+  name: string
+  area?: string | null
+  developer?: string | null
+  status?: string | null
+  priceFrom?: number | null
+  priceTo?: number | null
+  roi?: number | null
+  paymentPlan?: string | null
+  handoverDate?: string | null
+  description?: string | null
+  highlights?: string[]
+  amenities?: string[]
+  heroImage?: string | null
+  featured?: boolean
+}
+
+export interface DashboardProjectEditorRecord {
+  id: string
+  slug: string
+  name: string
+  area: string | null
+  developer: string | null
+  status: string | null
+  priceFrom: number | null
+  priceTo: number | null
+  roi: number | null
+  paymentPlan: string | null
+  handoverDate: string | null
+  description: string | null
+  highlights: string[]
+  amenities: string[]
+  heroImage: string | null
+  featured: boolean
+}
+
 export interface BlogPostSummary {
   id: string
   slug: string
@@ -1272,7 +1309,13 @@ export async function ensureLeadsTable() {
       ADD COLUMN IF NOT EXISTS last_contact_at timestamptz,
       ADD COLUMN IF NOT EXISTS country text,
       ADD COLUMN IF NOT EXISTS budget_aed numeric,
-      ADD COLUMN IF NOT EXISTS interest text
+      ADD COLUMN IF NOT EXISTS interest text,
+      ADD COLUMN IF NOT EXISTS message text,
+      ADD COLUMN IF NOT EXISTS landing_slug text,
+      ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now(),
+      ADD COLUMN IF NOT EXISTS ai_ack_sent_at timestamptz,
+      ADD COLUMN IF NOT EXISTS ai_ack_project_slug text,
+      ADD COLUMN IF NOT EXISTS ai_broker_notified_at timestamptz
   `)
 }
 
@@ -1370,6 +1413,42 @@ export async function getLeads(role: "admin" | "broker", brokerId?: string) {
             last_contact_at, country, budget_aed, interest, created_at
      FROM gc_leads
      ORDER BY created_at DESC`,
+  )
+  return rows.map(applyLeadDefaults)
+}
+
+export async function searchCrmLeads(
+  term: string,
+  role: "admin" | "broker",
+  brokerId?: string,
+  limit = 10,
+) {
+  await ensureLeadsTable()
+  const filter = buildLeadFilter("l", role, brokerId)
+  const values = [...filter.params]
+  let whereClause = filter.clause
+
+  const trimmed = term.trim()
+  if (trimmed) {
+    values.push(`%${trimmed}%`)
+    whereClause += ` AND (
+      l.name ILIKE $${values.length}
+      OR COALESCE(l.email, '') ILIKE $${values.length}
+      OR COALESCE(l.phone, '') ILIKE $${values.length}
+      OR COALESCE(l.project_slug, '') ILIKE $${values.length}
+      OR COALESCE(l.source, '') ILIKE $${values.length}
+    )`
+  }
+
+  values.push(limit)
+  const rows = await query<LeadRecord>(
+    `SELECT l.id, l.name, l.phone, l.email, l.source, l.project_slug, l.assigned_broker_id, l.status, l.priority,
+            l.last_contact_at, l.country, l.budget_aed, l.interest, l.created_at
+     FROM gc_leads l
+     WHERE ${whereClause}
+     ORDER BY l.created_at DESC
+     LIMIT $${values.length}`,
+    values,
   )
   return rows.map(applyLeadDefaults)
 }
@@ -1607,6 +1686,165 @@ export async function getDashboardAnalyticsData(
   }
 }
 
+export async function ensureProjectsTable() {
+  await query(`
+    CREATE TABLE IF NOT EXISTS gc_projects (
+      id text PRIMARY KEY,
+      slug text UNIQUE,
+      name text,
+      area text,
+      status text,
+      developer_name text,
+      hero_image text,
+      price_from_aed numeric,
+      price_to_aed numeric,
+      market_score numeric,
+      rental_yield numeric,
+      golden_visa_eligible boolean DEFAULT false,
+      featured boolean DEFAULT false,
+      payload jsonb DEFAULT '{}'::jsonb,
+      created_at timestamptz DEFAULT now(),
+      updated_at timestamptz DEFAULT now()
+    )
+  `)
+  await query(`
+    ALTER TABLE gc_projects
+      ADD COLUMN IF NOT EXISTS developer_name text,
+      ADD COLUMN IF NOT EXISTS hero_image text,
+      ADD COLUMN IF NOT EXISTS price_from_aed numeric,
+      ADD COLUMN IF NOT EXISTS price_to_aed numeric,
+      ADD COLUMN IF NOT EXISTS market_score numeric,
+      ADD COLUMN IF NOT EXISTS rental_yield numeric,
+      ADD COLUMN IF NOT EXISTS golden_visa_eligible boolean DEFAULT false,
+      ADD COLUMN IF NOT EXISTS featured boolean DEFAULT false,
+      ADD COLUMN IF NOT EXISTS payload jsonb DEFAULT '{}'::jsonb,
+      ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now(),
+      ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now()
+  `)
+}
+
+const buildProjectPayload = (input: DashboardProjectInput, existing?: Project | null): Project => {
+  const nowIso = new Date().toISOString()
+  const base = existing || ({} as Project)
+  const highlights = Array.isArray(input.highlights)
+    ? input.highlights.map((item) => item.trim()).filter(Boolean)
+    : []
+  const amenities = Array.isArray(input.amenities)
+    ? input.amenities.map((item) => item.trim()).filter(Boolean)
+    : []
+  const heroImage =
+    pickString(input.heroImage, existing?.heroImage, existing?.mediaSource?.heroImage, "/logo.png") || "/logo.png"
+  const priceFrom = input.priceFrom ?? existing?.units?.[0]?.priceFrom ?? 0
+  const priceTo = input.priceTo ?? existing?.units?.[0]?.priceTo ?? priceFrom
+  const roi = input.roi ?? existing?.investmentHighlights?.expectedROI ?? 0
+  const developerName = pickString(input.developer, existing?.developer?.name, "Gold Century") || "Gold Century"
+  const slug = normalizeSlug(input.slug)
+  const name = pickString(input.name, existing?.name, slugToTitle(slug)) || "Untitled Project"
+  const area = pickString(input.area, existing?.location?.area, "Dubai") || "Dubai"
+
+  return {
+    id: existing?.id || slug,
+    name,
+    slug,
+    tagline: base.tagline || `${area} · Dubai`,
+    description: pickString(input.description, base.description, `${name} in ${area}.`),
+    longDescription: pickString(input.description, base.longDescription, base.description, `${name} in ${area}.`),
+    heroImage,
+    mediaSource: {
+      heroImage,
+      gallery:
+        base.mediaSource?.gallery?.length
+          ? base.mediaSource.gallery
+          : base.gallery?.length
+            ? base.gallery
+            : [heroImage],
+    },
+    heroVideo: base.heroVideo,
+    virtualTour: base.virtualTour,
+    gallery: base.gallery?.length ? base.gallery : [heroImage],
+    developer: {
+      id: base.developer?.id || normalizeSlug(developerName) || "gold-century",
+      name: developerName,
+      slug: base.developer?.slug || normalizeSlug(developerName) || "gold-century",
+      logo: base.developer?.logo || "/logo.png",
+      pfLogo: base.developer?.pfLogo,
+      description: base.developer?.description || `${developerName} development profile.`,
+      trackRecord: base.developer?.trackRecord || "Active Dubai developer.",
+    },
+    location: {
+      area,
+      district: base.location?.district || area,
+      city: base.location?.city || "Dubai",
+      coordinates: base.location?.coordinates || { lat: 25.2048, lng: 55.2708 },
+      freehold: typeof base.location?.freehold === "boolean" ? base.location.freehold : true,
+      nearbyLandmarks: Array.isArray(base.location?.nearbyLandmarks) ? base.location.nearbyLandmarks : [],
+    },
+    units: base.units?.length
+      ? base.units.map((unit, index) =>
+          index === 0
+            ? {
+                ...unit,
+                priceFrom,
+                priceTo,
+              }
+            : unit,
+        )
+      : [
+          {
+            type: "Residence",
+            bedrooms: 1,
+            baths: 1,
+            bathrooms: 1,
+            priceFrom,
+            priceTo,
+            sizeFrom: 700,
+            sizeTo: 900,
+            available: 1,
+            floorPlan: "",
+          },
+        ],
+    amenities: amenities.length ? amenities : base.amenities || [],
+    highlights: highlights.length ? highlights : base.highlights || [],
+    investmentHighlights: {
+      expectedROI: roi,
+      rentalYield: base.investmentHighlights?.rentalYield ?? roi,
+      goldenVisaEligible: base.investmentHighlights?.goldenVisaEligible ?? (priceFrom >= 2000000),
+      paymentPlanAvailable:
+        base.investmentHighlights?.paymentPlanAvailable ?? Boolean(pickString(input.paymentPlan, "")),
+    },
+    paymentPlan: base.paymentPlan || {
+      downPayment: 20,
+      duringConstruction: 40,
+      onHandover: 40,
+      postHandover: 0,
+    },
+    timeline: {
+      launchDate: base.timeline?.launchDate || nowIso.slice(0, 10),
+      constructionStart: base.timeline?.constructionStart || nowIso.slice(0, 10),
+      expectedCompletion: pickString(input.handoverDate, base.timeline?.expectedCompletion, ""),
+      handoverDate: pickString(input.handoverDate, base.timeline?.handoverDate, ""),
+      progressPercentage: base.timeline?.progressPercentage ?? 0,
+    },
+    constructionUpdates: Array.isArray(base.constructionUpdates) ? base.constructionUpdates : [],
+    masterplan: base.masterplan || "",
+    specifications: base.specifications || "",
+    brochure: base.brochure || "",
+    testimonials: Array.isArray(base.testimonials) ? base.testimonials : [],
+    faqs: Array.isArray(base.faqs) ? base.faqs : [],
+    seoTitle: base.seoTitle || name,
+    seoDescription: pickString(input.description, base.seoDescription, `${name} in ${area}.`),
+    seoKeywords: base.seoKeywords || [area, developerName, "Dubai property"],
+    ogImage: base.ogImage || heroImage,
+    status: (input.status as Project["status"]) || base.status || "selling",
+    featured: Boolean(input.featured ?? base.featured),
+    sortScore: base.sortScore ?? roi,
+    scarcityMessage: base.scarcityMessage,
+    urgencyMessage: base.urgencyMessage,
+    createdAt: base.createdAt || nowIso,
+    updatedAt: nowIso,
+  }
+}
+
 const buildProjectFilters = (filters: DashboardProjectFilters, values: Array<string | number>) => {
   const where: string[] = []
 
@@ -1649,6 +1887,7 @@ const buildProjectFilters = (filters: DashboardProjectFilters, values: Array<str
 }
 
 export async function getDashboardProjects(filters: DashboardProjectFilters) {
+  await ensureProjectsTable()
   const pageSize = Math.max(1, filters.pageSize || 20)
   const page = Math.max(1, filters.page || 1)
   const offset = (page - 1) * pageSize
@@ -1720,7 +1959,124 @@ export async function getDashboardProjects(filters: DashboardProjectFilters) {
   return { total, projects }
 }
 
+export async function getDashboardProjectBySlug(slug: string) {
+  await ensureProjectsTable()
+  const cleanSlug = normalizeSlug(slug)
+  const rows = await query<{
+    id: string
+    slug: string
+    name: string
+    area: string | null
+    status: string | null
+    developer_name: string | null
+    hero_image: string | null
+    price_from_aed: number | null
+    price_to_aed: number | null
+    featured: boolean | null
+    payload: Project
+  }>(
+    `SELECT id, slug, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, featured, payload
+     FROM gc_projects
+     WHERE lower(slug) = $1
+        OR lower(payload->>'slug') = $1
+     LIMIT 1`,
+    [cleanSlug],
+  )
+  const row = rows[0]
+  if (!row) return null
+  const payload = normalizeProjectPayload({ id: row.id, slug: row.slug, payload: row.payload })
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name || payload.name,
+    area: row.area || payload.location?.area || null,
+    developer: row.developer_name || payload.developer?.name || null,
+    status: row.status || payload.status || null,
+    priceFrom: row.price_from_aed ?? payload.units?.[0]?.priceFrom ?? null,
+    priceTo: row.price_to_aed ?? payload.units?.[0]?.priceTo ?? null,
+    roi: payload.investmentHighlights?.expectedROI ?? null,
+    paymentPlan:
+      payload.paymentPlan
+        ? `${payload.paymentPlan.downPayment}/${payload.paymentPlan.duringConstruction}/${payload.paymentPlan.onHandover}`
+        : null,
+    handoverDate: payload.timeline?.handoverDate || payload.timeline?.expectedCompletion || null,
+    description: payload.description || null,
+    highlights: payload.highlights || [],
+    amenities: payload.amenities || [],
+    heroImage: row.hero_image || payload.heroImage || null,
+    featured: Boolean(row.featured ?? payload.featured),
+  } satisfies DashboardProjectEditorRecord
+}
+
+export async function upsertDashboardProject(input: DashboardProjectInput) {
+  await ensureProjectsTable()
+  const existing = await getProjectBySlug(input.slug)
+  const payload = buildProjectPayload(input, existing)
+  const id = existing?.id || payload.id || normalizeSlug(input.slug)
+  const nowIso = new Date().toISOString()
+  const rows = await query<{
+    id: string
+    slug: string
+    name: string
+    area: string | null
+    status: string | null
+    developer_name: string | null
+    hero_image: string | null
+    price_from_aed: number | null
+    price_to_aed: number | null
+    featured: boolean | null
+    payload: Project
+  }>(
+    `INSERT INTO gc_projects (
+        id, slug, name, area, status, developer_name, hero_image,
+        price_from_aed, price_to_aed, market_score, rental_yield,
+        golden_visa_eligible, featured, payload, updated_at
+      )
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7,
+        $8, $9, $10, $11,
+        $12, $13, $14::jsonb, $15
+      )
+      ON CONFLICT (slug)
+      DO UPDATE SET
+        name = EXCLUDED.name,
+        area = EXCLUDED.area,
+        status = EXCLUDED.status,
+        developer_name = EXCLUDED.developer_name,
+        hero_image = EXCLUDED.hero_image,
+        price_from_aed = EXCLUDED.price_from_aed,
+        price_to_aed = EXCLUDED.price_to_aed,
+        market_score = EXCLUDED.market_score,
+        rental_yield = EXCLUDED.rental_yield,
+        golden_visa_eligible = EXCLUDED.golden_visa_eligible,
+        featured = EXCLUDED.featured,
+        payload = EXCLUDED.payload,
+        updated_at = EXCLUDED.updated_at
+      RETURNING id, slug, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, featured, payload`,
+    [
+      id,
+      payload.slug,
+      payload.name,
+      payload.location.area,
+      payload.status,
+      payload.developer.name,
+      payload.heroImage,
+      payload.units?.[0]?.priceFrom ?? null,
+      payload.units?.[0]?.priceTo ?? null,
+      payload.sortScore ?? payload.investmentHighlights.expectedROI ?? 0,
+      payload.investmentHighlights.rentalYield ?? payload.investmentHighlights.expectedROI ?? 0,
+      payload.investmentHighlights.goldenVisaEligible,
+      payload.featured,
+      JSON.stringify(payload),
+      nowIso,
+    ],
+  )
+
+  return rows[0]
+}
+
 export async function getDashboardProjectFilters() {
+  await ensureProjectsTable()
   const areas = await query<{ area: string | null }>(
     `SELECT DISTINCT area FROM gc_projects WHERE area IS NOT NULL ORDER BY area ASC LIMIT 30`,
   )
@@ -1738,6 +2094,7 @@ export interface UserProfileRecord {
   name: string
   email: string
   role: string
+  org_title?: string | null
   phone?: string | null
   commission_rate?: number | null
   language?: string | null
@@ -1761,6 +2118,7 @@ export async function ensureUsersTable() {
   await query(`
     ALTER TABLE gc_users
       ADD COLUMN IF NOT EXISTS phone text,
+      ADD COLUMN IF NOT EXISTS org_title text,
       ADD COLUMN IF NOT EXISTS commission_rate numeric,
       ADD COLUMN IF NOT EXISTS language text,
       ADD COLUMN IF NOT EXISTS ai_tone text,
@@ -1777,7 +2135,7 @@ export async function ensureUsersTable() {
 export async function getUserProfileByEmail(email: string) {
   await ensureUsersTable()
   const rows = await query<UserProfileRecord>(
-    `SELECT id, name, email, role, phone, commission_rate, language, ai_tone, ai_verbosity,
+    `SELECT id, name, email, role, org_title, phone, commission_rate, language, ai_tone, ai_verbosity,
             notifications, last_login_at, created_at
      FROM gc_users
      WHERE email = $1
@@ -1787,18 +2145,34 @@ export async function getUserProfileByEmail(email: string) {
   return rows[0] || null
 }
 
+export async function getUserProfileById(id: string) {
+  await ensureUsersTable()
+  const rows = await query<UserProfileRecord>(
+    `SELECT id, name, email, role, org_title, phone, commission_rate, language, ai_tone, ai_verbosity,
+            notifications, last_login_at, created_at
+     FROM gc_users
+     WHERE id = $1
+     LIMIT 1`,
+    [id],
+  )
+  return rows[0] || null
+}
+
 export interface UserAccessRecord {
   id: string
   name: string | null
   email: string
   role: string
+  org_title?: string | null
   ai_access: boolean
+  last_login_at?: string | null
+  created_at?: string
 }
 
 export async function getUserAccessList() {
   await ensureUsersTable()
   return query<UserAccessRecord>(
-    `SELECT id, name, email, role, ai_access
+    `SELECT id, name, email, role, org_title, ai_access, last_login_at, created_at
      FROM gc_users
      ORDER BY created_at DESC`,
   )
@@ -1810,8 +2184,19 @@ export async function setUserAiAccess(id: string, aiAccess: boolean) {
     `UPDATE gc_users
      SET ai_access = $2
      WHERE id = $1
-     RETURNING id, name, email, role, ai_access`,
+     RETURNING id, name, email, role, org_title, ai_access`,
     [id, aiAccess],
+  )
+  return rows[0] || null
+}
+
+export async function deleteUserAccess(id: string) {
+  await ensureUsersTable()
+  const rows = await query<UserAccessRecord>(
+    `DELETE FROM gc_users
+     WHERE id = $1
+     RETURNING id, name, email, role, ai_access`,
+    [id],
   )
   return rows[0] || null
 }
@@ -1883,6 +2268,7 @@ export async function upsertUserProfile(profile: {
   name: string
   email: string
   role: string
+  org_title?: string | null
   phone?: string | null
   commission_rate?: number | null
   language?: string | null
@@ -1893,12 +2279,13 @@ export async function upsertUserProfile(profile: {
 }) {
   await ensureUsersTable()
   const rows = await query<UserProfileRecord>(
-    `INSERT INTO gc_users (id, name, email, role, phone, commission_rate, language, ai_tone, ai_verbosity, notifications, password_hash)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    `INSERT INTO gc_users (id, name, email, role, org_title, phone, commission_rate, language, ai_tone, ai_verbosity, notifications, password_hash)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      ON CONFLICT (email)
      DO UPDATE SET
        name = EXCLUDED.name,
        role = EXCLUDED.role,
+       org_title = EXCLUDED.org_title,
        phone = EXCLUDED.phone,
        commission_rate = EXCLUDED.commission_rate,
        language = EXCLUDED.language,
@@ -1906,13 +2293,14 @@ export async function upsertUserProfile(profile: {
        ai_verbosity = EXCLUDED.ai_verbosity,
        notifications = EXCLUDED.notifications,
        password_hash = COALESCE(EXCLUDED.password_hash, gc_users.password_hash)
-     RETURNING id, name, email, role, phone, commission_rate, language, ai_tone, ai_verbosity,
+     RETURNING id, name, email, role, org_title, phone, commission_rate, language, ai_tone, ai_verbosity,
                notifications, last_login_at, created_at`,
     [
       profile.id,
       profile.name,
       profile.email,
       profile.role,
+      profile.org_title || null,
       profile.phone || null,
       typeof profile.commission_rate === "number" ? profile.commission_rate : null,
       profile.language || null,

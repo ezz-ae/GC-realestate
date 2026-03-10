@@ -21,12 +21,14 @@ type ProjectRow = {
 
 export type LandingSectionType =
   | "hero"
+  | "market-intelligence"
   | "key-facts"
   | "payment-plan"
   | "roi"
   | "why-dubai"
   | "amenities"
   | "location"
+  | "ai-concierge"
   | "faq"
   | "download-brochure"
   | "lead-form"
@@ -91,6 +93,13 @@ export interface LandingPageDashboardRow {
   pageViews: number
   formSubmissions: number
 }
+
+const formatAed = (value: number) =>
+  new Intl.NumberFormat("en-AE", {
+    style: "currency",
+    currency: "AED",
+    maximumFractionDigits: 0,
+  }).format(value)
 
 const toObject = (value: unknown): Record<string, unknown> => {
   if (!value) return {}
@@ -168,6 +177,10 @@ const normalizeType = (value: string): LandingSectionType | null => {
   switch (normalized) {
     case "hero":
       return "hero"
+    case "market-intelligence":
+    case "market":
+    case "intelligence":
+      return "market-intelligence"
     case "key-facts":
     case "facts":
     case "keyfacts":
@@ -185,6 +198,11 @@ const normalizeType = (value: string): LandingSectionType | null => {
       return "amenities"
     case "location":
       return "location"
+    case "ai-concierge":
+    case "ai":
+    case "assistant":
+    case "concierge":
+      return "ai-concierge"
     case "faq":
     case "faqs":
       return "faq"
@@ -229,6 +247,17 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
     (project
       ? `Discover ${project.name} in ${project.area} with curated investment insights and live availability.`
       : "Discover premium Dubai investment opportunities.")
+  const startPrice =
+    typeof project?.priceFromAed === "number" && project.priceFromAed > 0
+      ? formatAed(project.priceFromAed)
+      : "Price on request"
+  const yieldText =
+    typeof project?.rentalYield === "number" && project.rentalYield > 0
+      ? `${project.rentalYield.toFixed(1)}% rental yield`
+      : "Yield profile on request"
+  const marketSummary = project
+    ? `${project.name} in ${project.area} is positioned for buyers who want a branded Dubai asset with an entry point from ${startPrice} and a ${yieldText.toLowerCase()} profile.`
+    : "This campaign page is designed to qualify buyers quickly with clearer pricing, positioning, and guided next actions."
 
   return [
     {
@@ -236,6 +265,22 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
       data: {
         title,
         subtitle,
+        eyebrow: project ? `${project.area} · ${project.developerName}` : "Dubai Investment Campaign",
+        chips: [project?.area || "Dubai", startPrice, yieldText],
+      },
+    },
+    {
+      type: "market-intelligence",
+      data: {
+        title: "AI Market Read",
+        subtitle: "A sharper investment frame generated from the listing itself.",
+        summary: marketSummary,
+        bullets: [
+          `Area focus: ${project?.area || "Dubai"}`,
+          `Developer: ${project?.developerName || "Gold Century"}`,
+          `Entry point: ${startPrice}`,
+          `Income lens: ${yieldText}`,
+        ],
       },
     },
     {
@@ -247,10 +292,7 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
           { label: "Developer", value: project?.developerName || "On request" },
           {
             label: "Starting Price",
-            value:
-              typeof project?.priceFromAed === "number"
-                ? `AED ${project.priceFromAed.toLocaleString("en-AE")}`
-                : "On request",
+            value: startPrice,
           },
         ],
       },
@@ -286,6 +328,26 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
       type: "location",
       data: {
         area: project?.area || "Dubai",
+        developer: project?.developerName || "Gold Century",
+        title: "Location & Positioning",
+        subtitle: "The commercial frame brokers can use immediately in a client conversation.",
+        highlights: [
+          `${project?.area || "Dubai"} demand corridor`,
+          `Developer: ${project?.developerName || "Gold Century"}`,
+          `Entry point: ${startPrice}`,
+        ],
+      },
+    },
+    {
+      type: "ai-concierge",
+      data: {
+        title: "Ask Gold Century AI",
+        subtitle: "Let the AI explain ROI, compare areas, and qualify the next step before a broker call.",
+        prompts: [
+          `Is ${project?.name || "this project"} better for rental yield or appreciation?`,
+          `Compare ${project?.area || "this area"} with Dubai Marina`,
+          `What kind of buyer is this project best for?`,
+        ],
       },
     },
     {
@@ -302,7 +364,7 @@ const buildDefaultSections = (project: LandingProjectSummary | null, row: Landin
       type: "lead-form",
       data: {
         title: "Get full brochure & availability",
-        subtitle: "A senior investment consultant will contact you with curated options.",
+        subtitle: "A senior investment consultant will contact you with curated options, live inventory, and AI-backed talking points.",
       },
     },
   ]
@@ -421,12 +483,14 @@ const normalizeSections = (
 
   const fallbackOrder: LandingSectionType[] = [
     "hero",
+    "market-intelligence",
     "key-facts",
     "payment-plan",
     "roi",
     "why-dubai",
     "amenities",
     "location",
+    "ai-concierge",
     "faq",
     "download-brochure",
     "lead-form",

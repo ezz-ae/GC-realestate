@@ -29,6 +29,10 @@ export function HeroSection({
   const title = (typeof data.title === "string" && data.title) || fallbackTitle
   const subtitle = (typeof data.subtitle === "string" && data.subtitle) || fallbackSubtitle
   const eyebrow = (typeof data.eyebrow === "string" && data.eyebrow) || "Project Campaign"
+  const chips = Array.isArray(data.chips)
+    ? data.chips.map((item) => (typeof item === "string" ? item : "")).filter(Boolean)
+    : []
+  const chatQuery = encodeURIComponent(`Tell me about ${projectSlug} and whether it fits my investment goals.`)
 
   return (
     <section className="relative overflow-hidden border-b">
@@ -43,12 +47,24 @@ export function HeroSection({
             <Badge className="gold-gradient border-none">{eyebrow}</Badge>
             <h1 className="font-serif text-4xl font-bold leading-tight md:text-6xl">{title}</h1>
             <p className="max-w-2xl text-lg text-white/85 md:text-xl">{subtitle}</p>
+            {chips.length ? (
+              <div className="flex flex-wrap gap-2">
+                {chips.map((chip) => (
+                  <div key={chip} className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/90">
+                    {chip}
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="flex flex-wrap gap-3">
               <Button asChild className="gold-gradient text-primary-foreground">
                 <a href="#lead-form-section">{ctaText}</a>
               </Button>
               <Button asChild variant="outline" className="border-white/40 bg-black/20 text-white hover:bg-black/35">
                 <Link href="#download-brochure">Download Brochure</Link>
+              </Button>
+              <Button asChild variant="outline" className="border-white/40 bg-black/20 text-white hover:bg-black/35">
+                <Link href={`/chat?q=${chatQuery}&source=lp&landing=${landingSlug}&project=${projectSlug}`}>Ask AI</Link>
               </Button>
             </div>
           </div>

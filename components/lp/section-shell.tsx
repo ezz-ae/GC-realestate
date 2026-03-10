@@ -17,6 +17,7 @@ export function SectionShell({ id, title, subtitle, children, className }: Secti
           <div className="mx-auto mb-8 max-w-3xl text-center md:mb-10">
             {title && <h2 className="font-serif text-3xl font-bold tracking-tight md:text-4xl">{title}</h2>}
             {subtitle && <p className="mt-3 text-base text-muted-foreground md:text-lg">{subtitle}</p>}
+            <div className="mx-auto mt-5 h-px w-24 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
           </div>
         )}
         {children}

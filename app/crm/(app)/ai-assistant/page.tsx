@@ -14,6 +14,8 @@ const suggestions = [
   "Which leads should I follow up with today?",
   "Draft a follow-up email for a lead who viewed 3 properties",
   "Compare Project A vs Project B",
+  "Create listing name: GC Marina Edge, area: Dubai Marina, developer: Select Group, priceFrom: 1850000, roi: 8.4",
+  "Create a branded offer for lead Sarah interested in Dubai Hills",
 ]
 
 export default function DashboardAIAssistantPage() {
@@ -37,6 +39,17 @@ export default function DashboardAIAssistantPage() {
         source: lead.source || "",
         project: lead.project_slug || "",
       }))
+    }
+    if (latestAttachment.type === "project-action") {
+      return [latestAttachment.data]
+    }
+    if (latestAttachment.type === "offer") {
+      return [
+        {
+          title: latestAttachment.data.title,
+          content: latestAttachment.data.content,
+        },
+      ]
     }
     return latestAttachment.data.map((project: any) => ({
       title: project.title,
@@ -204,6 +217,18 @@ export default function DashboardAIAssistantPage() {
               {!latestAttachment ? (
                 <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
                   No attached data yet. Ask for leads, projects, or ROI rankings.
+                </div>
+              ) : latestAttachment.type === "offer" ? (
+                <div className="rounded-lg border border-border/60 bg-background/70 p-4 text-sm whitespace-pre-wrap">
+                  <div className="font-semibold mb-2">{latestAttachment.data.title}</div>
+                  {latestAttachment.data.content}
+                </div>
+              ) : latestAttachment.type === "project-action" ? (
+                <div className="rounded-lg border border-border/60 bg-background/70 px-3 py-3 text-sm">
+                  <div className="font-semibold">{latestAttachment.data.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {latestAttachment.data.slug} · {latestAttachment.data.area || "Dubai"} · {latestAttachment.data.status || "selling"}
+                  </div>
                 </div>
               ) : latestAttachment.type === "leads" ? (
                 <div className="space-y-2">
