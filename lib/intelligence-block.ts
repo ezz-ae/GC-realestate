@@ -1,8 +1,18 @@
 import postgres from "postgres"
 
-const sql = postgres(process.env.NEON_DATABASE_URL!)
+const DB_URL = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL
+const sql = DB_URL ? postgres(DB_URL) : null
+
+const EMPTY_RESULT = {
+  trending: [],
+  best_areas: [],
+  pulse: null,
+  below_market: [],
+  generated_at: new Date().toISOString(),
+}
 
 export async function getIntelligenceBlockData() {
+  if (!sql) return EMPTY_RESULT
   const [trending, bestAreas, pulse, belowMarket] = await Promise.all([
     sql`
       SELECT name, slug, area, developer_name,
