@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     const status = body?.status ? String(body.status).trim() : null
     const note = body?.note ? String(body.note).trim() : null
     const markContacted = Boolean(body?.markContacted)
+    const activityType = body?.activityType ? String(body.activityType).trim() : null
 
     if (!leadId) {
       return NextResponse.json({ error: "Lead ID is required." }, { status: 400 })
@@ -56,16 +57,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (note || status) {
+    if (note || status || activityType) {
       const description =
         note || (status ? `Status updated to ${status}` : null)
+      const type = activityType || (note ? "note" : "status_update")
       await query(
         `INSERT INTO gc_lead_activity (id, lead_id, activity_type, description, created_by)
          VALUES ($1, $2, $3, $4, $5)`,
         [
           randomUUID(),
           leadId,
-          note ? "note" : "status_update",
+          type,
           description,
           user.id,
         ],
