@@ -1087,6 +1087,7 @@ export interface AreaPerformanceSummary {
 
 export interface BrokerPerformanceSummary {
   brokerId: string
+  brokerName: string
   count: number
 }
 
@@ -1614,6 +1615,8 @@ export async function getDashboardAnalyticsData(
   brokerId?: string,
 ): Promise<AnalyticsOverview> {
   await ensureLeadsTable()
+  await ensureProjectsTable()
+  await ensureUsersTable()
   const filter = buildLeadFilter("l", role, brokerId)
   const params = filter.params
 
@@ -1627,9 +1630,9 @@ export async function getDashboardAnalyticsData(
   )
 
   const areaPerformance = await query<AreaPerformanceSummary>(
-    `SELECT COALESCE(p.area, 'Unknown') AS area, COUNT(*)::int AS count
+    `SELECT COALESCE(p.area, 'General enquiry') AS area, COUNT(*)::int AS count
      FROM gc_leads l
-     JOIN gc_projects p ON p.slug = l.project_slug
+     LEFT JOIN gc_projects p ON p.slug = l.project_slug
      WHERE ${filter.clause}
      GROUP BY p.area
      ORDER BY count DESC
@@ -1638,10 +1641,14 @@ export async function getDashboardAnalyticsData(
   )
 
   const brokerPerformance = await query<BrokerPerformanceSummary>(
-    `SELECT COALESCE(l.assigned_broker_id, 'Unassigned') AS "brokerId", COUNT(*)::int AS count
+    `SELECT
+       COALESCE(l.assigned_broker_id, 'unassigned') AS "brokerId",
+       COALESCE(u.name, u.email, l.assigned_broker_id, 'Unassigned') AS "brokerName",
+       COUNT(*)::int AS count
      FROM gc_leads l
+     LEFT JOIN gc_users u ON u.id = l.assigned_broker_id
      WHERE ${filter.clause}
-     GROUP BY l.assigned_broker_id
+     GROUP BY l.assigned_broker_id, u.name, u.email
      ORDER BY count DESC`,
     params,
   )
@@ -1674,7 +1681,7 @@ export async function getDashboardAnalyticsData(
   const [pipeline] = await query<{ total: number }>(
     `SELECT COALESCE(SUM(p.price_from_aed), 0)::bigint AS total
      FROM gc_leads l
-     JOIN gc_projects p ON p.slug = l.project_slug
+     LEFT JOIN gc_projects p ON p.slug = l.project_slug
      WHERE ${filter.clause}
        AND l.created_at >= now() - interval '30 days'`,
     params,

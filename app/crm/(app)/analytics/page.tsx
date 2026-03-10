@@ -16,6 +16,16 @@ export default async function DashboardAnalyticsPage() {
   const accessRole = resolveAccessRole(user?.role)
   const brokerId = accessRole === "broker" ? user?.id : undefined
   const analytics = await getDashboardAnalyticsData(accessRole, brokerId)
+  const hasLeadSources = analytics.leadSources.length > 0
+  const hasBrokerData = analytics.brokerPerformance.length > 0
+  const hasAreaData = analytics.areaPerformance.length > 0
+  const hasProjectData = analytics.topProjects.length > 0
+
+  const EmptyState = ({ text }: { text: string }) => (
+    <div className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+      {text}
+    </div>
+  )
 
   return (
     <div className="space-y-8">
@@ -116,20 +126,24 @@ export default async function DashboardAnalyticsPage() {
             <CardTitle>Lead Source Performance</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {analytics.leadSources.map((source) => (
-              <div key={source.source} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{source.source}</span>
-                  <span className="text-muted-foreground">{source.count}</span>
+            {hasLeadSources ? (
+              analytics.leadSources.map((source) => (
+                <div key={source.source} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{source.source}</span>
+                    <span className="text-muted-foreground">{source.count}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted">
+                    <div
+                      className="h-2 rounded-full gold-gradient"
+                      style={{ width: `${Math.min((source.count / (analytics.leadSources[0]?.count || 1)) * 100, 100)}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-2 rounded-full bg-muted">
-                  <div
-                    className="h-2 rounded-full gold-gradient"
-                    style={{ width: `${Math.min((source.count / (analytics.leadSources[0]?.count || 1)) * 100, 100)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <EmptyState text="No lead-source data yet. Once enquiries start coming in, this section will rank them here." />
+            )}
           </CardContent>
         </Card>
 
@@ -138,12 +152,16 @@ export default async function DashboardAnalyticsPage() {
             <CardTitle>Broker Performance</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {analytics.brokerPerformance.map((broker) => (
-              <div key={broker.brokerId} className="flex items-center justify-between text-sm">
-                <span className="font-medium">{broker.brokerId}</span>
-                <span className="text-muted-foreground">{broker.count} leads</span>
-              </div>
-            ))}
+            {hasBrokerData ? (
+              analytics.brokerPerformance.map((broker) => (
+                <div key={broker.brokerId} className="flex items-center justify-between text-sm">
+                  <span className="font-medium">{broker.brokerName}</span>
+                  <span className="text-muted-foreground">{broker.count} leads</span>
+                </div>
+              ))
+            ) : (
+              <EmptyState text="No broker assignment data yet. Once leads are assigned, team performance will appear here." />
+            )}
           </CardContent>
         </Card>
       </section>
@@ -154,12 +172,16 @@ export default async function DashboardAnalyticsPage() {
             <CardTitle>Demand by Area</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {analytics.areaPerformance.map((area) => (
-              <div key={area.area} className="flex items-center justify-between text-sm">
-                <span className="font-medium">{area.area}</span>
-                <span className="text-muted-foreground">{area.count} leads</span>
-              </div>
-            ))}
+            {hasAreaData ? (
+              analytics.areaPerformance.map((area) => (
+                <div key={area.area} className="flex items-center justify-between text-sm">
+                  <span className="font-medium">{area.area}</span>
+                  <span className="text-muted-foreground">{area.count} leads</span>
+                </div>
+              ))
+            ) : (
+              <EmptyState text="No area-level demand data yet. Once leads are linked to projects, this section will show where buyers are focusing." />
+            )}
           </CardContent>
         </Card>
 
@@ -168,14 +190,18 @@ export default async function DashboardAnalyticsPage() {
             <CardTitle>Top Projects</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {analytics.topProjects.map((project) => (
-              <div key={project.id} className="text-sm">
-                <div className="font-medium">{project.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {project.area || "Dubai"} · ROI {project.expectedRoi ?? "—"}%
+            {hasProjectData ? (
+              analytics.topProjects.map((project) => (
+                <div key={project.id} className="text-sm">
+                  <div className="font-medium">{project.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {project.area || "Dubai"} · ROI {project.expectedRoi ?? "—"}%
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <EmptyState text="No project analytics yet. Once inventory is available, the strongest projects will show here." />
+            )}
           </CardContent>
         </Card>
       </section>
