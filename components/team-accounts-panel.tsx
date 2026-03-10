@@ -88,7 +88,7 @@ export function TeamAccountsPanel({ users, currentUserId, canDeleteUsers = false
       <CardHeader>
         <CardTitle>Team Accounts</CardTitle>
         <p className="text-xs text-muted-foreground">
-          Create CRM logins for brokers, managers, and admins.
+          Create access for brokers, managers, and office staff.
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -134,16 +134,18 @@ export function TeamAccountsPanel({ users, currentUserId, canDeleteUsers = false
             </div>
           ) : (
             users.map((user) => (
-              <div key={user.id} className="rounded-xl border border-border/60 bg-background/60 px-4 py-3">
-                <div className="font-medium">{user.name || "Unnamed user"}</div>
-                <div className="text-xs text-muted-foreground">
-                  {user.email} · {user.org_title || user.role}
-                </div>
-              <div className="text-[11px] text-muted-foreground mt-1">
-                  Last login: {user.last_login_at ? new Date(user.last_login_at).toLocaleString() : "Never"}
-                </div>
-                {canDeleteUsers && user.id !== currentUserId ? (
-                  <div className="mt-3">
+              <div key={user.id} className="rounded-xl border border-border/60 bg-background/60 px-4 py-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-1">
+                    <div className="font-medium">{user.name || "Unnamed user"}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {user.email} · {user.org_title || user.role}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">
+                      Last login: {user.last_login_at ? new Date(user.last_login_at).toLocaleString() : "Never"}
+                    </div>
+                  </div>
+                  {canDeleteUsers && user.id !== currentUserId ? (
                     <Button
                       type="button"
                       variant="destructive"
@@ -153,8 +155,8 @@ export function TeamAccountsPanel({ users, currentUserId, canDeleteUsers = false
                     >
                       {deletingId === user.id ? "Deleting..." : "Delete User"}
                     </Button>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
               </div>
             ))
           )}

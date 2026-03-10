@@ -1,6 +1,7 @@
 import { LeadsTable } from "@/components/leads-table"
 import { Badge } from "@/components/ui/badge"
-import { getLeads, resolveAccessRole } from "@/lib/entrestate"
+import { Card, CardContent } from "@/components/ui/card"
+import { getLeads, getUserAccessList, resolveAccessRole } from "@/lib/entrestate"
 import { getSessionUser, isAdminRole } from "@/lib/auth"
 
 export default async function LeadsPage() {
@@ -9,6 +10,19 @@ export default async function LeadsPage() {
   const brokerId = accessRole === "broker" ? user?.id : undefined
   const leads = await getLeads(accessRole, brokerId)
   const isAdmin = isAdminRole(user?.role)
+  const teamMembers = isAdmin
+    ? (await getUserAccessList())
+        .filter((member) => !["ceo", "director"].includes(String(member.org_title || member.role).trim().toLowerCase().replace(/\s+/g, "_")))
+        .map((member) => ({
+          id: member.id,
+          name: member.name || member.email,
+          email: member.email,
+          title: member.org_title || member.role,
+        }))
+    : []
+  const newCount = leads.filter((lead) => (lead.status || "new") === "new").length
+  const hotCount = leads.filter((lead) => lead.priority === "hot").length
+  const openCount = leads.filter((lead) => !lead.assigned_broker_id).length
 
   return (
     <div className="space-y-8">
@@ -28,8 +42,29 @@ export default async function LeadsPage() {
         </div>
       </section>
 
+      <section className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardContent className="p-5">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Total Leads</div>
+            <div className="mt-2 text-3xl font-bold">{leads.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">New / Hot</div>
+            <div className="mt-2 text-3xl font-bold">{newCount} / {hotCount}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Unassigned</div>
+            <div className="mt-2 text-3xl font-bold">{openCount}</div>
+          </CardContent>
+        </Card>
+      </section>
+
       <section>
-        <LeadsTable leads={leads} isAdmin={isAdmin} />
+        <LeadsTable leads={leads} isAdmin={isAdmin} teamMembers={teamMembers} />
       </section>
     </div>
   )

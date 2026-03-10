@@ -1096,6 +1096,9 @@ export interface AnalyticsOverview {
   brokerPerformance: BrokerPerformanceSummary[]
   topProjects: ProjectPerformance[]
   pipelineValue: number
+  landingPageViews: number
+  landingPageSubmissions: number
+  landingPageCount: number
 }
 
 export interface DashboardProjectRow {
@@ -1677,12 +1680,46 @@ export async function getDashboardAnalyticsData(
     params,
   )
 
+  const analyticsTableExists = await query<{ exists: number }>(
+    `SELECT 1 AS exists
+     FROM information_schema.tables
+     WHERE table_schema = 'public'
+       AND table_name = 'gc_lp_analytics'
+     LIMIT 1`,
+  )
+
+  const landingPageTableExists = await query<{ exists: number }>(
+    `SELECT 1 AS exists
+     FROM information_schema.tables
+     WHERE table_schema = 'public'
+       AND table_name = 'gc_project_landing_pages'
+     LIMIT 1`,
+  )
+
+  const [landingTotals] =
+    analyticsTableExists.length > 0
+      ? await query<{ page_views: number; form_submissions: number }>(
+          `SELECT
+             COUNT(*) FILTER (WHERE event_name = 'page_view')::int AS page_views,
+             COUNT(*) FILTER (WHERE event_name = 'form_submit')::int AS form_submissions
+           FROM gc_lp_analytics`,
+        )
+      : [{ page_views: 0, form_submissions: 0 }]
+
+  const [landingCount] =
+    landingPageTableExists.length > 0
+      ? await query<{ count: number }>(`SELECT COUNT(*)::int AS count FROM gc_project_landing_pages`)
+      : [{ count: 0 }]
+
   return {
     leadSources,
     areaPerformance,
     brokerPerformance,
     topProjects,
     pipelineValue: pipeline?.total || 0,
+    landingPageViews: landingTotals?.page_views || 0,
+    landingPageSubmissions: landingTotals?.form_submissions || 0,
+    landingPageCount: landingCount?.count || 0,
   }
 }
 

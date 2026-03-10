@@ -335,16 +335,20 @@ export async function POST(req: NextRequest) {
 
     let action = heuristicAction(message)
     if (hasGeminiKey) {
-      const aiAction = await classifyWithGemini(message, history)
-      if (aiAction?.intent) {
-        action = {
-          ...action,
-          ...aiAction,
-          fields: {
-            ...action.fields,
-            ...aiAction.fields,
-          },
+      try {
+        const aiAction = await classifyWithGemini(message, history)
+        if (aiAction?.intent) {
+          action = {
+            ...action,
+            ...aiAction,
+            fields: {
+              ...action.fields,
+              ...aiAction.fields,
+            },
+          }
         }
+      } catch (error) {
+        console.error("[broker-ai] classify error", error)
       }
     }
 
@@ -544,68 +548,79 @@ export async function POST(req: NextRequest) {
         aiReply =
           "AI is temporarily unavailable. I can still list leads, shortlist projects, create listings, update listings, and draft branded offers if you phrase the request directly."
       } else {
-        const model = getGeminiModel("broker")
-        const createChat = (modelInstance: ReturnType<typeof getGeminiModel>) =>
-          modelInstance.startChat({
-            history: [
-              {
-                role: "user",
-                parts: [{ text: `${BROKER_SYSTEM_PROMPT}\nYou can also tell brokers when you created a project, updated a listing, or drafted an offer.` }],
-              },
-              {
-                role: "model",
-                parts: [{ text: "Ready to assist with CRM operations, lead intelligence, listings, and branded sales materials." }],
-              },
-              ...buildConversationHistory(history),
-            ],
-          })
+        try {
+          const model = getGeminiModel("broker")
+          const createChat = (modelInstance: ReturnType<typeof getGeminiModel>) =>
+            modelInstance.startChat({
+              history: [
+                {
+                  role: "user",
+                  parts: [{ text: `${BROKER_SYSTEM_PROMPT}\nYou can also tell brokers when you created a project, updated a listing, or drafted an offer.` }],
+                },
+                {
+                  role: "model",
+                  parts: [{ text: "Ready to assist with CRM operations, lead intelligence, listings, and branded sales materials." }],
+                },
+                ...buildConversationHistory(history),
+              ],
+            })
 
-        const modelCandidates = [
-          process.env.GEMINI_MODEL,
-          ...(process.env.GEMINI_MODEL_FALLBACKS?.split(",").map((item) => item.trim()).filter(Boolean) || []),
-          ...DEFAULT_GEMINI_MODELS,
-        ].filter(Boolean) as string[]
+          const modelCandidates = [
+            process.env.GEMINI_MODEL,
+            ...(process.env.GEMINI_MODEL_FALLBACKS?.split(",").map((item) => item.trim()).filter(Boolean) || []),
+            ...DEFAULT_GEMINI_MODELS,
+          ].filter(Boolean) as string[]
 
-        let lastError: unknown = null
-        for (const candidate of modelCandidates) {
-          try {
-            const modelInstance =
-              candidate === (process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODELS[0])
-                ? model
-                : getGeminiModelByName(candidate)
-            const chat = createChat(modelInstance)
-            const result = await chat.sendMessage(`${message}${context}`)
-            aiReply = result.response.text()
-            lastError = null
-            break
-          } catch (error: any) {
-            lastError = error
-            const messageText = String(error?.message || "")
-            if (!messageText.includes("not found") && !messageText.includes("not supported")) {
-              throw error
-            }
-          }
-        }
-
-        if (!aiReply) {
-          const discoveredModels = await listGeminiModels()
-          for (const candidate of discoveredModels) {
+          let lastError: unknown = null
+          for (const candidate of modelCandidates) {
             try {
-              const chat = createChat(getGeminiModelByName(candidate))
+              const modelInstance =
+                candidate === (process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODELS[0])
+                  ? model
+                  : getGeminiModelByName(candidate)
+              const chat = createChat(modelInstance)
               const result = await chat.sendMessage(`${message}${context}`)
               aiReply = result.response.text()
+              lastError = null
               break
             } catch (error: any) {
+              lastError = error
               const messageText = String(error?.message || "")
               if (!messageText.includes("not found") && !messageText.includes("not supported")) {
-                throw error
+                console.error("[broker-ai] chat model error", error)
+                break
               }
             }
           }
+
+          if (!aiReply) {
+            const discoveredModels = await listGeminiModels()
+            for (const candidate of discoveredModels) {
+              try {
+                const chat = createChat(getGeminiModelByName(candidate))
+                const result = await chat.sendMessage(`${message}${context}`)
+                aiReply = result.response.text()
+                break
+              } catch (error: any) {
+                const messageText = String(error?.message || "")
+                if (!messageText.includes("not found") && !messageText.includes("not supported")) {
+                  console.error("[broker-ai] discovered model error", error)
+                  break
+                }
+              }
+            }
+          }
+
+          if (!aiReply && lastError) {
+            console.error("[broker-ai] final chat error", lastError)
+          }
+        } catch (error) {
+          console.error("[broker-ai] general chat failure", error)
         }
 
-        if (!aiReply && lastError) {
-          throw lastError
+        if (!aiReply) {
+          aiReply =
+            "I could not reach the full AI reasoning model right now, but I can still help with direct CRM tasks. Try asking me to list leads, shortlist projects, create or update a listing, or draft a branded offer."
         }
       }
     }

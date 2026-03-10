@@ -14,7 +14,6 @@ import {
   Crown,
   Briefcase,
   UserCheck,
-  Zap,
   Target,
   TrendingUp,
   Clock,
@@ -27,16 +26,11 @@ import {
   CircleDollarSign,
   CalendarCheck,
   Flame,
-  FileSpreadsheet,
-  Pin,
-  Filter,
-  SortAsc,
   Globe,
-  Key,
-  RefreshCw,
   Eye,
-  Edit2,
+  RefreshCw,
   Info,
+  HelpCircle,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
@@ -62,41 +56,41 @@ function Section({
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{label}</p>
         <h2 className="font-serif text-2xl font-bold text-foreground md:text-3xl">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-muted-foreground max-w-2xl">{subtitle}</p>}
+        {subtitle && <p className="mt-2 text-sm text-muted-foreground max-w-2xl leading-relaxed">{subtitle}</p>}
       </div>
       {children}
     </section>
   )
 }
 
-function InfoBox({ title, children }: { title: string; children: React.ReactNode }) {
+function GoldBox({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[#C9A961]/20 bg-[#C9A961]/5 px-6 py-5 space-y-1">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-[#C9A961]">{title}</p>
+    <div className="rounded-2xl border border-[#C9A961]/25 bg-[#C9A961]/6 px-6 py-5 space-y-2">
+      {title && <p className="text-[10px] font-bold uppercase tracking-widest text-[#C9A961]">{title}</p>}
       <div className="text-sm text-muted-foreground leading-relaxed">{children}</div>
     </div>
   )
 }
 
-function FieldRow({ label, desc }: { label: string; desc: string }) {
+function Step({ n, title, body, icon: Icon }: { n: number; title: string; body: string; icon: React.ElementType }) {
   return (
-    <div className="flex items-start gap-3 py-2 border-b border-border/40 last:border-0">
-      <code className="shrink-0 rounded bg-muted px-2 py-0.5 text-xs font-mono text-foreground">{label}</code>
-      <p className="text-sm text-muted-foreground">{desc}</p>
+    <div className="flex gap-5">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-primary/30 bg-primary/10">
+        <Icon className="h-5 w-5 text-primary" />
+      </div>
+      <div className="pt-1.5 space-y-1">
+        <p className="font-semibold text-foreground">{title}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+      </div>
     </div>
   )
 }
 
-function StepRow({ n, title, body }: { n: number; title: string; body: string }) {
+function FactRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex gap-4">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary">
-        {n}
-      </div>
-      <div className="pt-1 space-y-0.5">
-        <p className="font-semibold text-sm text-foreground">{title}</p>
-        <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
-      </div>
+    <div className="flex items-start justify-between gap-4 border-b border-border/40 py-2.5 last:border-0">
+      <span className="text-sm font-medium text-foreground shrink-0">{label}</span>
+      <span className="text-sm text-muted-foreground text-right">{value}</span>
     </div>
   )
 }
@@ -107,18 +101,18 @@ function StepRow({ n, title, body }: { n: number; title: string; body: string })
 
 export default function PlaybookPage() {
   const TOC = [
-    { id: "overview-module", label: "Overview" },
-    { id: "ai-assistant-module", label: "AI Assistant" },
-    { id: "inventory-module", label: "Inventory" },
-    { id: "add-project-module", label: "Add Project" },
-    { id: "landing-pages-module", label: "Landing Pages" },
-    { id: "leads-module", label: "Leads" },
-    { id: "analytics-module", label: "Analytics" },
-    { id: "profile-module", label: "Profile" },
-    { id: "whatsapp-flow", label: "WhatsApp Flow" },
-    { id: "lead-workflow", label: "Lead Workflow" },
-    { id: "roles-access", label: "Roles" },
-    { id: "data-flow", label: "Data Flow" },
+    { id: "what-is-crm", label: "What is this?" },
+    { id: "overview", label: "Overview" },
+    { id: "ai-assistant", label: "AI Assistant" },
+    { id: "inventory", label: "Properties" },
+    { id: "landing-pages", label: "Ad Pages" },
+    { id: "leads", label: "Leads" },
+    { id: "analytics", label: "Reports" },
+    { id: "profile", label: "My Profile" },
+    { id: "whatsapp", label: "WhatsApp" },
+    { id: "lead-journey", label: "Lead Journey" },
+    { id: "team-roles", label: "Team Roles" },
+    { id: "daily-routine", label: "Daily Routine" },
     { id: "faq", label: "FAQ" },
   ]
 
@@ -131,20 +125,20 @@ export default function PlaybookPage() {
           <BookOpen className="h-7 w-7 text-[#C9A961]" />
         </div>
         <Badge className="mb-6 border-[#C9A961]/40 bg-[#C9A961]/15 text-[#C9A961] text-[10px] uppercase tracking-[0.2em]">
-          Gold Century CRM · Complete Playbook
+          Gold Century · Team Guide
         </Badge>
         <h1 className="font-serif text-4xl font-bold leading-tight md:text-5xl">
-          Every feature.<br />Every screen.<br />Explained.
+          Your complete guide<br />to working smarter<br />with every lead.
         </h1>
         <p className="mt-4 max-w-xl text-base text-white/60 leading-relaxed">
-          The definitive reference for every member of the Gold Century team — from first login through closing a deal.
+          No technical knowledge needed. This guide walks you through every part of your system — from finding your hottest clients to sending the perfect WhatsApp message in seconds.
         </p>
-        <div className="mt-8 flex flex-wrap gap-2 text-sm text-white/50">
+        <div className="mt-8 flex flex-wrap gap-2">
           {TOC.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs transition-colors hover:border-[#C9A961]/40 hover:text-[#C9A961]"
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-[#C9A961]/40 hover:text-[#C9A961]"
             >
               {item.label}
             </a>
@@ -153,240 +147,279 @@ export default function PlaybookPage() {
       </section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 01 OVERVIEW */}
+      {/* WHAT IS THIS */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="overview-module"
-        label="Module 01"
-        title="Overview — Your Daily Command Centre"
-        subtitle="The first page you see after login. Opens at /crm/overview."
+        id="what-is-crm"
+        label="Start Here"
+        title="What is this system and why does it exist?"
+      >
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              icon: Users,
+              title: "It keeps every client in one place",
+              body: "Every person who enquires about a property — from your website, WhatsApp, or advertising — lands here automatically. No more lost leads in WhatsApp chats or spreadsheets.",
+            },
+            {
+              icon: Sparkles,
+              title: "It gives you an AI sales partner",
+              body: "The AI knows your entire property portfolio and every client in the system. Ask it anything — it can rank your hottest leads, draft a message, or find the best investment for a client's budget.",
+            },
+            {
+              icon: Rocket,
+              title: "It runs your campaigns",
+              body: "Generate a professional advertising page for any property and share the link anywhere — WhatsApp, Instagram, email. When someone fills the form, they appear in your leads instantly.",
+            },
+          ].map(({ icon: Icon, title, body }) => (
+            <div key={title} className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                <Icon className="h-5 w-5 text-primary" />
+              </div>
+              <p className="font-semibold text-foreground">{title}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+            </div>
+          ))}
+        </div>
+        <GoldBox title="The big picture">
+          Think of this as your office, your assistant, and your marketing team — all in one screen. You spend less time on admin and more time talking to buyers who are actually ready to move.
+        </GoldBox>
+      </Section>
+
+      {/* ══════════════════════════════════════════ */}
+      {/* OVERVIEW */}
+      {/* ══════════════════════════════════════════ */}
+      <Section
+        id="overview"
+        label="Page 01"
+        title="Overview — Your Morning Briefing"
+        subtitle="The first page you see when you log in. Gives you a complete picture of your business in under 30 seconds."
       >
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {[
-            { icon: Users, label: "Today's Leads", desc: "Total new leads captured since midnight (Dubai time). Resets at 00:00." },
-            { icon: CalendarCheck, label: "Assigned This Week", desc: "Leads assigned to a broker in the current Mon–Sun window." },
-            { icon: PhoneCall, label: "Active Inquiries (30d)", desc: "Leads with at least one activity log in the last 30 days." },
-            { icon: TrendingUp, label: "Scheduled Viewings", desc: "Leads with status 'viewing' in the pipeline." },
-            { icon: CircleDollarSign, label: "Revenue Pipeline", desc: "Sum of budget_aed across all active leads assigned to you (or everyone, for admin)." },
-            { icon: Flame, label: "Hot Leads Alert", desc: "AI-scored leads: recency + budget + contact completeness. Score shown as a number out of 10." },
-          ].map(({ icon: Icon, label, desc }) => (
+            { icon: Users, label: "Today's Leads", body: "How many new people enquired about a property today. Resets every morning." },
+            { icon: CalendarCheck, label: "Assigned This Week", body: "Leads that have been given to a broker to handle this week." },
+            { icon: PhoneCall, label: "Active Enquiries (30 days)", body: "Clients your team has been in touch with at least once in the last month." },
+            { icon: TrendingUp, label: "Scheduled Viewings", body: "Clients who have a viewing booked or in progress." },
+            { icon: CircleDollarSign, label: "Revenue Pipeline", body: "The total budget of all your active leads added together. A rough view of the potential deals in progress." },
+            { icon: Flame, label: "Hot Leads Alert", body: "The AI reads every lead and scores them. The ones most likely to buy appear here with a score. Start your calls with these." },
+          ].map(({ icon: Icon, label, body }) => (
             <div key={label} className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/80 p-5">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
                 <Icon className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-sm">{label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
+                <p className="font-semibold text-sm text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{body}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2 mt-2">
-          <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-4">
-            <p className="font-semibold text-foreground flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" /> Suggested Tasks
-            </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Three AI-generated tasks appear here each day based on live data: the hottest uncontacted lead, the count of unassigned leads, and the top project to promote. Tasks update on page refresh.
-            </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-2">
+            <p className="font-semibold text-foreground flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Suggested Tasks</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">Every morning the system tells you the three most important things to do — which client to call first, whether there are unattended leads, and which property to promote.</p>
           </div>
-          <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-4">
-            <p className="font-semibold text-foreground flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-primary" /> Project Performance Leaderboard
-            </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Shows your top projects ranked by market score (1–10). Each row shows area, score, and expected ROI %. Use this to decide which projects to push in campaigns.
-            </p>
+          <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-2">
+            <p className="font-semibold text-foreground flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" /> Top Performing Properties</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">Shows your best properties ranked by market demand and investment score. Use this list to decide which projects to push in your WhatsApp campaigns and advertising this week.</p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-6 py-5 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-amber-600">Admin-only sections on Overview</p>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p><strong className="text-foreground">AI Training Card</strong> — Submit natural-language knowledge updates (e.g. "The Marina Heights handover moved to Q4 2026") that get saved as training signals for the AI.</p>
-            <p><strong className="text-foreground">Admin Control Panel</strong> — Grant or revoke AI control access for any team member. Toggle on/off per user.</p>
-            <p><strong className="text-foreground">AI Project Update Panel</strong> — Push a structured update to any project in inventory (price change, availability, handover date). The change writes to the database and refreshes the AI context.</p>
-            <p><strong className="text-foreground">Learning Conversations</strong> — View all pinned AI conversations that have been marked as learning signals.</p>
-          </div>
+        <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 px-6 py-5 space-y-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600">For managers and directors only</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">At the bottom of the Overview page, managers see extra tools: the ability to push property updates to the AI (price changes, new availability), grant team members access to certain features, and review all AI learning sessions.</p>
         </div>
-
-        <InfoBox title="Best practice">
-          Check Overview every morning before your first call. The KPIs, hot leads, and suggested tasks give you a 30-second brief on where to focus. Then open AI Assistant for deeper analysis.
-        </InfoBox>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 02 AI ASSISTANT */}
+      {/* AI ASSISTANT */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="ai-assistant-module"
-        label="Module 02"
-        title="AI Assistant — Broker Intelligence Command"
-        subtitle="Full-page AI chat at /crm/ai-assistant. Powered by Google Gemini with access to your CRM data."
+        id="ai-assistant"
+        label="Page 02"
+        title="AI Assistant — Ask It Anything"
+        subtitle="Your personal sales partner available 24/7. It knows your full property portfolio and every lead in the system."
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <p className="text-sm text-muted-foreground">Just type your question in plain English. Here are things brokers use it for every day:</p>
+
+        <div className="grid gap-3 sm:grid-cols-2">
           {[
-            { prompt: '"Show me my hottest leads today"', result: "Scores all your assigned leads by recency, budget, phone/email completeness. Returns top 8 with a scored reason for each." },
-            { prompt: '"List projects with 8%+ ROI"', result: "Live inventory query. Returns matching projects with area, developer, price range, and ROI." },
-            { prompt: '"Draft a WhatsApp follow-up for Ahmed who viewed Marina Heights"', result: "Pulls lead data + project data, writes a personalised ready-to-send WhatsApp message." },
-            { prompt: '"Show unassigned leads from the last 7 days"', result: "Filters the pipeline and returns all leads with no assigned_broker_id in the date range." },
-            { prompt: '"What projects are in Business Bay under AED 1.5M?"', result: "Budget + area filtered inventory search." },
-            { prompt: '"Create listing: GC Marina Edge, area: Dubai Marina, roi: 8.4"', result: "Starts an AI-assisted project creation and writes it to the inventory database." },
-          ].map(({ prompt, result }) => (
-            <div key={prompt} className="rounded-2xl border border-border/60 bg-card/80 p-5 space-y-2">
-              <p className="text-sm font-semibold text-foreground">{prompt}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">{result}</p>
+            {
+              ask: "Who should I call first today?",
+              gets: "The AI scores all your leads and gives you a ranked list with a reason for each — who has the right budget, who enquired recently, who hasn't been contacted yet.",
+            },
+            {
+              ask: "Show me all properties with 8% or more return",
+              gets: "Instant list of matching properties from your portfolio with location, price, and projected return.",
+            },
+            {
+              ask: "Write a WhatsApp message for Ahmed who is interested in Marina Heights",
+              gets: "A professional, personalised message ready to send — uses Ahmed's name and the actual project details.",
+            },
+            {
+              ask: "Which leads haven't been assigned to anyone yet?",
+              gets: "Full list of enquiries sitting without a broker — so nothing falls through the cracks.",
+            },
+            {
+              ask: "Find me properties in Business Bay under AED 1.5 million",
+              gets: "Filtered results from your live inventory in seconds.",
+            },
+            {
+              ask: "Create a new listing for [property name]",
+              gets: "Starts building a new property listing and fills in the details as you describe them.",
+            },
+          ].map(({ ask, gets }) => (
+            <div key={ask} className="rounded-2xl border border-border/60 bg-card/80 p-5 space-y-2">
+              <p className="text-sm font-semibold text-foreground">&ldquo;{ask}&rdquo;</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{gets}</p>
             </div>
           ))}
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-card/80 divide-y divide-border/40">
-          <div className="px-6 py-4">
-            <p className="font-semibold text-foreground mb-3 flex items-center gap-2"><FileSpreadsheet className="h-4 w-4 text-primary" /> Export & Share panel</p>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p><strong className="text-foreground">Export latest results to CSV</strong> — After any query that returns leads or projects, this downloads a spreadsheet with all returned rows.</p>
-              <p><strong className="text-foreground">Download shortlist summary</strong> — Downloads a plain-text formatted summary of the last result set, ready to paste into an email or WhatsApp broadcast.</p>
+        <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-4">
+          <p className="font-semibold text-foreground">Other things on this page</p>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+              <span><strong className="text-foreground">Download your results</strong> — After any search, you can download the list as a spreadsheet or a summary text file to share with a client or colleague.</span>
             </div>
-          </div>
-          <div className="px-6 py-4">
-            <p className="font-semibold text-foreground mb-3 flex items-center gap-2"><Pin className="h-4 w-4 text-primary" /> Conversation History panel</p>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Every AI session is saved automatically. The panel on the right shows your recent conversations with their auto-generated title.</p>
-              <p><strong className="text-foreground">Pin</strong> — Marks the conversation as a learning signal for the AI model.</p>
-              <p><strong className="text-foreground">Share</strong> — Copies the conversation title to clipboard for sharing context with colleagues.</p>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+              <span><strong className="text-foreground">Save conversations</strong> — Pin any conversation you want to keep. The AI remembers your pinned sessions as learning material to improve its answers over time.</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+              <span><strong className="text-foreground">It remembers context</strong> — If you ask about a property and then say "write a message for the client who asked about this", it connects the dots. You don&apos;t need to repeat yourself.</span>
             </div>
           </div>
         </div>
 
-        <InfoBox title="How context works">
-          The AI remembers your conversation within a session. If you ask for projects and then say "draft a WhatsApp for the lead who was interested in the first one" — it connects the dots automatically. Start a new page load for a fresh session.
-        </InfoBox>
+        <GoldBox title="Pro tip">
+          Start every morning by typing: <em>&ldquo;Who should I follow up with today?&rdquo;</em> — the AI gives you your priority call list in seconds based on real signals, not guesses.
+        </GoldBox>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 03 INVENTORY */}
+      {/* INVENTORY */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="inventory-module"
-        label="Module 03"
-        title="Inventory — Project Database"
-        subtitle="Browse and filter all 3,500+ Dubai projects at /crm/inventory."
+        id="inventory"
+        label="Page 03"
+        title="Properties — Your Full Inventory"
+        subtitle="Browse and search all properties available in your portfolio. Over 3,500 Dubai projects at your fingertips."
       >
         <div className="rounded-2xl border border-border/60 bg-card/80 divide-y divide-border/40">
-          <div className="px-6 py-4">
-            <p className="font-semibold text-foreground mb-3 flex items-center gap-2"><Filter className="h-4 w-4 text-primary" /> Filter bar</p>
-            <div className="space-y-2">
-              <FieldRow label="Search" desc="Free-text search on project name. Partial matches work." />
-              <FieldRow label="Area" desc="Dropdown of all distinct areas in the database (Dubai Marina, Downtown, Palm, etc.)." />
-              <FieldRow label="Developer" desc="Dropdown of all distinct developer names." />
-              <FieldRow label="Status" desc="Selling / Sold Out / Coming Soon." />
-              <FieldRow label="Min / Max AED" desc="Price range filter on priceFrom field." />
-              <FieldRow label="Sort" desc="Market score (default) / ROI / Price low / Price high." />
+          <div className="px-6 py-5 space-y-3">
+            <p className="font-semibold text-foreground">How to search</p>
+            <div className="grid gap-3 sm:grid-cols-2 text-sm text-muted-foreground">
+              {[
+                ["Search by name", "Type any part of the property name to find it instantly."],
+                ["Filter by area", "Select a neighbourhood — Dubai Marina, Business Bay, Downtown, Palm Jumeirah, etc."],
+                ["Filter by developer", "Narrow down to properties by Emaar, Damac, Sobha, Aldar, and more."],
+                ["Filter by availability", "Show only properties currently on sale, coming soon, or sold out."],
+                ["Set a price range", "Enter minimum and maximum budget in AED to see only what fits."],
+                ["Sort results", "Order by investment score, ROI, or price — high to low or low to high."],
+              ].map(([label, desc]) => (
+                <div key={label} className="flex items-start gap-2">
+                  <ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" />
+                  <span><strong className="text-foreground">{label}</strong> — {desc}</span>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="px-6 py-4">
-            <p className="font-semibold text-foreground mb-3 flex items-center gap-2"><SortAsc className="h-4 w-4 text-primary" /> Table columns</p>
-            <div className="space-y-2">
-              <FieldRow label="Project" desc="Name + developer. Click Edit to modify fields." />
-              <FieldRow label="Area" desc="Primary area from the database." />
-              <FieldRow label="Status" desc="Current selling status." />
-              <FieldRow label="Price Range" desc="priceFrom – priceTo in AED." />
-              <FieldRow label="ROI" desc="Expected ROI % from investmentHighlights." />
-              <FieldRow label="Units" desc="Available units count." />
-              <FieldRow label="Actions" desc="Edit · Create LP · View (opens public project page)." />
-            </div>
-          </div>
-          <div className="px-6 py-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <FileSpreadsheet className="h-4 w-4 text-primary shrink-0" />
-              <span><strong className="text-foreground">Export button</strong> — Downloads the current filtered page as a CSV. Use for sending shortlists to a client.</span>
+          <div className="px-6 py-5 space-y-3">
+            <p className="font-semibold text-foreground">What you can do from the property list</p>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" /><span><strong className="text-foreground">Edit</strong> — Update the property details, price, or availability.</span></div>
+              <div className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" /><span><strong className="text-foreground">Create Ad Page</strong> — Generate a shareable advertising page for this property with one click.</span></div>
+              <div className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" /><span><strong className="text-foreground">View</strong> — See how the property appears to buyers on the public website.</span></div>
+              <div className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" /><span><strong className="text-foreground">Download list</strong> — Export the current filtered results as a spreadsheet to share with a client.</span></div>
             </div>
           </div>
         </div>
-        <InfoBox title="Quick action">
-          To create a landing page for any project, click <strong>Create LP</strong> in that project's row. It pre-fills the project slug on the landing page creator.
-        </InfoBox>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 04 ADD / EDIT PROJECT */}
+      {/* ADD PROJECT */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="add-project-module"
-        label="Module 04"
-        title="Add / Edit Project"
-        subtitle="Manually add off-market or exclusive listings at /crm/projects/add. Edit existing projects via the Inventory table."
+        id="add-project"
+        label="Page 03b"
+        title="Adding a New Property"
+        subtitle="Use this when you have an exclusive or off-market listing that isn't already in the system."
       >
-        <div className="rounded-2xl border border-border/60 bg-card/80 px-6 py-5 space-y-3">
-          <p className="font-semibold text-foreground">Key fields</p>
-          <div className="space-y-1">
-            <FieldRow label="Slug" desc="URL-safe identifier (auto-generated from name). Must be unique. Used in /projects/[slug] and /lp/[slug]." />
-            <FieldRow label="Name" desc="Full display name of the project." />
-            <FieldRow label="Area" desc="Primary Dubai area (matches the dropdown in Inventory)." />
-            <FieldRow label="Developer" desc="Developer company name." />
-            <FieldRow label="Price From / To" desc="AED price range for the available units." />
-            <FieldRow label="Expected ROI %" desc="Projected annual return — shown in inventory, landing pages, and AI responses." />
-            <FieldRow label="Status" desc="selling / sold-out / coming-soon." />
-            <FieldRow label="Handover Date" desc="Expected completion date. Shown on the project page and landing page." />
-            <FieldRow label="Units Available" desc="Number of unsold units." />
-            <FieldRow label="Payment Plan" desc="Down % / During construction % / On handover % / Post handover %. Must add to 100." />
-            <FieldRow label="Description" desc="Project narrative shown on the public project page." />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-3">
+            <p className="font-semibold text-foreground">What you fill in</p>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              {[
+                ["Property name", "The full name as it will appear to buyers."],
+                ["Area", "The neighbourhood in Dubai."],
+                ["Developer", "The company building it."],
+                ["Price range", "Starting and maximum price in AED."],
+                ["Expected return", "The projected annual investment return %."],
+                ["Status", "On sale now / Coming soon / Sold out."],
+                ["Handover date", "When buyers will receive their keys."],
+                ["Units available", "How many units are still for sale."],
+                ["Payment plan", "How much is paid upfront, during construction, at handover, and after."],
+              ].map(([label, desc]) => (
+                <div key={label} className="flex items-start justify-between gap-4 border-b border-border/30 pb-2 last:border-0">
+                  <span className="font-medium text-foreground shrink-0">{label}</span>
+                  <span className="text-right text-xs">{desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-[#C9A961]/20 bg-[#C9A961]/5 p-6 space-y-3">
+            <Sparkles className="h-5 w-5 text-[#C9A961]" />
+            <p className="font-semibold text-foreground">The AI fills in the rest</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              After you save the property, the AI automatically writes an investment summary, generates market insights, and adds context about the area — all the information that appears on the advertising page for buyers. You don&apos;t need to write any of this yourself.
+            </p>
           </div>
         </div>
-        <InfoBox title="AI enrichment on save">
-          After saving, the system runs an AI enrichment pass: it generates an investment summary, market intelligence bullets, and area context from the Entrestate database. These appear on the project&apos;s landing page under the Market Intelligence section.
-        </InfoBox>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 05 LANDING PAGES */}
+      {/* LANDING PAGES */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="landing-pages-module"
-        label="Module 05"
-        title="Landing Pages — Campaign Advertising"
-        subtitle="Generate and manage shareable project ad pages at /crm/landing-pages. Admin access only."
+        id="landing-pages"
+        label="Page 04"
+        title="Advertising Pages — Your Digital Brochures"
+        subtitle="Generate a beautiful, professional page for any property and share the link. When someone fills the enquiry form, they become a lead instantly."
       >
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            { icon: Globe, label: "Total Campaign Pages", desc: "All landing pages in the system, across all statuses." },
-            { icon: CheckCircle2, label: "Published", desc: "Pages with status published / active / live — publicly accessible." },
-            { icon: Users, label: "Leads / Views", desc: "Total leads submitted through LP forms + total page view events tracked." },
-          ].map(({ icon: Icon, label, desc }) => (
+            { icon: Globe, label: "Total Pages", body: "All advertising pages you have created." },
+            { icon: CheckCircle2, label: "Published", body: "Pages that are live and publicly accessible right now." },
+            { icon: Users, label: "Leads / Views", body: "How many people visited each page and how many submitted an enquiry." },
+          ].map(({ icon: Icon, label, body }) => (
             <div key={label} className="rounded-2xl border border-border/60 bg-card/80 p-5 flex items-start gap-4">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
                 <Icon className="h-4 w-4 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-sm">{label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{body}</p>
               </div>
             </div>
           ))}
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-card/80 divide-y divide-border/40">
-          <div className="px-6 py-4 space-y-2">
-            <p className="font-semibold text-foreground">Table columns</p>
-            <FieldRow label="Campaign" desc="Headline text + slug URL (/lp/[slug])." />
-            <FieldRow label="Project" desc="Linked project slug from inventory." />
-            <FieldRow label="Status" desc="draft (not public) / published (live) / active / live. Green = public, amber = draft." />
-            <FieldRow label="Views" desc="Page view events recorded by the tracking middleware." />
-            <FieldRow label="Leads" desc="Form submissions linked to this landing page slug." />
-            <FieldRow label="Window" desc="publishFrom → publishTo dates. Page is only public within this window." />
-            <FieldRow label="Open" desc="Opens the live landing page in a new tab. Use this link to share with clients." />
-          </div>
-          <div className="px-6 py-4 space-y-3">
-            <p className="font-semibold text-foreground">What a landing page contains</p>
-            <div className="grid gap-2 sm:grid-cols-2 text-sm text-muted-foreground">
+          <div className="px-6 py-5 space-y-3">
+            <p className="font-semibold text-foreground">What each advertising page includes</p>
+            <div className="grid gap-3 sm:grid-cols-2 text-sm text-muted-foreground">
               {[
-                ["Hero section", "Project image, headline, urgency ribbon, investment chips, lead capture form"],
-                ["ROI section", "Expected ROI, rental yield, starting price — pulled from project data"],
-                ["Key Facts", "Area, developer, handover, units, bedroom types — auto-populated"],
-                ["Payment Plan", "Visual timeline showing down payment, construction, handover, post-handover %"],
-                ["Market Intelligence", "AI-generated investment narrative and bullet insights"],
-                ["AI Concierge", "Pre-populated question links that open the public AI chat"],
+                ["Hero image & headline", "A striking full-width photo with the property name and key selling points."],
+                ["Investment highlights", "Expected return, rental yield, and starting price — clearly displayed."],
+                ["Key facts", "Area, developer, handover date, bedroom types — all auto-filled."],
+                ["Payment plan", "A visual breakdown of how payments are spread out."],
+                ["AI market insight", "A short written analysis of why this is a good investment — written by the AI."],
+                ["Enquiry form", "A form that captures the buyer&apos;s name, phone, email, and budget. Every submission goes straight into your Leads."],
               ].map(([name, desc]) => (
                 <div key={name} className="rounded-xl border border-border/40 bg-background/60 px-4 py-3">
                   <p className="font-semibold text-xs text-foreground">{name}</p>
@@ -395,211 +428,242 @@ export default function PlaybookPage() {
               ))}
             </div>
           </div>
+          <div className="px-6 py-5 space-y-3">
+            <p className="font-semibold text-foreground">Page status</p>
+            <div className="flex flex-wrap gap-3 text-sm">
+              <div className="flex items-center gap-2"><span className="inline-flex rounded-full bg-amber-500/10 px-3 py-0.5 text-xs font-bold text-amber-600">Draft</span><span className="text-muted-foreground">Not visible to the public yet. Still being set up.</span></div>
+              <div className="flex items-center gap-2"><span className="inline-flex rounded-full bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-600">Published</span><span className="text-muted-foreground">Live and visible to anyone with the link.</span></div>
+            </div>
+          </div>
         </div>
 
-        <InfoBox title="How to share a landing page">
-          Copy the URL from the <strong>Open</strong> button (<code>/lp/[slug]</code>) and paste it into a WhatsApp message, Instagram bio, email, or paid ad. Every lead who fills the form on that page is automatically tagged with the landing page slug and attributed to it in Analytics.
-        </InfoBox>
+        <GoldBox title="How to share an advertising page">
+          Click the <strong>Open</strong> button to get the page link, then copy and paste it into WhatsApp, your Instagram bio, a paid ad, or an email. Every person who enquires through that link is automatically tracked to that campaign so you can see exactly which page is bringing leads.
+        </GoldBox>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 06 LEADS */}
+      {/* LEADS */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="leads-module"
-        label="Module 06"
-        title="Leads — Full Pipeline Management"
-        subtitle="View, filter, assign, and work every lead at /crm/leads."
+        id="leads"
+        label="Page 05"
+        title="Leads — Your Full Client Pipeline"
+        subtitle="Every person who has ever enquired about a property lives here. This is where deals are won."
       >
-        {/* Status definitions */}
-        <div className="rounded-2xl border border-border/60 bg-card/80 px-6 py-5 space-y-3">
-          <p className="font-semibold text-foreground">Lead statuses — what they mean</p>
+        <div className="rounded-2xl border border-border/60 bg-card/80 px-6 py-5 space-y-4">
+          <p className="font-semibold text-foreground">What each status means</p>
           <div className="grid gap-2 sm:grid-cols-2">
             {[
-              { status: "new", color: "bg-blue-400/10 text-blue-500", desc: "Just captured. Not yet contacted by any broker." },
-              { status: "contacted", color: "bg-amber-400/10 text-amber-600", desc: "Broker has made at least one outreach (call, WhatsApp, email)." },
-              { status: "qualified", color: "bg-purple-400/10 text-purple-500", desc: "Broker confirmed budget, timeline, and intent. Real buyer." },
-              { status: "viewing", color: "bg-orange-400/10 text-orange-500", desc: "Site visit or virtual viewing scheduled or completed." },
-              { status: "offer", color: "bg-emerald-400/10 text-emerald-600", desc: "Offer submitted or under negotiation." },
-              { status: "converted", color: "bg-green-500/15 text-green-600", desc: "Deal closed. Reservation form signed." },
-              { status: "lost", color: "bg-rose-400/10 text-rose-500", desc: "Lead dropped out. Keep the record — recycle in 6–12 months." },
+              { status: "New", color: "bg-blue-400/10 text-blue-500", desc: "Just arrived. No one has been in touch yet. These need to be called or messaged today." },
+              { status: "Contacted", color: "bg-amber-400/10 text-amber-600", desc: "The broker has reached out at least once — call, WhatsApp, or email." },
+              { status: "Qualified", color: "bg-purple-400/10 text-purple-500", desc: "The broker confirmed this person has a real budget and genuine intention to buy." },
+              { status: "Viewing", color: "bg-orange-400/10 text-orange-500", desc: "A property viewing has been scheduled or has taken place." },
+              { status: "Negotiating", color: "bg-emerald-400/10 text-emerald-600", desc: "Price and terms are being discussed." },
+              { status: "Closed", color: "bg-green-500/15 text-green-600", desc: "Deal is closed. The client signed the reservation form. Congratulations." },
+              { status: "Lost", color: "bg-rose-400/10 text-rose-500", desc: "The client decided not to proceed. Keep the record — many come back months later." },
             ].map(({ status, color, desc }) => (
               <div key={status} className="flex items-start gap-3">
-                <span className={`inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold ${color}`}>{status}</span>
+                <span className={`inline-flex shrink-0 rounded-full px-3 py-0.5 text-xs font-bold ${color}`}>{status}</span>
                 <p className="text-sm text-muted-foreground">{desc}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Lead detail */}
         <div className="rounded-2xl border border-border/60 bg-card/80 divide-y divide-border/40">
-          <div className="px-6 py-4 space-y-2">
-            <p className="font-semibold text-foreground">Lead Detail page fields</p>
-            <FieldRow label="Name" desc="Full name as submitted on the lead form." />
-            <FieldRow label="Phone" desc="WhatsApp/mobile. Used for Call button (tel:) and WhatsApp button (wa.me/)." />
-            <FieldRow label="Email" desc="Used for the Open Email button which pre-fills subject + body from the AI draft." />
-            <FieldRow label="Status" desc="Current pipeline stage. Can be updated from the Add Update card." />
-            <FieldRow label="Assigned Broker" desc="The broker ID assigned to this lead. Admins can re-assign." />
-            <FieldRow label="Source" desc="Where the lead came from: website, landing-page, whatsapp, referral, etc." />
-            <FieldRow label="Last Contact" desc="Auto-updated when 'Mark as contacted' is checked or a WhatsApp is sent." />
-            <FieldRow label="Budget" desc="budget_aed as entered by the lead on the form." />
-            <FieldRow label="Priority" desc="1–5 score set by the system at capture based on budget and completeness." />
+          <div className="px-6 py-5 space-y-3">
+            <p className="font-semibold text-foreground">What you can see on each lead&apos;s page</p>
+            <div className="grid gap-2 sm:grid-cols-2 text-sm text-muted-foreground">
+              {[
+                ["Full contact details", "Name, phone number, and email — with one-click buttons to call, email, or open WhatsApp."],
+                ["Budget", "What the client said their budget is."],
+                ["Property interest", "Which property they originally enquired about."],
+                ["Where they came from", "Whether they found you through a campaign page, the website, WhatsApp, a referral, etc."],
+                ["Last contact", "The last time someone from your team was in touch."],
+                ["Full conversation history", "Every note, call log, WhatsApp sent, and status change — with time and date stamps."],
+              ].map(([label, desc]) => (
+                <div key={label} className="rounded-xl border border-border/40 bg-background/60 px-4 py-3">
+                  <p className="font-semibold text-xs text-foreground">{label}</p>
+                  <p className="text-xs mt-0.5">{desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="px-6 py-4 space-y-2">
-            <p className="font-semibold text-foreground">Activity Timeline — activity types</p>
-            <FieldRow label="note" desc="Manual note added by a broker from the Add Update card." />
-            <FieldRow label="status_update" desc="Auto-logged when the broker changes lead status." />
-            <FieldRow label="whatsapp_sent" desc="Auto-logged when broker clicks Send on WhatsApp. Includes the first 120 chars of the message." />
+          <div className="px-6 py-5 space-y-3">
+            <p className="font-semibold text-foreground flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> AI Follow-Up Assistant (on every lead page)</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">When you open a lead, the AI immediately prepares three things for you — no waiting, no clicking:</p>
+            <div className="space-y-2">
+              {[
+                ["WhatsApp message", "A ready-to-send, personalised message using the client&apos;s name and the property they were interested in. You can edit it before sending."],
+                ["Email draft", "A professional follow-up email with a subject line and full body text, ready to open in your mail app."],
+                ["Recommended next steps", "3 to 5 actions the AI suggests based on where this client is in their buying journey."],
+              ].map(([label, desc]) => (
+                <div key={label} className="flex items-start gap-3">
+                  <ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" />
+                  <span className="text-sm text-muted-foreground"><strong className="text-foreground">{label}</strong> — {desc}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="px-6 py-4 space-y-2">
-            <p className="font-semibold text-foreground flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> AI Follow-Up Composer</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Auto-generates on page load. Three tabs:
-            </p>
-            <ul className="space-y-1.5 text-sm text-muted-foreground ml-2">
-              <li className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" /><span><strong className="text-foreground">WhatsApp</strong> — Editable draft. Click &ldquo;Send on WhatsApp&rdquo; to open WhatsApp Web pre-filled. Activity is logged automatically.</span></li>
-              <li className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" /><span><strong className="text-foreground">Email</strong> — Subject + body draft. &ldquo;Open in Mail&rdquo; opens your default mail client with the draft pre-loaded.</span></li>
-              <li className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-primary" /><span><strong className="text-foreground">Next Steps</strong> — 3–5 AI-recommended actions ranked by conversion probability.</span></li>
-            </ul>
+          <div className="px-6 py-5 space-y-3">
+            <p className="font-semibold text-foreground">Adding updates and notes</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">Use the <strong className="text-foreground">Add Update</strong> box on the right side of every lead page. You can leave a note about a call, change the client&apos;s status, or mark them as contacted. Everything is saved with a timestamp and attributed to your name.</p>
           </div>
         </div>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 07 ANALYTICS */}
+      {/* ANALYTICS */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="analytics-module"
-        label="Module 07"
-        title="Analytics — Sales & Market Intelligence"
-        subtitle="Performance data at /crm/analytics. Brokers see only their data; admins see all."
+        id="analytics"
+        label="Page 06"
+        title="Reports — How Your Business Is Performing"
+        subtitle="A clear view of where your leads come from, how your team is doing, and which areas are in demand. Brokers see their own numbers. Managers see the whole team."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           {[
             {
-              title: "Pipeline Value (30d)",
-              desc: "Sum of budget_aed for all active leads in the last 30 days. For brokers: only their leads. For admins: all leads. Use this as a directional revenue indicator, not a guaranteed number.",
+              title: "Revenue Pipeline",
+              body: "The total combined budget of all your active leads right now. This tells you the potential value sitting in your pipeline — not guaranteed, but a strong indicator of upcoming deals.",
             },
             {
-              title: "Lead Source Performance",
-              desc: "Bar chart of lead count by source (website, landing-page, whatsapp, referral, instagram, etc.). The source with the most leads sets the 100% bar. Use this to identify your best-performing acquisition channel.",
+              title: "Lead Sources",
+              body: "Where are your enquiries coming from? Instagram, your website, advertising pages, WhatsApp referrals? This shows which channel is working best so you can invest more in what&apos;s converting.",
             },
             {
               title: "Broker Performance",
-              desc: "Lead count per assigned broker ID. Admins use this to identify who is under-loaded and redistribute. Sales managers see their team only.",
+              body: "How many leads each team member is handling. Managers use this to spot who needs more support and whether the workload is spread fairly.",
             },
             {
               title: "Demand by Area",
-              desc: "Lead count grouped by the project_slug area field. Shows where buyer interest is concentrated — useful for deciding which areas to promote in campaigns.",
+              body: "Which neighbourhoods are buyers asking about most? Use this to decide which areas to focus your campaigns on — go where the demand already is.",
             },
             {
-              title: "Top Projects",
-              desc: "Highest market-scored projects with their expected ROI. Cross-reference with Demand by Area to find projects in high-interest areas.",
+              title: "Top Properties",
+              body: "Your best-rated properties based on market demand and investment score. Prioritise these in your outreach — they&apos;re the easiest sell.",
             },
             {
-              title: "Lead Sources count",
-              desc: "Total distinct sources active in the pipeline. A higher number means more diversified acquisition — good. A single dominant source is a concentration risk.",
+              title: "Number of Sources",
+              body: "How many different channels are bringing in leads. A healthy business has multiple sources — never rely on just one.",
             },
-          ].map(({ title, desc }) => (
+          ].map(({ title, body }) => (
             <div key={title} className="rounded-2xl border border-border/60 bg-card/80 p-5 space-y-2">
               <p className="font-semibold text-sm text-foreground">{title}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{body}</p>
             </div>
           ))}
         </div>
-        <InfoBox title="When to use Analytics">
-          Review Analytics every Monday morning. Check which sources are producing and which brokers are behind. Use the AI Assistant to drill deeper: &ldquo;Which of my leads from Instagram haven&apos;t been contacted in 7 days?&rdquo;
-        </InfoBox>
+        <GoldBox title="When to check Analytics">
+          Every Monday morning. In 5 minutes you&apos;ll know: which source produced the most leads last week, which broker is behind, and which area to target with your next campaign.
+        </GoldBox>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 08 PROFILE */}
+      {/* PROFILE */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="profile-module"
-        label="Module 08"
-        title="Profile — Personal Settings & Team"
-        subtitle="Manage your account and view performance at /crm/profile."
+        id="profile"
+        label="Page 07"
+        title="My Profile — Your Personal Settings"
+        subtitle="Update your personal information and see your own performance."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-3">
-            <p className="font-semibold text-foreground flex items-center gap-2"><Settings className="h-4 w-4 text-primary" /> Your profile</p>
-            <div className="space-y-1">
-              <FieldRow label="Name" desc="Display name shown in the sidebar and on lead assignments." />
-              <FieldRow label="Email" desc="Login email. Cannot be changed without admin access." />
-              <FieldRow label="Password" desc="Update via the profile form. Min 8 characters." />
-              <FieldRow label="Role" desc="Your access level. Only admins and managers can change roles." />
-              <FieldRow label="Commission Rate" desc="Your commission % used to estimate earnings from pipeline value." />
+            <p className="font-semibold text-foreground flex items-center gap-2"><Settings className="h-4 w-4 text-primary" /> What you can update</p>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <FactRow label="Your name" value="How it appears across the system." />
+              <FactRow label="Email address" value="Your login email." />
+              <FactRow label="Password" value="Change it here anytime. Minimum 8 characters." />
             </div>
           </div>
           <div className="rounded-2xl border border-border/60 bg-card/80 p-6 space-y-3">
-            <p className="font-semibold text-foreground flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" /> Performance snapshot</p>
-            <div className="space-y-1">
-              <FieldRow label="Assigned Leads" desc="Total leads currently assigned to your account." />
-              <FieldRow label="Hot Leads" desc="Your leads scored above the hot threshold." />
-              <FieldRow label="Pipeline Value" desc="Sum of budget_aed across your active leads." />
-              <FieldRow label="Commission Est." desc="Pipeline Value × Commission Rate. Directional only." />
+            <p className="font-semibold text-foreground flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" /> Your performance snapshot</p>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <FactRow label="Total leads assigned" value="All clients currently in your name." />
+              <FactRow label="Hot leads" value="Your leads the AI has flagged as high priority." />
+              <FactRow label="Pipeline value" value="The combined budget of your active clients." />
+              <FactRow label="Estimated commission" value="A projected figure based on your pipeline value and your commission rate." />
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-6 py-5 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-amber-600">Admin / Manager: Team Accounts panel</p>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>View all team members with their role and email. From here you can:</p>
-            <ul className="space-y-1 ml-2">
-              <li className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-amber-500" /><span><strong className="text-foreground">View any broker&apos;s profile</strong> — append <code>?email=broker@company.com</code> to the profile URL.</span></li>
-              <li className="flex items-start gap-2"><ArrowRight className="h-3 w-3 mt-1 shrink-0 text-amber-500" /><span><strong className="text-foreground">Delete a user account</strong> — Only users with delete permission (CEO / full admin).</span></li>
-            </ul>
-          </div>
+        <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 px-6 py-5 space-y-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600">For managers: viewing your team&apos;s profiles</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Managers can view the profile and performance of any team member. You&apos;ll also see a full list of all active user accounts — you can add new team members or remove someone who has left.
+          </p>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-card/80 px-6 py-5 space-y-3">
-          <p className="font-semibold text-foreground flex items-center gap-2"><Key className="h-4 w-4 text-primary" /> Password reset flow</p>
-          <div className="space-y-2">
-            <StepRow n={1} title="Go to /crm/login" body="Click 'Forgot password?' below the login form." />
-            <StepRow n={2} title="Enter your email" body="A reset link is generated and shown on-screen (or sent if email is configured)." />
-            <StepRow n={3} title="Open /crm/reset/[token]" body="Enter your new password. The token expires after 1 hour." />
+        <div className="rounded-2xl border border-border/60 bg-card/80 px-6 py-5 space-y-4">
+          <p className="font-semibold text-foreground">Forgot your password?</p>
+          <div className="space-y-3">
+            {[
+              { n: 1, title: "Go to the login page", body: 'Click "Forgot password?" below the login form.' },
+              { n: 2, title: "Enter your email", body: "The system generates a private reset link for you." },
+              { n: 3, title: "Click the reset link", body: "Enter your new password. The link is only valid for 1 hour." },
+            ].map(({ n, title, body }) => (
+              <div key={n} className="flex gap-4">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary">{n}</div>
+                <div className="pt-0.5">
+                  <p className="font-semibold text-sm">{title}</p>
+                  <p className="text-xs text-muted-foreground">{body}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 09 WHATSAPP FLOW */}
+      {/* WHATSAPP */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="whatsapp-flow"
-        label="Section 09"
-        title="WhatsApp Send Flow — No API Needed"
-        subtitle="How to send AI-drafted messages to leads directly from the CRM using wa.me links."
+        id="whatsapp"
+        label="Section 08"
+        title="Sending WhatsApp from a Lead — Step by Step"
+        subtitle="The AI writes the message. You review it. One click opens WhatsApp. The system logs it automatically."
       >
         <div className="overflow-hidden rounded-3xl border border-border/60 bg-card/80">
           <div className="grid gap-0 divide-y divide-border/40 md:grid-cols-2 md:divide-x md:divide-y-0">
-            <div className="p-8 space-y-5">
-              <p className="font-semibold text-foreground">Step-by-step</p>
+            <div className="p-8 space-y-6">
+              <p className="font-semibold text-foreground">How to do it</p>
               {[
-                { n: 1, title: "Open a lead", body: "Go to Leads → click any lead name to open the detail page." },
-                { n: 2, title: "Scroll to AI Follow-Up Composer", body: "The WhatsApp draft generates automatically when the page loads. No button click needed." },
-                { n: 3, title: "Read and edit the draft", body: "The textarea is editable. Adjust the name, project, price, or tone as needed." },
-                { n: 4, title: "Click 'Send on WhatsApp'", body: "WhatsApp Web opens in a new tab with the lead's number pre-filled and the message loaded in the chat box." },
-                { n: 5, title: "Press Send in WhatsApp", body: "The broker reviews once more and hits Send. The CRM immediately logs a whatsapp_sent activity and marks last_contact_at." },
-              ].map((s) => <StepRow key={s.n} {...s} />)}
+                { icon: Users, n: 1, title: "Open a lead", body: "Go to Leads and click on any client's name." },
+                { icon: Sparkles, n: 2, title: "Read the AI draft", body: "The AI has already written a personalised WhatsApp message using the client's name and the property they're interested in. It appears automatically — no button needed." },
+                { icon: MessageSquare, n: 3, title: "Edit if you want", body: "The message is fully editable. Change the wording, add details, or leave it exactly as written." },
+                { icon: Send, n: 4, title: "Click Send on WhatsApp", body: "WhatsApp opens on your screen with the message already typed in the client's chat. You just press Send." },
+                { icon: CheckCircle2, n: 5, title: "Done — it's all logged", body: "The system automatically records that you sent a WhatsApp, saves a preview of the message, and updates the last-contact time for this client." },
+              ].map(({ icon: Icon, n, title, body }) => (
+                <div key={n} className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-sm font-bold text-primary">{n}</div>
+                  <div className="pt-1 flex items-start gap-2">
+                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-sm text-foreground">{title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{body}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="p-8 space-y-4">
-              <p className="font-semibold text-foreground">Why this works without Meta API</p>
+            <div className="p-8 space-y-5">
+              <p className="font-semibold text-foreground">Why you don&apos;t need to set anything up</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                WhatsApp&apos;s standard <code className="rounded bg-muted px-1 py-0.5 text-xs">wa.me/[phone]?text=[message]</code> deep-link opens WhatsApp Web or the desktop app with the number and text pre-populated. No developer accounts, no template approvals, no API registration.
+                This works through WhatsApp&apos;s standard link system. When you click the button, it opens WhatsApp Web or your WhatsApp app directly with the client&apos;s number and message pre-loaded. There is no registration, no approval process, and no third-party account needed.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You stay in full control — the AI prepares the message but you always press Send. This means every message you send sounds like you wrote it, because you reviewed and approved it first.
               </p>
               <div className="space-y-2 pt-2">
                 {[
-                  "Works with any personal or business WhatsApp number",
-                  "No Meta Business Manager required",
-                  "No message template approvals",
-                  "Broker reviews before every send — human in the loop",
-                  "Every send is logged in the Activity Timeline",
-                  "Lead is marked contacted automatically",
-                  "Draft can be regenerated with one click",
+                  "Works with your normal WhatsApp number",
+                  "No approvals or sign-ups needed",
+                  "You review every message before it sends",
+                  "Every send is saved in the client's history",
+                  "The client is automatically marked as last-contacted",
+                  "You can regenerate the draft if you want a different tone",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
                     <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
@@ -613,28 +677,56 @@ export default function PlaybookPage() {
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 10 LEAD WORKFLOW */}
+      {/* LEAD JOURNEY */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="lead-workflow"
-        label="Section 10"
-        title="Lead Lifecycle — End to End"
-        subtitle="How a lead moves through the system from capture to close."
+        id="lead-journey"
+        label="Section 09"
+        title="The Life of a Lead — From Enquiry to Deal"
+        subtitle="How a client moves through your system from the moment they show interest to the moment they sign."
       >
-        <div className="relative mx-auto max-w-2xl">
+        <div className="relative mx-auto max-w-2xl space-y-0">
           {[
-            { icon: Target, n: "01", title: "Lead arrives", body: "A prospect submits the form on a landing page (/lp/[slug]) or the website. The CRM captures: name, phone, email, budget_aed, message, source, project_slug, landing_slug, UTM parameters (utm_source, utm_medium, utm_campaign), device type, and HTTP referrer. All stored in gc_leads." },
-            { icon: UserCheck, n: "02", title: "Admin assigns the lead", body: "In the Leads tab, an admin or sales manager assigns the lead to a broker. The broker can now see the lead in their filtered view. Unassigned leads appear in the Overview KPI and AI hot-leads scoring." },
-            { icon: Sparkles, n: "03", title: "AI drafts the first message", body: "The broker opens the lead page. The AI Follow-Up Composer auto-generates a personalised WhatsApp message, email draft, and 3–5 next-step recommendations. The draft uses the lead's name, project interest, and budget." },
-            { icon: Send, n: "04", title: "Broker sends on WhatsApp", body: "Broker edits the draft if needed → clicks 'Send on WhatsApp' → WhatsApp Web opens with message pre-filled → broker presses Send. The CRM logs a whatsapp_sent activity and updates last_contact_at." },
-            { icon: Edit2, n: "05", title: "Log every interaction", body: "After each call or meeting, add a note via the 'Add Update' card. Change the status as the deal progresses: new → contacted → qualified → viewing → offer → converted (or lost)." },
-            { icon: PhoneCall, n: "06", title: "Follow up on schedule", body: "Ask the AI Assistant: 'Which of my leads haven't been contacted in 3 days?' to get a list. Use that to plan your daily call list." },
-            { icon: TrendingUp, n: "07", title: "Convert or recycle", body: "Converted: mark as 'converted' — the deal is won. Lost: mark as 'lost' but NEVER delete. Lost leads often convert 6–12 months later when the market or their budget changes." },
+            {
+              icon: Target,
+              title: "Someone enquires",
+              body: "A buyer fills the enquiry form on an advertising page, your website, or a campaign link. Their name, phone, email, budget, and property interest are captured instantly and appear in your Leads list. Nothing is missed.",
+            },
+            {
+              icon: UserCheck,
+              title: "A broker is assigned",
+              body: "A manager or admin assigns the lead to the right broker. From that moment, the broker can see the lead in their personal pipeline and the client belongs to them.",
+            },
+            {
+              icon: Sparkles,
+              title: "The AI prepares the outreach",
+              body: "The broker opens the lead and immediately sees a ready-to-send WhatsApp draft, an email, and a list of recommended next steps — all written by the AI, all personalised for this specific client.",
+            },
+            {
+              icon: Send,
+              title: "First contact is made",
+              body: "The broker sends the WhatsApp, calls, or emails and logs the interaction. The status moves from New to Contacted. The contact is saved with the time and date.",
+            },
+            {
+              icon: PhoneCall,
+              title: "Qualifying the client",
+              body: "Through follow-up conversations, the broker confirms the client&apos;s real budget, timeline, and intentions. Once confirmed, the status moves to Qualified. These are your real buyers.",
+            },
+            {
+              icon: Eye,
+              title: "Viewing and negotiation",
+              body: "A site visit or virtual tour is arranged. The status moves to Viewing, then Negotiating when price and terms are being discussed. Every step is noted on the lead page.",
+            },
+            {
+              icon: TrendingUp,
+              title: "The deal closes",
+              body: "The client signs. Status moves to Closed. For leads that don&apos;t proceed, mark them as Lost but never delete the record. Clients who say no today often come back in 6–12 months when their situation changes.",
+            },
           ].map((step, idx, arr) => {
             const Icon = step.icon
             const isLast = idx === arr.length - 1
             return (
-              <div key={step.n} className="relative flex gap-6">
+              <div key={step.title} className="relative flex gap-6">
                 <div className="flex flex-col items-center">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-primary/40 bg-primary/10">
                     <Icon className="h-5 w-5 text-primary" />
@@ -642,8 +734,7 @@ export default function PlaybookPage() {
                   {!isLast && <div className="mt-1 w-px flex-1 bg-gradient-to-b from-primary/30 to-primary/5 min-h-[2rem]" />}
                 </div>
                 <div className={`flex-1 pb-10 ${isLast ? "pb-0" : ""}`}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary/50">Step {step.n}</p>
-                  <p className="mt-1 font-semibold text-foreground">{step.title}</p>
+                  <p className="font-semibold text-foreground">{step.title}</p>
                   <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{step.body}</p>
                 </div>
               </div>
@@ -653,62 +744,68 @@ export default function PlaybookPage() {
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 11 ROLES */}
+      {/* TEAM ROLES */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="roles-access"
-        label="Section 11"
-        title="Roles & Access Levels"
-        subtitle="What each role can see and do. Roles are set in the Profile page by admin/manager."
+        id="team-roles"
+        label="Section 10"
+        title="Team Roles — Who Can Do What"
+        subtitle="Access levels are set by the admin. Each role sees only what they need."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           {[
             {
-              icon: Crown, role: "CEO", color: "text-[#C9A961]", bg: "bg-[#C9A961]/10 border-[#C9A961]/25",
+              icon: Crown,
+              role: "CEO / Director",
+              color: "text-[#C9A961]",
+              bg: "bg-[#C9A961]/10 border-[#C9A961]/25",
               can: [
-                "Full read/write on all modules",
-                "View all brokers' leads and pipeline",
-                "Access all admin sections on Overview",
-                "View and edit any user profile via ?email=",
-                "Delete user accounts",
-                "Change any user's role",
-                "Access AI Training and AI Project Update panels",
+                "See the full company picture across leads, listings, and campaigns",
+                "View and manage every team member's account",
+                "Access all reports and revenue numbers",
+                "Push property updates and manage AI settings",
+                "Remove team members from the system",
               ],
-              cannot: [],
             },
             {
-              icon: Shield, role: "Admin", color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/25",
+              icon: Shield,
+              role: "Admin / Office Manager",
+              color: "text-purple-400",
+              bg: "bg-purple-400/10 border-purple-400/25",
               can: [
-                "Assign and reassign leads to any broker",
-                "Create and edit projects and landing pages",
-                "View all team leads and analytics",
-                "Access admin control panel (grant/revoke AI access)",
-                "View and switch between any broker profile",
+                "Assign leads to brokers",
+                "Create and edit property listings",
+                "Create and manage advertising pages",
+                "See all team leads and client activity",
+                "Grant or remove team member access",
               ],
-              cannot: ["Cannot delete user accounts (CEO only)"],
             },
             {
-              icon: Briefcase, role: "Sales Manager", color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/25",
+              icon: Briefcase,
+              role: "Sales Manager",
+              color: "text-blue-400",
+              bg: "bg-blue-400/10 border-blue-400/25",
               can: [
-                "View all leads for their team",
-                "Re-assign leads within their team",
-                "See analytics for their brokers",
-                "View broker profiles via ?email=",
+                "See all leads for their team",
+                "Reassign leads between their brokers",
+                "View performance reports for their team",
+                "View any broker profile on their team",
               ],
-              cannot: ["Cannot create/edit inventory or landing pages", "Cannot access admin control panel"],
             },
             {
-              icon: UserCheck, role: "Broker", color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/25",
+              icon: UserCheck,
+              role: "Broker",
+              color: "text-emerald-400",
+              bg: "bg-emerald-400/10 border-emerald-400/25",
               can: [
-                "View only their own assigned leads",
-                "Update lead status and add notes",
-                "Use AI Assistant fully",
-                "Send WhatsApp and email via AI Composer",
-                "View their own performance on Profile",
+                "See only their own assigned clients",
+                "Update lead status and add call notes",
+                "Use the AI assistant fully",
+                "Send WhatsApp and email from any lead",
+                "View their own performance and commission",
               ],
-              cannot: ["Cannot see other brokers' leads", "Cannot create landing pages", "Cannot assign leads"],
             },
-          ].map(({ icon: Icon, role, color, bg, can, cannot }) => (
+          ].map(({ icon: Icon, role, color, bg, can }) => (
             <div key={role} className={`rounded-2xl border p-6 space-y-4 ${bg}`}>
               <div className="flex items-center gap-3">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${bg}`}>
@@ -716,84 +813,10 @@ export default function PlaybookPage() {
                 </div>
                 <p className={`font-serif text-xl font-bold ${color}`}>{role}</p>
               </div>
-              <div className="space-y-1">
-                {can.map((item) => (
-                  <div key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
-                    {item}
-                  </div>
-                ))}
-                {cannot.map((item) => (
-                  <div key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* ══════════════════════════════════════════ */}
-      {/* 12 DATA FLOW */}
-      {/* ══════════════════════════════════════════ */}
-      <Section
-        id="data-flow"
-        label="Section 12"
-        title="Data Flow — How the System Connects"
-        subtitle="Understanding where data comes from, where it goes, and how it's used."
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[
-            {
-              icon: Globe,
-              title: "Lead sources",
-              items: [
-                "Landing pages (/lp/[slug]) — form submission → gc_leads with landing_slug tag",
-                "Website chat (/chat) — lead capture after AI conversation",
-                "Website contact forms — direct POST to /api/leads",
-                "Manual entry — broker adds lead via the AI Assistant ('Create a lead for Ahmed...')",
-              ],
-            },
-            {
-              icon: FolderKanban,
-              title: "Inventory sources",
-              items: [
-                "Entrestate database sync — 3,500+ projects imported from the market intelligence feed",
-                "Manual add — broker or admin creates via Add Project form",
-                "AI update — admin submits an AI Project Update, which patches the database record",
-              ],
-            },
-            {
-              icon: RefreshCw,
-              title: "AI context sources",
-              items: [
-                "BROKER_SYSTEM_PROMPT — hardcoded CRM knowledge (this playbook content)",
-                "data.md — public market knowledge file loaded at server start",
-                "Live DB queries — leads, projects, areas fetched per request",
-                "Pinned conversations — learning signals stored in gc_ai_conversations",
-              ],
-            },
-            {
-              icon: Eye,
-              title: "Tracking & attribution",
-              items: [
-                "Landing page views — tracked via middleware, stored per slug",
-                "Lead source — utm_source or HTTP referrer captured on form submit",
-                "WhatsApp sends — logged in gc_lead_activity as whatsapp_sent",
-                "Broker activity — all lead updates logged with broker ID and timestamp",
-              ],
-            },
-          ].map(({ icon: Icon, title, items }) => (
-            <div key={title} className="rounded-2xl border border-border/60 bg-card/80 p-5 space-y-3">
-              <p className="font-semibold text-foreground flex items-center gap-2">
-                <Icon className="h-4 w-4 text-primary" /> {title}
-              </p>
               <ul className="space-y-1.5">
-                {items.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <ArrowRight className="h-3 w-3 mt-0.5 shrink-0 text-primary/60" />
+                {can.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/30" />
                     {item}
                   </li>
                 ))}
@@ -804,59 +827,87 @@ export default function PlaybookPage() {
       </Section>
 
       {/* ══════════════════════════════════════════ */}
-      {/* 13 FAQ */}
+      {/* DAILY ROUTINE */}
       {/* ══════════════════════════════════════════ */}
       <Section
-        id="faq"
-        label="Section 13"
-        title="Frequently Asked Questions"
+        id="daily-routine"
+        label="Section 11"
+        title="Recommended Daily Routine"
+        subtitle="The habits that separate the brokers who close consistently from those who don't."
       >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {[
+            { icon: Clock, time: "Morning", title: "Start with Overview", body: "Check your hot leads, pipeline value, and the AI's three suggested tasks. This takes 2 minutes and sets your focus for the day." },
+            { icon: Sparkles, time: "Morning", title: "Ask the AI for your call list", body: "Type \"who should I follow up with today\" in the AI Assistant. You get a scored, ranked list — start calling from the top." },
+            { icon: MessageSquare, time: "Before every call", title: "Open the lead page first", body: "The AI draft will be ready. Glance at it before you call — it reminds you what they were interested in and what their budget is." },
+            { icon: Send, time: "After every interaction", title: "Log a note or send WhatsApp", body: "Always record what happened. A note after every call keeps your pipeline accurate and means any team member can step in if needed." },
+            { icon: Rocket, time: "Weekly", title: "Share campaign pages", body: "Pick your best property of the week, open its advertising page, and share the link in your WhatsApp broadcast or Instagram story." },
+            { icon: Star, time: "Never", title: "Delete a lead", body: "A client who said no today has a 30% chance of coming back within a year. Mark them as Lost but keep the record — the AI will resurface them when the time is right." },
+          ].map(({ icon: Icon, time, title, body }) => (
+            <div key={title} className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/80 p-5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                <Icon className="h-4 w-4 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/60">{time}</p>
+                <p className="font-semibold text-sm text-foreground">{title}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ══════════════════════════════════════════ */}
+      {/* FAQ */}
+      {/* ══════════════════════════════════════════ */}
+      <Section id="faq" label="Section 12" title="Questions We Hear All the Time">
         <div className="space-y-3">
           {[
             {
               q: "How do I add a new team member?",
-              a: "Go to Profile → Team Accounts panel → their account needs to be created by an admin. Currently accounts are created by adding a row to gc_users via the Admin Control Panel or directly via the database. Ask your system admin.",
+              a: "Ask your admin or manager. They can add new accounts from the Profile page under the Team section. Every new team member needs a name, email, and role before they can log in.",
             },
             {
-              q: "Can I reassign a lead from myself to another broker?",
-              a: "Only admins and sales managers can reassign leads. If you're a broker and need a lead reassigned, ask your manager or message them in the AI Assistant: 'Reassign lead [name] to [broker email]'.",
+              q: "Can two brokers see the same client?",
+              a: "No. Each lead is assigned to one broker only. Only managers and admins can see all leads across the team. This protects the client relationship and keeps accountability clear.",
             },
             {
-              q: "How does the AI know about my leads?",
-              a: "Every broker chat request queries the database live for your leads. The AI doesn't cache leads — it fetches fresh data for every question so the answer is always current.",
+              q: "What if I accidentally mark a lead as Lost?",
+              a: "Just change it back. Open the lead, go to Add Update, and change the status to the correct stage. Everything is reversible and the full history is always kept.",
             },
             {
-              q: "Can two brokers see the same lead?",
-              a: "No. Leads are assigned exclusively. A broker only sees leads with assigned_broker_id matching their user ID. Admins and managers can see all leads.",
+              q: "I don't like the AI message it wrote. What do I do?",
+              a: "Edit it directly — just click in the message box and change anything you want. Or click Regenerate to get a completely fresh version. You can also just write your own message in WhatsApp after clicking the button.",
             },
             {
-              q: "What happens if I accidentally mark a lead as 'lost'?",
-              a: "Change it back. Open the lead → Add Update card → change status to the correct stage. All status changes are logged in the Activity Timeline with a timestamp.",
+              q: "Can I use this on my phone?",
+              a: "Yes. The system works on mobile browsers. The Send on WhatsApp button opens WhatsApp directly on your phone. All forms and pages are designed for mobile use.",
             },
             {
-              q: "The AI draft doesn't sound right. What do I do?",
-              a: "Edit the draft directly in the textarea — it's fully editable. Or click 'Regenerate' to get a fresh draft. If the project data is wrong, update the project in Inventory first, then regenerate.",
+              q: "How long does my login last?",
+              a: "You stay logged in for 7 days without needing to sign in again. If you don't use the system for 7 days, you'll be asked to log back in. Your data and leads are always safe.",
             },
             {
-              q: "Can I use the CRM on mobile?",
-              a: "Yes. The CRM is fully responsive. The chat input uses a 44px touch target and prevents double-tap zoom. WhatsApp send opens the WhatsApp mobile app directly if installed.",
+              q: "Where do leads come from?",
+              a: "Leads arrive automatically from your advertising pages, your website contact forms, and the AI chat on your website. You can also have the AI assistant create a lead manually if someone calls you directly.",
             },
             {
-              q: "How long does a login session last?",
-              a: "Sessions expire after 7 days of inactivity. You'll be redirected to /crm/login. Your data is never deleted — just log back in.",
+              q: "Can I see if a lead came from a specific Instagram ad or campaign?",
+              a: "Yes. Every lead shows its source — whether it came from a specific advertising page, your website, a referral, or a paid ad. This is shown on the lead page and in Analytics.",
             },
             {
-              q: "Can I export my leads?",
-              a: "Yes. In the AI Assistant, ask 'Show me all my leads' or any filtered query, then click 'Export latest results to CSV' in the Export & Share panel.",
+              q: "How do I know my advertising page is live?",
+              a: "Go to the Advertising Pages section. If the status badge is green (Published), the page is live and accessible to anyone with the link. If it's amber (Draft), it is not yet visible to the public.",
             },
             {
-              q: "How do I know if a landing page is live?",
-              a: "In Landing Pages, the status badge shows green (published/active/live) or amber (draft). Also check the publishFrom → publishTo window — the page is only public within that date range.",
+              q: "I sent a WhatsApp but it&apos;s not showing in the client history. Why?",
+              a: "The WhatsApp activity is only logged when you click the Send on WhatsApp button inside the lead page. If you send a WhatsApp directly from your phone without using the button, the system won't know about it.",
             },
           ].map(({ q, a }) => (
             <div key={q} className="rounded-2xl border border-border/60 bg-card/80 px-6 py-5 space-y-2">
               <div className="flex items-start gap-3">
-                <Info className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                <HelpCircle className="h-4 w-4 shrink-0 text-primary mt-0.5" />
                 <p className="font-semibold text-sm text-foreground">{q}</p>
               </div>
               <p className="pl-7 text-sm text-muted-foreground leading-relaxed">{a}</p>
@@ -865,18 +916,18 @@ export default function PlaybookPage() {
         </div>
       </Section>
 
-      {/* ── Footer CTA ── */}
+      {/* ── Footer ── */}
       <section className="rounded-[2rem] border border-primary/20 bg-primary/5 px-8 py-10 text-center space-y-4">
-        <p className="font-serif text-2xl font-bold text-foreground">Ready? Start with the AI.</p>
+        <p className="font-serif text-2xl font-bold text-foreground">Ready to start?</p>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          Type <em>&ldquo;show me my hottest leads today&rdquo;</em> and let the system tell you where to focus first.
+          Open the AI Assistant and type <em>&ldquo;who should I call first today?&rdquo;</em> — let the system tell you where to focus.
         </p>
         <div className="flex flex-wrap gap-3 justify-center pt-2">
           <a href="/crm/ai-assistant" className="inline-flex items-center gap-2 rounded-xl gold-gradient px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-opacity hover:opacity-90">
             <Bot className="h-4 w-4" /> Open AI Assistant
           </a>
           <a href="/crm/leads" className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
-            <Users className="h-4 w-4" /> View Leads
+            <Users className="h-4 w-4" /> View My Leads
           </a>
           <a href="/crm/overview" className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
             <LayoutDashboard className="h-4 w-4" /> Go to Overview

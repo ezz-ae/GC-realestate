@@ -189,3 +189,15 @@ html {
     padding-inline: 2rem;
   }
 }
+
+@media (max-width: 1023px) {
+  .crm-shell input,
+  .crm-shell select,
+  .crm-shell textarea {
+    font-size: 16px;
+  }
+
+  .crm-shell {
+    -webkit-overflow-scrolling: touch;
+  }
+}

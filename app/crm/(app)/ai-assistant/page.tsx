@@ -14,8 +14,8 @@ const suggestions = [
   "Which leads should I follow up with today?",
   "Draft a follow-up email for a lead who viewed 3 properties",
   "Compare Project A vs Project B",
-  "Create listing name: GC Marina Edge, area: Dubai Marina, developer: Select Group, priceFrom: 1850000, roi: 8.4",
-  "Create a branded offer for lead Sarah interested in Dubai Hills",
+  "Add a new listing called GC Marina Edge in Dubai Marina by Select Group starting from AED 1,850,000 with 8.4% ROI",
+  "Create a branded offer for a lead interested in Dubai Hills",
 ]
 
 export default function DashboardAIAssistantPage() {
@@ -147,11 +147,11 @@ export default function DashboardAIAssistantPage() {
     <div className="space-y-10">
       <section className="rounded-3xl border border-border bg-gradient-to-br from-card to-muted/40 p-8 shadow-sm">
         <Badge className="mb-3 gold-gradient border-none px-3" variant="secondary">
-          Gemini Intelligence
+          AI Workspace
         </Badge>
-        <h1 className="font-serif text-4xl font-bold tracking-tight">Broker Intelligence Command</h1>
+        <h1 className="font-serif text-4xl font-bold tracking-tight">Your Real Estate AI Assistant</h1>
         <p className="text-sm text-muted-foreground max-w-2xl mt-2">
-          Execute specialized database queries, analyze high-intent leads, and generate investment deliverables with proprietary Gemini-backed models.
+          Ask for follow-up ideas, shortlist the right property, prepare client messages, or update listings without leaving the CRM.
         </p>
       </section>
 
@@ -163,9 +163,9 @@ export default function DashboardAIAssistantPage() {
                 <Sparkles className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <CardTitle className="font-serif text-xl font-bold">Ask Gemini</CardTitle>
+                <CardTitle className="font-serif text-xl font-bold">Ask the Assistant</CardTitle>
                 <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-0.5">
-                  Investment Guidance & Lead Analysis
+                  Lead follow-up, stock support, and campaign help
                 </p>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function DashboardAIAssistantPage() {
             <div ref={scrollRef} className="max-h-[580px] space-y-4 overflow-y-auto overscroll-contain rounded-3xl border border-border/40 bg-card/40 p-6 shadow-inner">
               {messages.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                  Start a conversation to see project lists, lead insights, and AI coaching.
+                  Start with a buyer question, a listing task, or a follow-up request.
                 </div>
               ) : (
                 messages.map((message) => (
@@ -199,9 +199,7 @@ export default function DashboardAIAssistantPage() {
                   />
                 ))
               )}
-              {isLoading && (
-                <ChatMessage role="assistant" content="Analyzing the latest data..." />
-              )}
+              {isLoading && <ChatMessage role="assistant" content="Preparing the best answer for you..." />}
             </div>
             {error && (
               <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
@@ -211,7 +209,7 @@ export default function DashboardAIAssistantPage() {
             <ChatInput
               onSend={sendMessage}
               disabled={isLoading}
-              placeholder="Ask about ROI, leads, follow-ups, or comparisons..."
+              placeholder="Ask about buyers, listings, offers, or project comparisons..."
             />
           </CardContent>
         </Card>
@@ -219,15 +217,15 @@ export default function DashboardAIAssistantPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Latest AI Data</CardTitle>
+              <CardTitle>Latest Result</CardTitle>
               <p className="text-xs text-muted-foreground">
-                Results returned from your most recent request.
+                The most recent answer, shortlist, or draft prepared by the assistant.
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
               {!latestAttachment ? (
                 <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-                  No attached data yet. Ask for leads, projects, or ROI rankings.
+                  Nothing saved here yet. Ask for leads, projects, or a client message.
                 </div>
               ) : latestAttachment.type === "offer" ? (
                 <div className="rounded-lg border border-border/60 bg-background/70 p-4 text-sm whitespace-pre-wrap">

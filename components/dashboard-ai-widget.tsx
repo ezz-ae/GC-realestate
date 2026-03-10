@@ -36,7 +36,7 @@ export function DashboardAIWidget() {
         <div className="space-y-0.5">
           <CardTitle className="font-serif text-2xl font-bold text-primary">Broker AI</CardTitle>
           <p className="text-[10px] uppercase font-bold tracking-widest text-primary/50">
-            Intelligent Sales Copilot
+            Real Estate Copilot
           </p>
         </div>
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl gold-gradient shadow-lg shadow-primary/20">
@@ -69,7 +69,7 @@ export function DashboardAIWidget() {
         >
           {!hasMessages ? (
             <div className="py-4 text-center text-sm text-muted-foreground">
-              Use the quick actions above or type any question.
+              Use the quick actions above or ask for the next best buyer move.
             </div>
           ) : (
             recentMessages.map((message) => (
@@ -100,7 +100,7 @@ export function DashboardAIWidget() {
         <ChatInput
           onSend={sendMessage}
           disabled={isLoading}
-          placeholder="Ask about leads, projects, or draft a message..."
+          placeholder="Ask who to call, what to send, or which project fits..."
         />
       </CardContent>
     </Card>

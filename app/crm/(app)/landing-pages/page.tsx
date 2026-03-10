@@ -52,7 +52,7 @@ export default async function CrmLandingPagesPage() {
             </Badge>
             <h1 className="font-serif text-3xl font-bold">LP Campaign Control</h1>
             <p className="text-sm text-muted-foreground">
-              Manage project-specific campaign pages under <code>/lp/[slug]</code> with tracking and lead attribution.
+              Manage your property campaign pages, track who visited, and see which page is bringing real enquiries.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -87,7 +87,7 @@ export default async function CrmLandingPagesPage() {
         </Card>
       </section>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card md:block">
         <div className="grid grid-cols-10 gap-3 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <div className="col-span-3">Campaign</div>
           <div className="col-span-2">Project</div>
@@ -102,7 +102,7 @@ export default async function CrmLandingPagesPage() {
           <div key={page.slug} className="grid grid-cols-10 gap-3 border-b border-border px-4 py-4 text-sm last:border-b-0">
             <div className="col-span-3 min-w-0">
               <div className="font-semibold truncate">{page.headline}</div>
-              <div className="text-xs text-muted-foreground truncate">/lp/{page.slug}</div>
+              <div className="text-xs text-muted-foreground truncate">{page.slug}</div>
             </div>
             <div className="col-span-2 text-muted-foreground truncate">{page.projectSlug || "—"}</div>
             <div>
@@ -125,7 +125,49 @@ export default async function CrmLandingPagesPage() {
 
         {pages.length === 0 && (
           <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-            No landing pages found in <code>gc_project_landing_pages</code>.
+            No campaign pages have been created yet.
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3 md:hidden">
+        {pages.map((page) => (
+          <Card key={page.slug}>
+            <CardContent className="space-y-3 p-4">
+              <div>
+                <div className="font-semibold">{page.headline}</div>
+                <div className="text-xs text-muted-foreground">{page.slug}</div>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className={`inline-flex rounded-full px-2 py-0.5 font-medium ${statusTone(page.status)}`}>
+                  {page.status}
+                </span>
+                <span className="text-muted-foreground">{page.projectSlug || "—"}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div>
+                  <div className="text-muted-foreground">Views</div>
+                  <div className="font-semibold">{page.pageViews}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Leads</div>
+                  <div className="font-semibold">{page.leadCount}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Window</div>
+                  <div className="font-semibold">{formatDate(page.publishFrom)}</div>
+                </div>
+              </div>
+              <Button size="sm" variant="outline" asChild className="w-full">
+                <Link href={`/lp/${page.slug}`} target="_blank">Open Landing Page</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+
+        {pages.length === 0 && (
+          <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+            No campaign pages have been created yet.
           </div>
         )}
       </div>

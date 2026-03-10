@@ -104,6 +104,12 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
     <Card>
       <CardContent className="p-6">
         <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="space-y-1">
+            <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Personal details</div>
+            <p className="text-sm text-muted-foreground">
+              Keep your contact details and AI working style up to date.
+            </p>
+          </div>
           <div className="grid gap-4 md:grid-cols-2">
             <Input placeholder="Full Name" value={form.name} onChange={handleChange("name")} required />
             <Input placeholder="Email" type="email" value={form.email} onChange={handleChange("email")} required />
@@ -126,9 +132,15 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
                 </option>
               ))}
             </select>
-            <Input placeholder="User ID" value={form.id} onChange={handleChange("id")} />
+            <Input placeholder="Your CRM access ID" value={form.id} readOnly disabled />
           </div>
+          {!canEditRole ? (
+            <p className="text-xs text-muted-foreground">Your access level is managed by leadership.</p>
+          ) : null}
 
+          <div className="space-y-1 pt-2">
+            <div className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">How AI should help you</div>
+          </div>
           <div className="grid gap-4 md:grid-cols-3">
             <select
               value={form.language}
@@ -208,7 +220,7 @@ export function DashboardProfileForm({ initialProfile, canEditRole }: ProfileFor
           </div>
 
           <Input
-            placeholder="Update password (optional)"
+            placeholder="Set a new password if needed"
             type="password"
             value={form.password}
             onChange={handleChange("password")}

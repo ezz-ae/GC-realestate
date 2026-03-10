@@ -39,11 +39,11 @@ export default async function DashboardProfilePage({ searchParams }: DashboardPr
         </Badge>
         <h1 className="font-serif text-3xl font-bold">Broker Profile</h1>
         <p className="text-sm text-muted-foreground">
-          Update your details, role, and dashboard preferences.
+          Update your details, working style, and team access from one place.
         </p>
         {canViewOther && (
           <p className="mt-2 text-xs text-muted-foreground">
-            Management view: open with <code>?email=broker@company.com</code> to load another profile.
+            Management can review any team profile and create new user access below.
           </p>
         )}
       </section>

@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getDashboardAnalyticsData, resolveAccessRole } from "@/lib/entrestate"
 import { getSessionUser } from "@/lib/auth"
-import { CircleDollarSign, BarChart3, Users } from "lucide-react"
+import { CircleDollarSign, BarChart3, Users, Rocket, MousePointerClick, FilePenLine } from "lucide-react"
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-AE", {
@@ -29,7 +29,7 @@ export default async function DashboardAnalyticsPage() {
         </p>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -65,6 +65,45 @@ export default async function DashboardAnalyticsPage() {
               </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
                 <Users className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">Landing Pages</div>
+                <div className="mt-2 text-2xl font-semibold">{analytics.landingPageCount}</div>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <Rocket className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">LP Page Views</div>
+                <div className="mt-2 text-2xl font-semibold">{analytics.landingPageViews}</div>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <MousePointerClick className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">LP Form Submissions</div>
+                <div className="mt-2 text-2xl font-semibold">{analytics.landingPageSubmissions}</div>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                <FilePenLine className="h-5 w-5 text-primary" />
               </div>
             </div>
           </CardContent>

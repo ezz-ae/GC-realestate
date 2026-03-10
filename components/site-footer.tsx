@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Mail, MapPin, Phone, Instagram, Linkedin, MessageCircle, Facebook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -68,6 +69,12 @@ const footerSections = [
 ]
 
 export function SiteFooter() {
+  const pathname = usePathname()
+
+  if (pathname?.startsWith("/crm")) {
+    return null
+  }
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="container py-16">

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getLandingPageBySlug } from "@/lib/landing-pages"
+import { getSessionUser } from "@/lib/auth"
 import { HeroSection } from "@/components/lp/hero-section"
 import { SectionRenderer } from "@/components/lp/section-renderer"
 import { PixelScripts } from "@/components/lp/pixel-scripts"
@@ -16,7 +17,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const landing = await getLandingPageBySlug(slug)
+  const sessionUser = await getSessionUser()
+  const landing = await getLandingPageBySlug(slug, {
+    includeDraft: Boolean(sessionUser),
+  })
 
   if (!landing) {
     return {
@@ -49,7 +53,10 @@ export default async function LandingPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const landing = await getLandingPageBySlug(slug)
+  const sessionUser = await getSessionUser()
+  const landing = await getLandingPageBySlug(slug, {
+    includeDraft: Boolean(sessionUser),
+  })
   if (!landing) notFound()
 
   const heroSection = landing.sections.find((section) => section.type === "hero")

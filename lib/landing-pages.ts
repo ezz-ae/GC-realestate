@@ -555,7 +555,10 @@ const getProjectSummary = async (projectSlug: string): Promise<LandingProjectSum
   }
 }
 
-export async function getLandingPageBySlug(slug: string): Promise<LandingPageData | null> {
+export async function getLandingPageBySlug(
+  slug: string,
+  options?: { includeDraft?: boolean },
+): Promise<LandingPageData | null> {
   await ensureLandingPagesSchemaOnce()
   const normalizedSlug = slug.trim().toLowerCase()
   const rows = await query<LandingPageRow>(
@@ -568,7 +571,7 @@ export async function getLandingPageBySlug(slug: string): Promise<LandingPageDat
 
   const row = rows[0]
   if (!row) return null
-  if (!isPublishedNow(row)) return null
+  if (!options?.includeDraft && !isPublishedNow(row)) return null
 
   const projectSlug = pickString(row.project_slug, row.projectSlug)
   const project = await getProjectSummary(projectSlug)

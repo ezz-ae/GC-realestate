@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { LeadActivityForm } from "@/components/lead-activity-form"
 import { LeadAiComposer } from "@/components/lead-ai-composer"
-import { getLeadActivity, getLeadById, getProjectBySlug } from "@/lib/entrestate"
+import { getLeadActivity, getLeadById, getProjectBySlug, getUserProfileById } from "@/lib/entrestate"
 import { getSessionUser, isAdminRole } from "@/lib/auth"
 
 interface LeadDetailPageProps {
@@ -33,6 +33,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
 
   const activity = await getLeadActivity(lead.id)
   const project = lead.project_slug ? await getProjectBySlug(lead.project_slug) : null
+  const assignedBroker = lead.assigned_broker_id ? await getUserProfileById(lead.assigned_broker_id) : null
 
   return (
     <div className="space-y-8">
@@ -73,11 +74,15 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Assigned Broker</span>
-              <span>{lead.assigned_broker_id || "Unassigned"}</span>
+              <span>{assignedBroker?.name || assignedBroker?.email || "Unassigned"}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Source</span>
               <span>{lead.source || "Website"}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Client Interest</span>
+              <span>{lead.interest || "General enquiry"}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Last Contact</span>

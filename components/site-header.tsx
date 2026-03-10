@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Menu, Sparkles, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
@@ -56,10 +57,15 @@ const companyLinks = [
 ]
 
 export function SiteHeader() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = React.useState(false)
   const megaMenuWide = "w-[min(720px,92vw)] min-w-[360px] p-2"
   const megaMenuMedium = "w-[min(640px,92vw)] min-w-[340px] p-2"
   const megaMenuCompact = "w-[min(520px,92vw)] min-w-[320px] p-2"
+
+  if (pathname?.startsWith("/crm")) {
+    return null
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60 h-20 transition-all duration-300">

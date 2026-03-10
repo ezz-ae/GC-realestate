@@ -127,7 +127,58 @@ export default async function DashboardProjectsPage({ searchParams }: DashboardP
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="grid gap-3 md:hidden">
+        {projects.map((project) => (
+          <Card key={project.id}>
+            <CardContent className="space-y-4 p-4">
+              <div className="space-y-1">
+                <div className="font-semibold">{project.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {project.area || "Dubai"} · {project.developerName || "Developer not added yet"}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <div className="text-muted-foreground">Status</div>
+                  <div className="font-semibold capitalize">{project.status || "—"}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">ROI</div>
+                  <div className="font-semibold">{project.expectedRoi ?? "—"}%</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-muted-foreground">Price</div>
+                  <div className="font-semibold">
+                    {formatCurrency(project.priceFrom)} {project.priceTo ? `- ${formatCurrency(project.priceTo)}` : ""}
+                  </div>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Button size="sm" variant="outline" className="w-full" asChild>
+                  <Link href={`/crm/projects/add?slug=${encodeURIComponent(project.slug)}`}>
+                    Edit Listing
+                  </Link>
+                </Button>
+                <Button size="sm" variant="outline" className="w-full" asChild>
+                  <Link href={`/crm/landing-pages/create?projectSlug=${encodeURIComponent(project.slug)}`}>
+                    Create Campaign Page
+                  </Link>
+                </Button>
+                <Button size="sm" className="w-full gold-gradient" asChild>
+                  <Link href={`/projects/${project.slug}`}>Open Public Page</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {projects.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
+            No properties match the current filters.
+          </div>
+        )}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card md:block">
         <div className="overflow-x-auto">
           <div className="min-w-[1024px]">
             <div className="grid grid-cols-[2fr_1fr_1fr_1.4fr_0.7fr_0.7fr_1.6fr] gap-4 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">

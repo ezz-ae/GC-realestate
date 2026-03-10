@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge"
 import { getLeads } from "@/lib/entrestate"
 
 interface LeadsPageProps {
-  searchParams?: { role?: string; brokerId?: string }
+  searchParams?: Promise<{ role?: string; brokerId?: string }>
 }
 
 export default async function LeadsPage({ searchParams }: LeadsPageProps) {
-  const role = searchParams?.role === "broker" ? "broker" : "admin"
-  const brokerId = searchParams?.brokerId
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const role = resolvedSearchParams?.role === "broker" ? "broker" : "admin"
+  const brokerId = resolvedSearchParams?.brokerId
   const leads = await getLeads(role, brokerId)
 
   return (
@@ -40,7 +41,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
 
         <section className="py-12">
           <div className="container">
-            <LeadsTable leads={leads} isAdmin={role === "admin"} />
+            <LeadsTable leads={leads} isAdmin={role === "admin"} teamMembers={[]} />
           </div>
         </section>
       </main>
