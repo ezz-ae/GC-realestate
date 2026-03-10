@@ -30,6 +30,8 @@ type BrokerIntent =
   | "create_project"
   | "update_project"
   | "create_offer"
+  | "prioritize_leads"
+  | "whatsapp_draft"
   | "general"
 
 type BrokerAction = {
@@ -106,6 +108,19 @@ const heuristicAction = (message: string): BrokerAction => {
     lower.includes("edit listing") ||
     lower.includes("update project") ||
     lower.includes("edit project")
+  const isPrioritize =
+    lower.includes("prioritize") ||
+    lower.includes("prioritise") ||
+    lower.includes("hot leads") ||
+    lower.includes("follow up today") ||
+    lower.includes("who should i call") ||
+    lower.includes("best leads")
+  const isWhatsApp =
+    lower.includes("whatsapp") ||
+    lower.includes("whats app") ||
+    lower.includes("wa message") ||
+    lower.includes("draft message") ||
+    lower.includes("draft follow")
   const isOffer = lower.includes("offer") || lower.includes("proposal")
   const isLeadList = lower.includes("lead")
   const isProjectList =
@@ -117,6 +132,20 @@ const heuristicAction = (message: string): BrokerAction => {
   const name = extractField(message, "name") || extractField(message, "project")
   const explicitSlug = extractField(message, "slug")
   const slug = explicitSlug ? `gc-${toSlug(explicitSlug)}` : name ? `gc-${toSlug(name)}` : undefined
+
+  if (isPrioritize) {
+    return { intent: "prioritize_leads", query: message }
+  }
+
+  if (isWhatsApp) {
+    return {
+      intent: "whatsapp_draft",
+      query: message,
+      leadQuery: extractField(message, "lead") || extractField(message, "client") || extractField(message, "name"),
+      projectSlug: slug,
+      projectName: name,
+    }
+  }
 
   if (isCreateProject || isUpdateProject) {
     return {
@@ -173,7 +202,7 @@ const classifyWithGemini = async (message: string, history: Array<{ role: string
   const prompt = `Classify the broker request and return ONLY JSON.
 Schema:
 {
-  "intent": "list_leads" | "list_projects" | "create_project" | "update_project" | "create_offer" | "general",
+  "intent": "list_leads" | "list_projects" | "create_project" | "update_project" | "create_offer" | "prioritize_leads" | "whatsapp_draft" | "general",
   "query": string | null,
   "projectSlug": string | null,
   "projectName": string | null,
@@ -322,7 +351,84 @@ export async function POST(req: NextRequest) {
     let aiReply = ""
     let attachedData: any = null
 
-    if (action.intent === "list_leads") {
+    if (action.intent === "prioritize_leads") {
+      const leads = await getRecentLeads(20, accessRole, brokerId)
+      const scored = leads
+        .map((lead) => {
+          let score = 0
+          if (lead.email) score += 2
+          if (lead.phone) score += 2
+          if (lead.project_slug) score += 3
+          if (lead.source) score += 1
+          if (lead.budget_aed && lead.budget_aed > 2_000_000) score += 3
+          const age = Date.now() - new Date(lead.created_at).getTime()
+          if (age < 86_400_000) score += 4       // < 1 day
+          else if (age < 3 * 86_400_000) score += 2  // < 3 days
+          const reasons: string[] = []
+          if (age < 86_400_000) reasons.push("new today")
+          if (lead.budget_aed && lead.budget_aed > 2_000_000) reasons.push("high budget")
+          if (lead.project_slug) reasons.push("project interest")
+          if (!lead.email) reasons.push("missing email")
+          return { ...lead, score, reasons }
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8)
+
+      attachedData = { type: "leads", data: scored }
+      const top3 = scored.slice(0, 3)
+      aiReply = scored.length
+        ? `Here are your top ${scored.length} prioritized leads:\n\n${top3
+            .map(
+              (l, i) =>
+                `${i + 1}. **${l.name}** (score ${l.score}) — ${l.phone}${l.reasons.length ? ` · ${l.reasons.join(", ")}` : ""}`,
+            )
+            .join("\n")}\n\nFocus on calling these first — they show the strongest buying signals.`
+        : "No leads found in your pipeline."
+    } else if (action.intent === "whatsapp_draft") {
+      const leadTerm = action.leadQuery || ""
+      const candidateLead = leadTerm
+        ? (await searchCrmLeads(leadTerm, accessRole, brokerId, 1))[0]
+        : (await getRecentLeads(1, accessRole, brokerId))[0]
+      const candidateProject =
+        action.projectSlug
+          ? await getDashboardProjectBySlug(action.projectSlug)
+          : action.projectName
+            ? (await searchProjects(action.projectName, 1))[0]
+            : null
+
+      const clientName = candidateLead?.name || "there"
+      const projectName = candidateProject?.name || (action.projectName ? action.projectName : "this exclusive Dubai project")
+      const priceText =
+        candidateProject && "priceFrom" in candidateProject && candidateProject.priceFrom
+          ? `starting from AED ${Number(candidateProject.priceFrom).toLocaleString("en-AE")}`
+          : "with competitive pricing"
+      const roiText =
+        candidateProject && "roi" in candidateProject && candidateProject.roi
+          ? ` with ${candidateProject.roi}% expected ROI`
+          : ""
+
+      const waMessage = [
+        `Hi ${clientName}! 👋`,
+        ``,
+        `I wanted to follow up on your inquiry about *${projectName}* ${priceText}${roiText}.`,
+        ``,
+        `We have limited availability right now and I'd love to share the latest floor plans and payment plan details with you.`,
+        ``,
+        `Would you be available for a quick call this week? I can answer any questions and walk you through the investment potential. 🏙️`,
+        ``,
+        `Best regards,`,
+        `Gold Century Brokerage`,
+      ].join("\n")
+
+      attachedData = {
+        type: "offer",
+        data: {
+          title: `WhatsApp follow-up for ${candidateLead?.name || "lead"}`,
+          content: waMessage,
+        },
+      }
+      aiReply = `Here's a ready-to-send WhatsApp message${candidateLead ? ` for ${candidateLead.name}` : ""}. Copy it from the panel and paste it into WhatsApp.`
+    } else if (action.intent === "list_leads") {
       const term = action.leadQuery || action.query || ""
       const leads = term ? await searchCrmLeads(term, accessRole, brokerId, 10) : await getRecentLeads(10, accessRole, brokerId)
       attachedData = { type: "leads", data: leads }
