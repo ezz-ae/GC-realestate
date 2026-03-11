@@ -120,6 +120,17 @@ const pickNumber = (...values: unknown[]) => {
   return null
 }
 
+const getTableColumns = async (tableName: string) => {
+  const rows = await query<{ column_name: string }>(
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = 'public'
+       AND table_name = $1`,
+    [tableName],
+  )
+  return new Set(rows.map((row) => row.column_name))
+}
+
 const normalizeSlug = (value?: string) => {
   if (!value) return ""
   return value
@@ -1687,13 +1698,16 @@ export async function getDashboardAnalyticsData(
     params,
   )
 
-  const analyticsTableExists = await query<{ exists: number }>(
-    `SELECT 1 AS exists
-     FROM information_schema.tables
-     WHERE table_schema = 'public'
-       AND table_name = 'gc_lp_analytics'
-     LIMIT 1`,
-  )
+  const analyticsColumns = await getTableColumns("gc_lp_analytics")
+  const analyticsEventColumn = analyticsColumns.has("event_name")
+    ? "event_name"
+    : analyticsColumns.has("event")
+      ? "event"
+      : analyticsColumns.has("event_type")
+        ? "event_type"
+        : analyticsColumns.has("type")
+          ? "type"
+          : null
 
   const landingPageTableExists = await query<{ exists: number }>(
     `SELECT 1 AS exists
@@ -1704,11 +1718,11 @@ export async function getDashboardAnalyticsData(
   )
 
   const [landingTotals] =
-    analyticsTableExists.length > 0
+    analyticsEventColumn
       ? await query<{ page_views: number; form_submissions: number }>(
           `SELECT
-             COUNT(*) FILTER (WHERE event_name = 'page_view')::int AS page_views,
-             COUNT(*) FILTER (WHERE event_name = 'form_submit')::int AS form_submissions
+             COUNT(*) FILTER (WHERE ${analyticsEventColumn} IN ('page_view', 'pageview', 'view'))::int AS page_views,
+             COUNT(*) FILTER (WHERE ${analyticsEventColumn} IN ('form_submit', 'lead_submit', 'submit'))::int AS form_submissions
            FROM gc_lp_analytics`,
         )
       : [{ page_views: 0, form_submissions: 0 }]
