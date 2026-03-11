@@ -61,7 +61,7 @@ export async function createConversation(userId: string, firstMessage?: AiMessag
     `INSERT INTO gc_ai_conversations (id, user_id, title, pinned, messages)
      VALUES ($1, $2, $3, false, $4)
      RETURNING id, user_id, title, pinned, messages, created_at, updated_at`,
-    [id, userId, title, messages],
+    [id, userId, title, JSON.stringify(messages)],
   )
   return rows[0]
 }
@@ -76,7 +76,7 @@ export async function appendConversationMessage(conversationId: string, message:
      SET messages = $1, updated_at = now()
      WHERE id = $2
      RETURNING id, user_id, title, pinned, messages, created_at, updated_at`,
-    [updatedMessages, conversationId],
+    [JSON.stringify(updatedMessages), conversationId],
   )
   return rows[0]
 }
