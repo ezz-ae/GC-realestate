@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       projectSlug: projectSlug || null,
       projectName: projectName || null,
       notes,
-      tags: normalizedTags.length ? normalizedTags : null,
+      tags: normalizedTags.length ? normalizedTags : undefined,
       createdBy: user.id,
     })
     return NextResponse.json(request)

@@ -9,7 +9,7 @@ import { Sparkles } from "lucide-react"
 interface LeadFormPopupProps {
   buttonLabel?: string
   buttonClassName?: string
-  buttonSize?: "sm" | "md" | "lg" | "icon"
+  buttonSize?: "default" | "sm" | "lg" | "icon"
 }
 
 export function LeadFormPopup({

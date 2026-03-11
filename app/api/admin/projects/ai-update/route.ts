@@ -3,15 +3,10 @@ import { getSessionUser } from "@/lib/auth"
 import { logAiProjectUpdate, ProjectUpdateType, updateProjectStatus } from "@/lib/ai-project-updates"
 import { resolveAccessRole } from "@/lib/entrestate"
 
-const ensureAdmin = (user: Awaited<ReturnType<typeof getSessionUser>>) => {
-  if (!user) return false
-  return resolveAccessRole(user.role) === "admin"
-}
-
 export async function POST(req: Request) {
   try {
     const user = await getSessionUser()
-    if (!ensureAdmin(user)) {
+    if (!user || resolveAccessRole(user.role) !== "admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 403 })
     }
 
