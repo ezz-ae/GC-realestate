@@ -30,6 +30,28 @@ const ensureAnalyticsSchema = async () => {
       created_at timestamptz DEFAULT now()
     )
   `)
+  await query(`
+    ALTER TABLE gc_lp_analytics
+      ADD COLUMN IF NOT EXISTS landing_slug text,
+      ADD COLUMN IF NOT EXISTS project_slug text,
+      ADD COLUMN IF NOT EXISTS event_name text,
+      ADD COLUMN IF NOT EXISTS event_value text,
+      ADD COLUMN IF NOT EXISTS session_id text,
+      ADD COLUMN IF NOT EXISTS path text,
+      ADD COLUMN IF NOT EXISTS referrer text,
+      ADD COLUMN IF NOT EXISTS utm_source text,
+      ADD COLUMN IF NOT EXISTS utm_medium text,
+      ADD COLUMN IF NOT EXISTS utm_campaign text,
+      ADD COLUMN IF NOT EXISTS utm_term text,
+      ADD COLUMN IF NOT EXISTS utm_content text,
+      ADD COLUMN IF NOT EXISTS utm_id text,
+      ADD COLUMN IF NOT EXISTS device jsonb,
+      ADD COLUMN IF NOT EXISTS geo_country text,
+      ADD COLUMN IF NOT EXISTS geo_region text,
+      ADD COLUMN IF NOT EXISTS geo_city text,
+      ADD COLUMN IF NOT EXISTS meta jsonb,
+      ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now()
+  `)
 }
 
 const toText = (value: unknown) => (typeof value === "string" ? value.trim() : "")
