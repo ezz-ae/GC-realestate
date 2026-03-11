@@ -58,6 +58,30 @@ type BrokerAction = {
   }
 }
 
+const toFiniteNumber = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) return value
+  if (typeof value === "string") {
+    const normalized = value.replace(/,/g, "").trim()
+    if (!normalized) return null
+    const parsed = Number(normalized)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+}
+
+const getProjectArea = (project: any) =>
+  typeof project?.location?.area === "string" && project.location.area.trim()
+    ? project.location.area
+    : typeof project?.area === "string" && project.area.trim()
+      ? project.area
+      : "Dubai"
+
+const getProjectPriceFrom = (project: any) =>
+  toFiniteNumber(project?.units?.[0]?.priceFrom) ?? toFiniteNumber(project?.priceFrom)
+
+const getProjectRoi = (project: any) =>
+  toFiniteNumber(project?.investmentHighlights?.expectedROI) ?? toFiniteNumber(project?.roi)
+
 const extractJson = (value: string) => {
   const start = value.indexOf("{")
   const end = value.lastIndexOf("}")
@@ -402,13 +426,15 @@ export async function POST(req: NextRequest) {
 
       const clientName = candidateLead?.name || "there"
       const projectName = candidateProject?.name || (action.projectName ? action.projectName : "this exclusive Dubai project")
+      const candidatePriceFrom = getProjectPriceFrom(candidateProject)
+      const candidateRoi = getProjectRoi(candidateProject)
       const priceText =
-        candidateProject && "priceFrom" in candidateProject && candidateProject.priceFrom
-          ? `starting from AED ${Number(candidateProject.priceFrom).toLocaleString("en-AE")}`
+        candidatePriceFrom != null
+          ? `starting from AED ${candidatePriceFrom.toLocaleString("en-AE")}`
           : "with competitive pricing"
       const roiText =
-        candidateProject && "roi" in candidateProject && candidateProject.roi
-          ? ` with ${candidateProject.roi}% expected ROI`
+        candidateRoi != null
+          ? ` with ${candidateRoi}% expected ROI`
           : ""
 
       const waMessage = [
@@ -446,13 +472,13 @@ export async function POST(req: NextRequest) {
         data: projects.map((project) => ({
           id: project.id,
           title: project.name,
-          area: project.location.area,
-          priceFrom: project.units?.[0]?.priceFrom ?? 0,
-          roi: project.investmentHighlights.expectedROI,
+          area: getProjectArea(project),
+          priceFrom: getProjectPriceFrom(project) ?? 0,
+          roi: getProjectRoi(project),
         })),
       }
       aiReply = projects.length
-        ? `I shortlisted ${projects.length} inventory matches. The strongest fit is ${projects[0].name} in ${projects[0].location.area}.`
+        ? `I shortlisted ${projects.length} inventory matches. The strongest fit is ${projects[0].name} in ${getProjectArea(projects[0])}.`
         : "I could not find matching inventory for that request."
     } else if (action.intent === "create_project" || action.intent === "update_project") {
       const fields = action.fields || {}
@@ -501,9 +527,9 @@ export async function POST(req: NextRequest) {
         (await searchProjects(action.projectName || action.query || message, 1)).map((project) => ({
           slug: project.slug,
           name: project.name,
-          area: project.location.area,
-          priceFrom: project.units?.[0]?.priceFrom ?? null,
-          roi: project.investmentHighlights.expectedROI ?? null,
+          area: getProjectArea(project),
+          priceFrom: getProjectPriceFrom(project),
+          roi: getProjectRoi(project),
         }))[0]
 
       const offer = generateOfferMarkdown({
@@ -511,9 +537,9 @@ export async function POST(req: NextRequest) {
         project: candidateProject
           ? {
               name: candidateProject.name,
-              area: candidateProject.area,
-              price: "priceFrom" in candidateProject ? candidateProject.priceFrom : null,
-              roi: candidateProject.roi,
+              area: getProjectArea(candidateProject),
+              price: getProjectPriceFrom(candidateProject),
+              roi: getProjectRoi(candidateProject),
             }
           : undefined,
       })
@@ -540,7 +566,10 @@ export async function POST(req: NextRequest) {
       if (lowerMessage.includes("project") || lowerMessage.includes("propert") || lowerMessage.includes("roi")) {
         const topProjects = await getTopROIProjects(3)
         context += `\n\nTOP ROI PROJECTS:\n${topProjects
-          .map((project) => `- ${project.name} | ${project.location.area} | ROI ${project.investmentHighlights.expectedROI}%`)
+          .map((project) => {
+            const roi = getProjectRoi(project)
+            return `- ${project.name} | ${getProjectArea(project)} | ROI ${roi != null ? `${roi}%` : "n/a"}`
+          })
           .join("\n")}`
       }
 

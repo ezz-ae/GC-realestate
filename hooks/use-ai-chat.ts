@@ -108,12 +108,18 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
     } catch (err) {
       console.error('[v0] Chat error:', err)
       const message = err instanceof Error ? err.message : 'Failed to send message. Please try again.'
-      setError(message)
+      const isUnauthorized = /unauthorized|401/i.test(message)
+      setError(
+        isUnauthorized
+          ? 'Your CRM session expired. Please sign in again to continue using AI.'
+          : message
+      )
       const fallbackMessage: Message = {
         id: (Date.now() + 2).toString(),
         role: 'assistant',
-        content:
-          "I'm having trouble connecting to the AI right now. Tell me your budget, preferred area, and unit type, then share your name + phone so I can send a tailored shortlist.",
+        content: isUnauthorized
+          ? 'Your CRM session has expired. Please sign in again at /crm/login, then retry your request.'
+          : "I'm having trouble connecting to the AI right now. Tell me your budget, preferred area, and unit type, then share your name + phone so I can send a tailored shortlist.",
         timestamp: new Date()
       }
       setMessages(prev => [...prev, fallbackMessage])
