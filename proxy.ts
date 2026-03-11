@@ -8,12 +8,21 @@ export function proxy(request: NextRequest) {
 
   // crm.goldcentury.ae → goldcentury.ae/crm
   if (hostname.startsWith("crm.")) {
+    // Keep same-origin API calls on crm.* to avoid redirecting fetch/XHR to a different
+    // origin (which can break cookies/CORS and method semantics for POST requests).
+    if (pathname.startsWith("/api")) {
+      const res = NextResponse.next()
+      res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
+      return res
+    }
+
     url.hostname = "goldcentury.ae"
     url.protocol = "https:"
     if (!pathname.startsWith("/crm")) {
       url.pathname = `/crm${pathname}`
     }
-    return NextResponse.redirect(url, { status: 301 })
+    // Preserve method/body semantics for non-GET requests.
+    return NextResponse.redirect(url, { status: 308 })
   }
 
   const res = NextResponse.next()
