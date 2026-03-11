@@ -2,23 +2,9 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSessionUser, isAdminRole } from "@/lib/auth"
 import { getLandingPagesForDashboard } from "@/lib/landing-pages"
-
-const formatDate = (value: string | null) => {
-  if (!value) return "—"
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return "—"
-  return date.toLocaleDateString("en-AE")
-}
-
-const statusTone = (status: string) => {
-  const normalized = status.toLowerCase()
-  if (["published", "active", "live"].includes(normalized)) return "bg-emerald-500/10 text-emerald-600"
-  if (normalized === "draft") return "bg-amber-500/10 text-amber-600"
-  return "bg-muted text-muted-foreground"
-}
+import { LandingPagesList } from "@/components/crm/landing-pages-list"
 
 export default async function CrmLandingPagesPage() {
   const user = await getSessionUser()
@@ -38,9 +24,6 @@ export default async function CrmLandingPagesPage() {
   }
 
   const pages = await getLandingPagesForDashboard(200)
-  const published = pages.filter((page) => ["published", "active", "live"].includes(page.status.toLowerCase())).length
-  const totalViews = pages.reduce((sum, page) => sum + page.pageViews, 0)
-  const totalLeads = pages.reduce((sum, page) => sum + page.leadCount, 0)
 
   return (
     <div className="space-y-8">
@@ -65,112 +48,7 @@ export default async function CrmLandingPagesPage() {
           </div>
         </div>
       </section>
-
-      <section className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="p-5">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Total Campaign Pages</p>
-            <p className="mt-2 font-serif text-3xl font-bold">{pages.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Published</p>
-            <p className="mt-2 font-serif text-3xl font-bold">{published}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Leads / Views</p>
-            <p className="mt-2 font-serif text-3xl font-bold">{totalLeads} / {totalViews}</p>
-          </CardContent>
-        </Card>
-      </section>
-
-      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card md:block">
-        <div className="grid grid-cols-10 gap-3 border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <div className="col-span-3">Campaign</div>
-          <div className="col-span-2">Project</div>
-          <div>Status</div>
-          <div>Views</div>
-          <div>Leads</div>
-          <div>Window</div>
-          <div>Actions</div>
-        </div>
-
-        {pages.map((page) => (
-          <div key={page.slug} className="grid grid-cols-10 gap-3 border-b border-border px-4 py-4 text-sm last:border-b-0">
-            <div className="col-span-3 min-w-0">
-              <div className="font-semibold truncate">{page.headline}</div>
-              <div className="text-xs text-muted-foreground truncate">{page.slug}</div>
-            </div>
-            <div className="col-span-2 text-muted-foreground truncate">{page.projectSlug || "—"}</div>
-            <div>
-              <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusTone(page.status)}`}>
-                {page.status}
-              </span>
-            </div>
-            <div className="text-muted-foreground">{page.pageViews}</div>
-            <div className="text-muted-foreground">{page.leadCount}</div>
-            <div className="text-xs text-muted-foreground">
-              {formatDate(page.publishFrom)} → {formatDate(page.publishTo)}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" asChild>
-                <Link href={`/lp/${page.slug}`} target="_blank">Open</Link>
-              </Button>
-            </div>
-          </div>
-        ))}
-
-        {pages.length === 0 && (
-          <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-            No campaign pages have been created yet.
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-3 md:hidden">
-        {pages.map((page) => (
-          <Card key={page.slug}>
-            <CardContent className="space-y-3 p-4">
-              <div>
-                <div className="font-semibold">{page.headline}</div>
-                <div className="text-xs text-muted-foreground">{page.slug}</div>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className={`inline-flex rounded-full px-2 py-0.5 font-medium ${statusTone(page.status)}`}>
-                  {page.status}
-                </span>
-                <span className="text-muted-foreground">{page.projectSlug || "—"}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-3 text-xs">
-                <div>
-                  <div className="text-muted-foreground">Views</div>
-                  <div className="font-semibold">{page.pageViews}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Leads</div>
-                  <div className="font-semibold">{page.leadCount}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground">Window</div>
-                  <div className="font-semibold">{formatDate(page.publishFrom)}</div>
-                </div>
-              </div>
-              <Button size="sm" variant="outline" asChild className="w-full">
-                <Link href={`/lp/${page.slug}`} target="_blank">Open Landing Page</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-
-        {pages.length === 0 && (
-          <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-            No campaign pages have been created yet.
-          </div>
-        )}
-      </div>
+      <LandingPagesList initialPages={pages} />
     </div>
   )
 }

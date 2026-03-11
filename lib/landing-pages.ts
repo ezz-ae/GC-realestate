@@ -86,12 +86,33 @@ export interface LandingPageDashboardRow {
   projectSlug: string
   headline: string
   status: string
+  isLiveNow: boolean
   publishFrom: string | null
   publishTo: string | null
   updatedAt: string | null
   leadCount: number
   pageViews: number
   formSubmissions: number
+}
+
+export interface LandingPageEditorData {
+  slug: string
+  projectSlug: string
+  headline: string
+  subheadline: string
+  heroImage: string
+  ctaText: string
+  status: "draft" | "published"
+  publishFrom: string
+  publishTo: string
+  seoTitle: string
+  seoDescription: string
+  ogImage: string
+  metaPixelId: string
+  googleTagId: string
+  googleConversionId: string
+  tiktokPixelId: string
+  updatedAt: string | null
 }
 
 const formatAed = (value: number) =>
@@ -152,6 +173,11 @@ const pickNumber = (...values: unknown[]) => {
     }
   }
   return null
+}
+
+const normalizeLandingStatus = (value: unknown): "draft" | "published" => {
+  const normalized = pickString(value).toLowerCase()
+  return ["published", "active", "live"].includes(normalized) ? "published" : "draft"
 }
 
 const normalizePaymentPlan = (plan?: {
@@ -245,8 +271,7 @@ const normalizeType = (value: string): LandingSectionType | null => {
 }
 
 const isPublishedNow = (row: LandingPageRow) => {
-  const status = pickString(row.status, row.publish_status).toLowerCase()
-  if (status && !["published", "active", "live"].includes(status)) {
+  if (normalizeLandingStatus(pickString(row.status, row.publish_status)) !== "published") {
     return false
   }
 
@@ -636,6 +661,48 @@ export async function getLandingPageBySlug(
   }
 }
 
+export async function getLandingPageForEditor(slug: string): Promise<LandingPageEditorData | null> {
+  await ensureLandingPagesSchemaOnce()
+  const normalizedSlug = slug.trim().toLowerCase()
+  const rows = await query<LandingPageRow>(
+    `SELECT *
+     FROM gc_project_landing_pages
+     WHERE lower(slug) = $1
+     LIMIT 1`,
+    [normalizedSlug],
+  )
+
+  const row = rows[0]
+  if (!row) return null
+
+  const headline = pickString(row.headline, row.title, row.slug) || normalizedSlug
+  const subheadline = pickString(row.subheadline, row.subtitle)
+  const heroImage = pickString(row.hero_image, row.og_image) || "/logo.png"
+  const ctaText = pickString(row.cta_text, row.primary_cta) || "Request Availability"
+  const publishFrom = row.publish_from ? new Date(String(row.publish_from)).toISOString().slice(0, 16) : ""
+  const publishTo = row.publish_to ? new Date(String(row.publish_to)).toISOString().slice(0, 16) : ""
+
+  return {
+    slug: pickString(row.slug) || normalizedSlug,
+    projectSlug: pickString(row.project_slug, row.projectSlug),
+    headline,
+    subheadline,
+    heroImage,
+    ctaText,
+    status: normalizeLandingStatus(pickString(row.status, row.publish_status)),
+    publishFrom,
+    publishTo,
+    seoTitle: pickString(row.seo_title, row.meta_title, headline) || headline,
+    seoDescription: pickString(row.seo_description, row.meta_description, subheadline) || subheadline,
+    ogImage: pickString(row.og_image, row.hero_image, heroImage) || heroImage,
+    metaPixelId: pickString(row.meta_pixel_id, row.metaPixelId),
+    googleTagId: pickString(row.google_tag_id, row.googleTagId),
+    googleConversionId: pickString(row.google_conversion_id, row.googleConversionId),
+    tiktokPixelId: pickString(row.tiktok_pixel_id, row.tiktokPixelId),
+    updatedAt: pickString(row.updated_at, row.created_at) || null,
+  }
+}
+
 export async function getLandingPagesForDashboard(limit = 100): Promise<LandingPageDashboardRow[]> {
   await ensureLandingPagesSchemaOnce()
   const safeLimit = Math.max(1, Math.min(limit, 500))
@@ -711,11 +778,13 @@ export async function getLandingPagesForDashboard(limit = 100): Promise<LandingP
       const slug = pickString(row.slug).toLowerCase()
       if (!slug) return null
       const metric = analyticsMap.get(slug)
+      const status = normalizeLandingStatus(pickString(row.status, row.publish_status))
       return {
         slug,
         projectSlug: pickString(row.project_slug),
         headline: pickString(row.headline) || slug,
-        status: pickString(row.status, row.publish_status) || "draft",
+        status,
+        isLiveNow: isPublishedNow(row),
         publishFrom: row.publish_from || null,
         publishTo: row.publish_to || null,
         updatedAt: row.updated_at || row.created_at || null,

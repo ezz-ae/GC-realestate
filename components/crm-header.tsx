@@ -23,7 +23,11 @@ export function CrmHeader({
   user: { name: string; role: string; org_title?: string | null }
 }) {
   const pathname = usePathname()
-  const current = titleMap[pathname || ""] || {
+  const current =
+    (pathname && pathname.startsWith("/crm/landing-pages/") && pathname !== "/crm/landing-pages/create"
+      ? { title: "Landing Page Editor", subtitle: "Publish, schedule, and refine campaign pages." }
+      : null) ||
+    titleMap[pathname || ""] || {
     title: "Gold Century CRM",
     subtitle: "Internal workspace",
   }
