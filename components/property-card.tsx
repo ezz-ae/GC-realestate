@@ -1,113 +1,116 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { MapPin, BedDouble, Bath, Maximize, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Property } from "@/lib/types/project"
-import { safeNum, safePercent, safePrice, shouldShow } from "@/lib/utils/safeDisplay"
 
 interface PropertyCardProps {
   property: Property
+  compact?: boolean
 }
 
-export function PropertyCard({ property }: PropertyCardProps) {
-  const showRoi = shouldShow(property.investmentMetrics.roi)
-  const showYield = shouldShow(property.investmentMetrics.rentalYield)
-  const showScore = shouldShow(property.investmentMetrics.roi || property.investmentMetrics.rentalYield)
-  
-  const sizeLabel = shouldShow(property.specifications.sizeSqft)
-    ? `${safeNum(property.specifications.sizeSqft)} sqft`
-    : "Size TBA"
-  const bathroomLabel = shouldShow(property.specifications.bathrooms)
-    ? `${safeNum(property.specifications.bathrooms)} BA`
-    : "Bathrooms TBA"
+export function PropertyCard({ property, compact = false }: PropertyCardProps) {
+  const formatPrice = (price: number, currency: Property["currency"]) => {
+    const locale = currency === "AED" ? "en-AE" : "en-US"
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price)
+  }
 
   const imageSrc = property.images?.[0] || "/logo.png"
   const imageClass = property.images?.[0]
     ? "object-cover transition-transform group-hover:scale-105"
     : "object-contain bg-muted p-6"
+  const bedLabel =
+    property.specifications.bedrooms === 0
+      ? "Studio"
+      : `${property.specifications.bedrooms} Bed`
+  const bathLabel = `${property.specifications.bathrooms} Bath${
+    property.specifications.bathrooms === 1 ? "" : "s"
+  }`
 
   return (
-    <Card className="group overflow-hidden transition-all hover:shadow-lg border-border/50">
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+    <Link href={`/properties/${property.slug}`} className="group block" prefetch={false}>
+      <Card className="overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">
+      <div className={`relative overflow-hidden bg-muted ${compact ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
         <Image
           src={imageSrc}
           alt={property.title}
           fill
           className={imageClass}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-          <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm shadow-sm">
+        <div className={`absolute left-3 z-10 flex flex-wrap gap-1.5 ${compact ? "top-2" : "top-3"}`}>
+          <Badge
+            variant="secondary"
+            className={`bg-background/95 backdrop-blur-md shadow-sm border-none ${compact ? "text-[10px] px-2 py-0.5" : ""}`}
+          >
             {property.type === "off-plan" ? "Off-Plan" : property.type === "secondary" ? "Secondary" : "Commercial"}
           </Badge>
           {property.investmentMetrics.goldenVisaEligible && (
-            <Badge className="gold-gradient shadow-sm">
+            <Badge className={`gold-gradient border-none shadow-sm ${compact ? "text-[10px] px-2 py-0.5" : ""}`}>
               Golden Visa
             </Badge>
           )}
         </div>
-        <div className="absolute bottom-3 left-3">
-          <div className="text-lg font-bold text-white drop-shadow-md">
-            {safePrice(property.price, property.currency)}
-          </div>
-        </div>
       </div>
       
-      <CardContent className="p-4">
-        <div className="mb-2">
-          <h3 className="font-semibold text-lg line-clamp-1">{property.title}</h3>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-            <MapPin className="h-3 w-3 text-primary" />
-            <span className="line-clamp-1">{property.location.area || "Dubai"}, {property.location.city}</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {showRoi && (
-            <div className="flex items-center gap-1.5 rounded bg-muted/50 p-1.5 border border-border/40">
-              <TrendingUp className="h-3 w-3 text-primary shrink-0" />
-              <div className="text-[9px] font-bold leading-none">
-                <div className="text-muted-foreground uppercase tracking-tighter mb-0.5">ROI</div>
-                <div>{safeROI(property.investmentMetrics.roi)}</div>
-              </div>
-            </div>
-          )}
-          {showYield && (
-            <div className="flex items-center gap-1.5 rounded bg-muted/50 p-1.5 border border-border/40">
-              <BarChart3 className="h-3 w-3 text-primary shrink-0" />
-              <div className="text-[9px] font-bold leading-none">
-                <div className="text-muted-foreground uppercase tracking-tighter mb-0.5">Yield</div>
-                <div>{safePercent(property.investmentMetrics.rentalYield)}</div>
-              </div>
-            </div>
+      <CardContent className={compact ? "p-3" : "p-5"}>
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <h3 className={`font-serif font-bold group-hover:text-primary transition-colors ${compact ? "text-base line-clamp-2" : "text-xl line-clamp-1"}`}>
+            {property.title}
+          </h3>
+          {property.investmentMetrics.roi && (
+            <Badge
+              variant="outline"
+              className={`shrink-0 border-primary/20 bg-primary/5 text-primary ${compact ? "text-[9px] h-4 px-1.5" : "text-[10px] h-5"}`}
+            >
+              <TrendingUp className="mr-1 h-3 w-3" />
+              {property.investmentMetrics.roi}% ROI
+            </Badge>
           )}
         </div>
+        
+        <div className="mb-4 flex items-center gap-1 text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          <MapPin className="h-3 w-3 text-primary/70" />
+          <span className="line-clamp-1">{property.location.area}, Dubai</span>
+        </div>
 
-        <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/40 pt-3">
-          <div className="flex items-center gap-1">
-            <BedDouble className="h-3.5 w-3.5" />
-            <span>{property.specifications.bedrooms === 0 ? "Studio" : `${property.specifications.bedrooms} BR`}</span>
+        <div className={`flex items-center text-xs text-muted-foreground border-y border-border/50 ${compact ? "mb-3 gap-3 py-2" : "mb-5 gap-4 py-3"}`}>
+          <div className="flex items-center gap-1.5">
+            <BedDouble className="h-4 w-4 text-foreground/70" />
+            <span>{bedLabel}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Bath className="h-3.5 w-3.5" />
-            <span>{bathroomLabel}</span>
+          <div className="flex items-center gap-1.5">
+            <Bath className="h-4 w-4 text-foreground/70" />
+            <span>{bathLabel}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Maximize className="h-3.5 w-3.5" />
-            <span>{sizeLabel}</span>
-          </div>
+          {!compact && (
+            <div className="flex items-center gap-1.5">
+              <Maximize className="h-4 w-4 text-foreground/70" />
+              <span>{property.specifications.sizeSqft.toLocaleString()} sqft</span>
+            </div>
+          )}
+        </div>
+
+        <div className={`${compact ? "text-xl" : "text-2xl"} font-bold gold-text-gradient tracking-tight`}>
+          {formatPrice(property.price, property.currency)}
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0">
-        <Button className="w-full h-10 gold-gradient" asChild>
-          <Link href={`/properties/${property.slug}`}>Investment Details</Link>
-        </Button>
+      <CardFooter className={compact ? "p-3 pt-0" : "p-5 pt-0"}>
+        <div
+          className={`w-full rounded-full border border-primary/20 bg-primary/5 text-center font-bold uppercase tracking-widest text-primary transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary ${compact ? "px-3 py-2 text-[9px]" : "px-4 py-2.5 text-[10px]"}`}
+        >
+          Explore Unit
+        </div>
       </CardFooter>
     </Card>
+    </Link>
   )
 }

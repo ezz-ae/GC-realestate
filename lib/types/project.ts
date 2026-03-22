@@ -21,6 +21,7 @@ export interface DeveloperSummary {
   name: string
   slug: string
   logo: string
+  pfLogo?: string
 }
 
 export interface PropertyLandmark {
@@ -111,6 +112,9 @@ export interface ProjectDeveloper extends DeveloperSummary {
 
 export interface ProjectUnitConfig {
   type: string
+  bedrooms?: number
+  baths?: number
+  bathrooms?: number
   priceFrom: number
   priceTo: number
   sizeFrom: number
@@ -134,6 +138,10 @@ export interface Project {
   description: string
   longDescription: string
   heroImage: string
+  mediaSource?: {
+    heroImage?: string
+    gallery?: string[]
+  }
   heroVideo?: string
   virtualTour?: string
   gallery: string[]
@@ -183,6 +191,7 @@ export interface Project {
   ogImage: string
   status: ProjectStatus
   featured: boolean
+  sortScore?: number
   scarcityMessage?: string
   urgencyMessage?: string
   createdAt: string
@@ -199,7 +208,7 @@ export interface AreaProfile {
   id: string
   name: string
   slug: string
-  heroImage: string
+  image: string
   heroVideo?: string
   description: string
   avgPricePerSqft: number
@@ -229,6 +238,4 @@ export interface DeveloperProfile {
   activeProjects?: number
   completedProjects?: number
   projectCount?: number
-  stars?: number
-  honestyScore?: number
 }

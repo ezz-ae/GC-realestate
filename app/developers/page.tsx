@@ -3,7 +3,17 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getDevelopers } from "@/lib/entrestate"
 import Link from "next/link"
-import { safeNum, shouldShow } from "@/lib/utils/safeDisplay"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Top Real Estate Developers in Dubai | Gold Century",
+  description: "Learn about the leading real estate developers in Dubai, including Emaar, Damac, Nakheel, and Sobha. Track records and project insights.",
+  openGraph: {
+    title: "Top Real Estate Developers in Dubai | Gold Century",
+    description: "Learn about the leading real estate developers in Dubai.",
+    images: ["/logo_blsck.png"],
+  },
+}
 
 export default async function DevelopersPage() {
   const developers = await getDevelopers()
@@ -17,31 +27,18 @@ export default async function DevelopersPage() {
                 Developers
               </Badge>
               <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-                Dubai Developer Profiles
+                Dubai's Top Real Estate Developers
               </h1>
               <p className="mt-6 text-lg text-muted-foreground">
-                Learn about Dubai’s leading developers and their track records.
+                Explore Dubai's master developers, from legacy builders to innovative new firms shaping the skyline.
               </p>
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                <Button className="gold-gradient" asChild>
-                  <Link href="/contact">Request Developer Insight</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link href="/projects">Browse Projects</Link>
-                </Button>
-              </div>
             </div>
           </div>
         </section>
 
         <section className="py-16">
           <div className="container">
-            <div className="mb-4 text-sm text-muted-foreground">
-              {shouldShow(developers.length)
-                ? `${safeNum(developers.length)} preferred developers`
-                : "Developer data coming soon"}
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {developers.map((developer) => (
                 <DeveloperCard key={developer.id} developer={developer} />
               ))}

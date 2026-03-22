@@ -1,11 +1,20 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, Bed, Bath, Ruler, TrendingUp } from "lucide-react"
+import { MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { getFeaturedProperties } from "@/lib/entrestate"
-import { safeNum, safePercent, safePrice, shouldShow } from "@/lib/utils/safeDisplay"
+
+const formatPrice = (price: number, currency: "AED" | "USD") => {
+  const locale = currency === "AED" ? "en-AE" : "en-US"
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price)
+}
 
 export async function FeaturedProperties() {
   const featuredProperties = await getFeaturedProperties(3)
@@ -39,14 +48,9 @@ export async function FeaturedProperties() {
                   ? "Ready"
                   : "Commercial",
             ]
-            const hasRoi = shouldShow(property.investmentMetrics.roi)
 
             if (property.investmentMetrics.goldenVisaEligible) {
               badges.push("Golden Visa")
-            }
-
-            if (hasRoi && property.investmentMetrics.roi >= 8.5) {
-              badges.push("High ROI")
             }
 
             return (
@@ -84,41 +88,16 @@ export async function FeaturedProperties() {
 
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="font-serif text-2xl font-bold gold-text-gradient">
-                      {safePrice(property.price, property.currency)}
+                      {formatPrice(property.price, property.currency)}
                     </span>
                     <span className="text-sm text-muted-foreground">
                       {property.currency === "AED"
-                        ? safePrice(Math.round(property.price / 3.67), "USD")
-                        : safePrice(Math.round(property.price * 3.67), "AED")}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-border">
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Bed className="h-4 w-4 text-muted-foreground" />
-                      <span>
-                        {property.specifications.bedrooms === 0
-                          ? "Studio"
-                          : `${property.specifications.bedrooms} Bed`}
+                        ? formatPrice(Math.round(property.price / 3.67), "USD")
+                        : formatPrice(Math.round(property.price * 3.67), "AED")}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Bath className="h-4 w-4 text-muted-foreground" />
-                      <span>{shouldShow(property.specifications.bathrooms) ? `${safeNum(property.specifications.bathrooms)} Bath` : "Bathrooms TBA"}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <Ruler className="h-4 w-4 text-muted-foreground" />
-                      <span>{shouldShow(property.specifications.sizeSqft) ? `${safeNum(property.specifications.sizeSqft)} sqft` : "Size TBA"}</span>
-                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                      {hasRoi && (
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <TrendingUp className="h-4 w-4 text-primary" />
-                          <span className="font-semibold">{safePercent(property.investmentMetrics.roi)} ROI</span>
-                        </div>
-                      )}
+                  <div className="flex items-center justify-end pt-3 border-t border-border">
                     <Button size="sm" variant="outline" asChild>
                       <Link href={`/properties/${property.slug}`}>View Details</Link>
                     </Button>

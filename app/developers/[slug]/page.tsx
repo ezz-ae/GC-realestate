@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ProjectCard } from "@/components/project-card"
 import { PropertyCard } from "@/components/property-card"
+import { SmallLeadForm } from "@/components/small-lead-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,11 +13,27 @@ import {
   getPropertiesByDeveloper,
   getDeveloperStats,
 } from "@/lib/entrestate"
-import { safeNum, safePercent, safePrice, shouldShow } from "@/lib/utils/safeDisplay"
+
+const fallbackStats = {
+  listings: 0,
+  active: 0,
+  completed: 0,
+  avgYield: 0,
+  avgScore: 0,
+  goldenVisaCount: 0,
+  minPrice: 0,
+  maxPrice: 0,
+  onTimeDeliveryRate: null,
+  firstProjectYear: null,
+  topAreas: [] as Array<{ area: string; count: number }>,
+  flagshipProjects: [] as Array<{ id: string; slug: string; name: string; marketScore: number | null }>,
+}
 
 export async function generateStaticParams() {
-  const developers = await getDevelopers()
-  return developers.map((developer) => ({ slug: developer.slug }))
+  const developers = await getDevelopers().catch(() => [])
+  return developers
+    .map((developer) => ({ slug: developer.slug }))
+    .filter((params) => Boolean(params.slug))
 }
 
 export async function generateMetadata({
@@ -25,7 +42,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const developer = await getDeveloperBySlug(slug)
+  const developer = await getDeveloperBySlug(slug).catch(() => null)
   if (!developer) {
     return { title: "Developer Not Found" }
   }
@@ -41,84 +58,58 @@ export default async function DeveloperDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const developer = await getDeveloperBySlug(slug)
+  const developer = await getDeveloperBySlug(slug).catch(() => null)
 
   if (!developer) {
     notFound()
   }
 
-  const developerProjects = await getProjectsByDeveloper(developer.name, 6)
-  const developerProperties = await getPropertiesByDeveloper(developer.name, 6)
-  const stats = await getDeveloperStats(developer.name)
+  const developerName = developer.name || "Unknown Developer"
+  const [projectsResult, propertiesResult, statsResult] = await Promise.allSettled([
+    getProjectsByDeveloper(developerName, 6),
+    getPropertiesByDeveloper(developerName, 6),
+    getDeveloperStats(developerName),
+  ])
+
+  const developerProjects = projectsResult.status === "fulfilled" ? projectsResult.value : []
+  const developerProperties = propertiesResult.status === "fulfilled" ? propertiesResult.value : []
+  const stats = statsResult.status === "fulfilled" ? statsResult.value : fallbackStats
+
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: "AED",
+      maximumFractionDigits: 0,
+    }).format(value)
 
   const foundedYear = developer.foundedYear || stats.firstProjectYear
   const headquarters = developer.headquarters || "Dubai, UAE"
   const officialWebsite = developer.website || "Not listed"
-  const unitsDelivered = developer.completedProjects || stats.completed || 0
-  const projectCountLabel = shouldShow(developerProjects.length)
-    ? `${safeNum(developerProjects.length)} projects`
-    : "Projects pending"
-  const propertyCountLabel = shouldShow(developerProperties.length)
-    ? `${safeNum(developerProperties.length)} listings`
-    : "Listings pending"
-  
-  const showDelivered = shouldShow(unitsDelivered)
-  const showStars = shouldShow(developer.stars)
-  const showHonesty = shouldShow(developer.honestyScore)
-  const showAwards = shouldShow(developer.awards)
-
-  const bannerImage = developer.bannerImage && developer.bannerImage !== "/logo.png"
-    ? developer.bannerImage
-    : "linear-gradient(to right, #0f172a, #1e3a8a)" // CSS fallback
-
-  const description = developer.description || `${developer.name} is a ${developer.tier || "leading"} UAE developer with ${developerProjects.length || 0} active projects.`
+  const unitsDelivered = developer.completedProjects ?? stats.completed
 
   return (
     <>
-        <section className="relative border-b border-border py-20 overflow-hidden">
-          {/* Banner Fallback (Codex 3.6) */}
-          <div className="absolute inset-0 z-0">
-            {developer.bannerImage && developer.bannerImage !== "/logo.png" ? (
-              <img src={developer.bannerImage} className="w-full h-full object-cover opacity-20" />
-            ) : (
-              <div className="w-full h-full opacity-10" style={{ background: bannerImage }} />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-b from-background/0 to-background" />
-          </div>
-
-          <div className="container relative z-10">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-              {/* Logo Fallback (Codex 3.5) */}
-              <div className="h-24 w-24 rounded-2xl border-2 border-border bg-card shadow-xl flex items-center justify-center overflow-hidden shrink-0">
-                {developer.logo && developer.logo !== "/logo.png" ? (
-                  <img src={developer.logo} alt={developer.name} className="h-full w-full object-contain p-2" />
-                ) : (
-                  <div className="text-4xl font-bold text-primary">{developer.name?.[0]}</div>
-                )}
-              </div>
-              
-              <div>
-                <Badge className="mb-4 gold-gradient" variant="secondary">
-                  Developer Profile
-                </Badge>
-                <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-                  {developer.name}
-                </h1>
-                <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
-                  {description}
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3 text-sm text-muted-foreground">
-                  <span className="rounded-full border border-border px-3 py-1">
-                    {developer.tier ? `${developer.tier} developer` : "Dubai developer"}
-                  </span>
-                  <span className="rounded-full border border-border px-3 py-1">
-                    {projectCountLabel}
-                  </span>
-                  <span className="rounded-full border border-border px-3 py-1">
-                    {propertyCountLabel}
-                  </span>
-                </div>
-              </div>
+        <section className="border-b border-border bg-gradient-to-b from-background to-muted py-16">
+          <div className="container">
+            <Badge className="mb-4 gold-gradient" variant="secondary">
+              Developer Profile
+            </Badge>
+            <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+              {developer.name}
+            </h1>
+            <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
+              {developer.description || "Developer profile overview and flagship project activity in Dubai."}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3 text-sm text-muted-foreground">
+              <span className="rounded-full border border-border px-3 py-1">
+                {developer.tier ? `${developer.tier} developer` : "Dubai developer"}
+              </span>
+              <span className="rounded-full border border-border px-3 py-1">
+                {developerProjects.length} projects
+              </span>
+              <span className="rounded-full border border-border px-3 py-1">
+                {developerProperties.length} listings
+              </span>
             </div>
           </div>
         </section>
@@ -126,52 +117,43 @@ export default async function DeveloperDetailPage({
         <section className="py-16">
           <div className="container">
             <div className="grid gap-8 lg:grid-cols-[2fr,1fr]">
-              <div className="space-y-10">
-                {/* Critical Stats Bar (Codex 3.1, 3.2, 3.3) */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {showDelivered && (
-                    <div className="rounded-xl border border-border bg-card p-4 text-center">
-                      <div className="text-xs uppercase text-muted-foreground mb-1">Delivered</div>
-                      <div className="text-2xl font-bold">{safeNum(unitsDelivered)} units</div>
+              <div className="space-y-6">
+                <div className="grid gap-4 rounded-2xl border border-border bg-card p-6 sm:grid-cols-3">
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Founded</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">
+                      {foundedYear || "Not specified"}
                     </div>
-                  )}
-                  {showStars && (
-                    <div className="rounded-xl border border-border bg-card p-4 text-center">
-                      <div className="text-xs uppercase text-muted-foreground mb-1">Rating</div>
-                      <div className="text-2xl font-bold text-yellow-500">{developer.stars?.toFixed(1)} ★</div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Headquarters</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">
+                      {headquarters}
                     </div>
-                  )}
-                  {showHonesty && (
-                    <div className="rounded-xl border border-border bg-card p-4 text-center">
-                      <div className="text-xs uppercase text-muted-foreground mb-1">Trust Score</div>
-                      <div className="text-2xl font-bold gold-text-gradient">{safeScore(developer.honestyScore)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Official Website</div>
+                    <div className="mt-2 text-sm font-medium text-foreground">
+                      {officialWebsite}
                     </div>
-                  )}
-                  <div className="rounded-xl border border-border bg-card p-4 text-center">
-                    <div className="text-xs uppercase text-muted-foreground mb-1">Avg Yield</div>
-                    <div className="text-2xl font-bold text-green-600">{safePercent(stats.avgYield)}</div>
                   </div>
                 </div>
+
+                <h2 className="font-serif text-2xl font-bold">Track Record</h2>
+                <p className="text-muted-foreground">
+                  {developer.trackRecord || "Consistent delivery across prime Dubai communities and mixed-use districts."}
+                </p>
 
                 <div>
-                  <h2 className="font-serif text-2xl font-bold mb-4">Track Record</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {developer.trackRecord || "Consistent delivery across prime Dubai communities and mixed-use districts."}
-                  </p>
-                </div>
-
-                {showAwards && (
-                  <div>
-                    <h3 className="font-serif text-xl font-semibold mb-3">Awards</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {developer.awards?.map((award) => (
-                        <Badge key={award} variant="secondary" className="px-3 py-1">
-                          {award}
-                        </Badge>
-                      ))}
-                    </div>
+                  <h3 className="font-serif text-xl font-semibold mb-3">Awards</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(developer.awards?.length ? developer.awards : ["Top Developer"]).map((award) => (
+                      <Badge key={award} variant="secondary">
+                        {award}
+                      </Badge>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 <div>
                   <h3 className="font-serif text-xl font-semibold mb-3">Top 5 Areas of Focus</h3>
@@ -179,7 +161,7 @@ export default async function DeveloperDetailPage({
                     {stats.topAreas.length ? (
                       stats.topAreas.map((area) => (
                         <Badge key={area.area} variant="secondary">
-                          {area.area} · {shouldShow(area.count) ? safeNum(area.count) : "—"}
+                          {area.area} · {area.count}
                         </Badge>
                       ))
                     ) : (
@@ -197,7 +179,7 @@ export default async function DeveloperDetailPage({
                           <CardContent className="p-4">
                             <div className="text-sm font-semibold">{project.name}</div>
                             <div className="mt-1 text-xs text-muted-foreground">
-                              Score: {shouldShow(project.marketScore) ? safeNum(project.marketScore) : "N/A"}
+                              Score: {project.marketScore ?? "N/A"}
                             </div>
                             <Button className="mt-3 w-full" variant="outline" asChild>
                               <Link href={`/projects/${project.slug}`}>View Project</Link>
@@ -219,24 +201,27 @@ export default async function DeveloperDetailPage({
                     <div className="space-y-3 text-sm text-muted-foreground">
                       <div className="flex items-center justify-between">
                         <span>Units delivered</span>
-                        <span className="text-foreground">{unitsDeliveredLabel}</span>
+                        <span className="text-foreground">{unitsDelivered}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>On-time delivery rate</span>
-                        <span className="text-foreground">{onTimeLabel}</span>
+                        <span className="text-foreground">
+                          {stats.onTimeDeliveryRate != null ? `${stats.onTimeDeliveryRate}%` : "N/A"}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Avg market score</span>
-                        <span className="text-foreground">{avgScoreLabel}</span>
+                        <span className="text-foreground">{stats.avgScore || "N/A"}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Golden Visa eligible</span>
-                        <span className="text-foreground">{goldenVisaLabel}</span>
+                        <span className="text-foreground">{stats.goldenVisaCount}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Price range</span>
                         <span className="text-foreground">
-                          {minPriceLabel} - {maxPriceLabel}
+                          {stats.minPrice ? formatPrice(stats.minPrice) : "N/A"} -{" "}
+                          {stats.maxPrice ? formatPrice(stats.maxPrice) : "N/A"}
                         </span>
                       </div>
                     </div>
@@ -269,38 +254,51 @@ export default async function DeveloperDetailPage({
             <div className="grid gap-4 rounded-2xl border border-border bg-card p-6 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Listings</div>
-                <div className="mt-2 text-lg font-semibold">{listingsLabel}</div>
+                <div className="mt-2 text-lg font-semibold">{stats.listings}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Active</div>
-                <div className="mt-2 text-lg font-semibold">{activeLabel}</div>
+                <div className="mt-2 text-lg font-semibold">{stats.active}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Completed</div>
-                <div className="mt-2 text-lg font-semibold">{completedLabel}</div>
+                <div className="mt-2 text-lg font-semibold">{stats.completed}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Avg Yield</div>
-                <div className="mt-2 text-lg font-semibold">{avgYieldLabel}</div>
+                <div className="mt-2 text-lg font-semibold">{stats.avgYield}%</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Avg Score</div>
-                <div className="mt-2 text-lg font-semibold">{avgScoreLabel}</div>
+                <div className="mt-2 text-lg font-semibold">{stats.avgScore}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">GV Count</div>
-                <div className="mt-2 text-lg font-semibold">{goldenVisaLabel}</div>
+                <div className="mt-2 text-lg font-semibold">{stats.goldenVisaCount}</div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Price Range</div>
                 <div className="mt-2 text-lg font-semibold">
-                  {minPriceLabel} - {maxPriceLabel}
+                  {stats.minPrice ? formatPrice(stats.minPrice) : "N/A"} -{" "}
+                  {stats.maxPrice ? formatPrice(stats.maxPrice) : "N/A"}
                 </div>
               </div>
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Units Delivered</div>
-                <div className="mt-2 text-lg font-semibold">{unitsDeliveredLabel}</div>
+                <div className="mt-2 text-lg font-semibold">{unitsDelivered}</div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12">
+          <div className="container">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-[0_20px_45px_rgba(15,23,42,0.2)] md:p-10">
+              <SmallLeadForm
+                source={developer.name}
+                title={`Discuss ${developer.name} projects`}
+                caption="Get a quick summary of available inventory, ROI expectations, and financing options."
+              />
             </div>
           </div>
         </section>

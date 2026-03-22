@@ -1,37 +1,46 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
 import { PropertyFilters } from "@/components/property-filters"
+import { MobilePropertyFilters } from "@/components/mobile-property-filters"
 import { PropertyCard } from "@/components/property-card"
 import { PropertiesToolbar } from "@/components/properties-toolbar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 import { getPropertyListing } from "@/lib/entrestate"
+import { Metadata } from "next"
 
+export const metadata: Metadata = {
+  title: "Dubai Properties for Sale | Gold Century Real Estate",
+  description: "Browse over 3500+ luxury properties and investment opportunities in Dubai. Filter by location, price, and property type to find your perfect home.",
+  openGraph: {
+    title: "Dubai Properties for Sale | Gold Century Real Estate",
+    description: "Browse over 3500+ luxury properties and investment opportunities in Dubai.",
+    images: ["/logo_blsck.png"],
+  },
+}
 export default async function PropertiesPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const page = Number(searchParams.page || 1)
+  const params = await searchParams
+  const page = Number(params.page || 1)
   const pageSize = 12
-  const sort = typeof searchParams.sort === "string" ? searchParams.sort : "newest"
-  const viewParam = typeof searchParams.view === "string" ? searchParams.view : "grid"
+  const sort = typeof params.sort === "string" ? params.sort : "score"
+  const viewParam = typeof params.view === "string" ? params.view : "grid"
   const view = viewParam === "list" ? "list" : "grid"
-  const areas =
-    typeof searchParams.areas === "string" ? searchParams.areas.split(",").filter(Boolean) : []
-  const bedrooms =
-    typeof searchParams.beds === "string" ? searchParams.beds.split(",").filter(Boolean) : []
-  const propertyType = typeof searchParams.type === "string" ? searchParams.type : undefined
-  const developer = typeof searchParams.developer === "string" ? searchParams.developer : undefined
-  const minPrice = searchParams.minPrice ? Number(searchParams.minPrice) : undefined
-  const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined
-  const freeholdOnly = searchParams.freehold === "true"
-  const goldenVisa = searchParams.goldenVisa === "true"
+  const areas = typeof params.areas === "string" ? params.areas.split(",").filter(Boolean) : []
+  const bedrooms = typeof params.beds === "string" ? params.beds.split(",").filter(Boolean) : []
+  const propertyType = typeof params.type === "string" ? params.type : undefined
+  const developer = typeof params.developer === "string" ? params.developer : undefined
+  const minPrice = params.minPrice ? Number(params.minPrice) : undefined
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined
+  const freeholdOnly = params.freehold === "true"
+  const goldenVisa = params.goldenVisa === "true"
 
   const { properties, total } = await getPropertyListing({
     page,
     pageSize,
-    sort: sort as "newest" | "price-low" | "price-high" | "roi" | "yield",
+    sort: sort as "score" | "newest" | "price-low" | "price-high" | "roi" | "yield",
     areas,
     bedrooms,
     propertyType,
@@ -44,23 +53,21 @@ export default async function PropertiesPage({
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const buildPageLink = (nextPage: number) => {
-    const params = new URLSearchParams()
-    Object.entries(searchParams).forEach(([key, value]) => {
+    const q = new URLSearchParams()
+    Object.entries(params || {}).forEach(([key, value]) => {
       if (value == null) return
       if (Array.isArray(value)) {
-        params.set(key, value.join(","))
+        q.set(key, value.join(","))
       } else {
-        params.set(key, value)
+        q.set(key, value)
       }
     })
-    params.set("page", String(nextPage))
-    return `/properties?${params.toString()}`
+    q.set("page", String(nextPage))
+    return `/properties?${q.toString()}`
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
+    <>
         {/* Header */}
         <section className="border-b border-border bg-muted/30 py-12">
           <div className="container">
@@ -81,17 +88,24 @@ export default async function PropertiesPage({
         {/* Filters & Results */}
         <section className="py-8">
           <div className="container">
-            <div className="flex gap-8">
+            <div className="grid gap-8 lg:grid-cols-[280px,1fr]">
               {/* Filters Sidebar */}
-              <aside className="hidden w-80 shrink-0 lg:block">
-                <div className="sticky top-20">
-                  <PropertyFilters />
+              <aside className="hidden lg:block">
+                <div className="sticky top-24">
+                  <PropertyFilters collapsible defaultOpen={false} />
                 </div>
               </aside>
 
               {/* Results */}
               <div className="flex-1">
-                <PropertiesToolbar total={total} page={page} pageSize={pageSize} sort={sort} view={view} />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                   <div className="lg:hidden">
+                     <MobilePropertyFilters />
+                   </div>
+                   <div className="flex-1">
+                     <PropertiesToolbar total={total} page={page} pageSize={pageSize} sort={sort} view={view} />
+                   </div>
+                </div>
 
                 {/* Properties Grid */}
                 <div
@@ -107,32 +121,47 @@ export default async function PropertiesPage({
                 </div>
 
                 {/* Pagination */}
-                <div className="mt-12 flex items-center justify-center gap-2">
-                  <Button variant="outline" asChild disabled={page <= 1}>
-                    <Link href={buildPageLink(Math.max(1, page - 1))}>Previous</Link>
-                  </Button>
+                <div className="mt-12 flex flex-wrap items-center justify-center gap-2">
+                  <Link
+                    href={buildPageLink(Math.max(1, page - 1))}
+                    className={cn(
+                      "inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium transition hover:border-foreground hover:text-foreground",
+                      page <= 1 && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    Previous
+                  </Link>
                   {Array.from({ length: totalPages }, (_, idx) => idx + 1)
                     .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                    .map((p, idx, arr) => (
-                      <Button
+                    .map((p, idx) => (
+                      <Link
                         key={`${p}-${idx}`}
-                        variant={p === page ? "secondary" : "outline"}
-                        className={p === page ? "gold-gradient" : ""}
-                        asChild
+                        href={buildPageLink(p)}
+                        className={cn(
+                          "inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition",
+                          p === page
+                            ? "border-secondary bg-secondary text-secondary-foreground"
+                            : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                        )}
+                        aria-current={p === page ? "page" : undefined}
                       >
-                        <Link href={buildPageLink(p)}>{p}</Link>
-                      </Button>
+                        {p}
+                      </Link>
                     ))}
-                  <Button variant="outline" asChild disabled={page >= totalPages}>
-                    <Link href={buildPageLink(Math.min(totalPages, page + 1))}>Next</Link>
-                  </Button>
+                  <Link
+                    href={buildPageLink(Math.min(totalPages, page + 1))}
+                    className={cn(
+                      "inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium transition hover:border-foreground hover:text-foreground",
+                      page >= totalPages && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    Next
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </section>
-      </main>
-      <SiteFooter />
-    </div>
+    </>
   )
 }

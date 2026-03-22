@@ -2,63 +2,122 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { MapPin, ShieldCheck } from "lucide-react"
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
 import { ProjectCard } from "@/components/project-card"
 import { PropertyCard } from "@/components/property-card"
+import { SmallLeadForm } from "@/components/small-lead-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getAreaBySlug, getAreas, getProjectsByArea, getPropertiesByArea } from "@/lib/entrestate"
 
 export async function generateStaticParams() {
-  const areas = await getAreas()
+  const areas = await getAreas().catch(() => [])
   return areas.map((area) => ({ slug: area.slug }))
 }
 
-export default async function AreaDetailPage({ params }: { params: { slug: string } }) {
-  const area = await getAreaBySlug(params.slug)
+export default async function AreaDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug: rawSlug } = await params
+  const slug = typeof rawSlug === "string" ? rawSlug.trim() : ""
+
+  if (!slug) {
+    notFound()
+  }
+
+  const area = await getAreaBySlug(slug).catch(() => null)
 
   if (!area) {
     notFound()
   }
 
-  const areaProjects = await getProjectsByArea(area.name, 6)
-  const areaProperties = await getPropertiesByArea(area.name, 6)
+  const areaName = area.name || "Dubai"
+  const [projectsResult, propertiesResult] = await Promise.allSettled([
+    getProjectsByArea(areaName, 6),
+    getPropertiesByArea(areaName, 6),
+  ])
+
+  const areaProjects = projectsResult.status === "fulfilled" ? projectsResult.value : []
+  const areaProperties = propertiesResult.status === "fulfilled" ? propertiesResult.value : []
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
       <main className="flex-1">
         <section className="relative h-[55vh] min-h-[420px]">
-          <Image src={area.heroImage} alt={area.name} fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-          <div className="container relative flex h-full flex-col justify-end pb-10">
-            <Badge className="mb-4 gold-gradient" variant="secondary">
-              Dubai Area Guide
-            </Badge>
-            <h1 className="font-serif text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-              {area.name}
-            </h1>
-            <p className="mt-4 max-w-2xl text-white/90">{area.description}</p>
-          </div>
+          <Image src={area.image} alt={area.name} fill className="object-cover" priority />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
         </section>
 
         <section className="border-b border-border bg-card py-8">
           <div className="container">
-            <div className="grid gap-6 md:grid-cols-3">
-              <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">AED {area.avgPricePerSqft}</div>
-                <div className="text-sm text-muted-foreground">Avg. Price per sqft</div>
+            <div className="mb-6 space-y-2">
+              <Badge className="gold-gradient" variant="secondary">
+                Dubai Area Guide
+              </Badge>
+              <h1 className="font-serif text-4xl font-bold md:text-5xl lg:text-6xl">
+                {area.name}
+              </h1>
+            </div>
+            <div className="grid gap-6 md:grid-cols-[1.5fr,1fr] items-center">
+              <div className="space-y-4">
+                <h2 className="font-serif text-3xl font-bold">About {area.name}</h2>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  {area.description}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {area.lifestyleTags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="bg-muted text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">{area.rentalYield}%</div>
-                <div className="text-sm text-muted-foreground">Rental Yield</div>
+              <div className="grid grid-cols-3 gap-3 rounded-lg border border-border bg-muted/50 p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold gold-text-gradient">AED {area.avgPricePerSqft}</div>
+                  <div className="text-xs text-muted-foreground">Avg. Price/sqft</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{area.rentalYield}%</div>
+                  <div className="text-xs text-muted-foreground">Rental Yield</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold gold-text-gradient">{area.investmentScore}/10</div>
+                  <div className="text-xs text-muted-foreground">Investment Score</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">{area.investmentScore}/10</div>
-                <div className="text-sm text-muted-foreground">Investment Score</div>
-              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12 bg-muted/40 border-b border-border">
+          <div className="container">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Liquidity</div>
+                  <div className="text-xl font-semibold">{area.propertyCount}+ listings</div>
+                  <p className="text-sm text-muted-foreground">
+                    Depth of available inventory signals easier entry and exit.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Yield Signal</div>
+                  <div className="text-xl font-semibold text-green-600">{area.rentalYield}%</div>
+                  <p className="text-sm text-muted-foreground">
+                    Income-led returns with rental demand anchored by nearby landmarks.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Ownership</div>
+                  <div className="text-xl font-semibold">{area.freehold ? "Freehold" : "Leasehold"}</div>
+                  <p className="text-sm text-muted-foreground">
+                    Suitable for international buyers seeking title security.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
@@ -211,8 +270,19 @@ export default async function AreaDetailPage({ params }: { params: { slug: strin
             </div>
           </div>
         </section>
+
+        <section className="py-12">
+          <div className="container">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-[0_20px_45px_rgba(15,23,42,0.2)] md:p-10">
+              <SmallLeadForm
+                source={area.name}
+                title={`Lead a briefing on ${area.name}`}
+                caption="Drop your budget and area priorities so our brokers can craft a tailored Dubai investment plan."
+              />
+            </div>
+          </div>
+        </section>
       </main>
-      <SiteFooter />
     </div>
   )
 }
