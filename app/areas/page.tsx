@@ -5,6 +5,7 @@ import { SmallLeadForm } from "@/components/small-lead-form"
 import { getAreas } from "@/lib/entrestate"
 import Link from "next/link"
 import { Metadata } from "next"
+import { safeNum, safePercent, safePrice, safeScore } from "@/lib/utils/safeDisplay"
 
 export const metadata: Metadata = {
   title: "Dubai Area Guides & Neighborhood Insights | Gold Century",
@@ -71,7 +72,7 @@ export default async function AreasPage() {
                   {topYieldAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
                       <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
-                      <span className="font-semibold text-green-600">{area.rentalYield}%</span>
+                      <span className="font-semibold text-green-600">{safePercent(area.rentalYield)}</span>
                     </li>
                   ))}
                 </ul>
@@ -84,7 +85,7 @@ export default async function AreasPage() {
                   {bestValueAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
                       <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
-                      <span className="font-semibold">AED {area.avgPricePerSqft.toLocaleString()}</span>
+                      <span className="font-semibold">{safePrice(area.avgPricePerSqft)}</span>
                     </li>
                   ))}
                 </ul>
@@ -97,7 +98,7 @@ export default async function AreasPage() {
                   {topScoreAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
                       <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
-                      <span className="font-semibold gold-text-gradient">{area.investmentScore}/10</span>
+                      <span className="font-semibold gold-text-gradient">{safeScore(area.investmentScore)}</span>
                     </li>
                   ))}
                 </ul>

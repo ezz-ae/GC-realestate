@@ -794,7 +794,10 @@ export async function getPropertyBySlug(slug: string) {
 
 export async function getAreas() {
   const rows = await query<AreaRow>(
-    `SELECT slug, name, area_type, avg_score, median_price_aed, project_count, avg_yield, image, hero_video, payload FROM gc_area_profiles ORDER BY avg_yield DESC`,
+    `SELECT slug, name, area_type, avg_score, median_price_aed, project_count, avg_yield, image, hero_video, payload 
+     FROM gc_area_profiles 
+     WHERE (payload->>'projectCount')::int > 0 OR project_count > 0
+     ORDER BY (payload->>'projectCount')::int DESC NULLS LAST, avg_yield DESC`,
   )
   return rows.map(mapAreaRow)
 }
@@ -818,7 +821,10 @@ export async function getAreaBySlug(slug: string) {
 
 export async function getDevelopers() {
   const rows = await query<DeveloperRow>(
-    `SELECT id, slug, name, tier, avg_score, honesty_index, risk_discount, logo, banner_image, payload FROM gc_developer_profiles ORDER BY avg_score DESC`,
+    `SELECT id, slug, name, tier, avg_score, honesty_index, risk_discount, logo, banner_image, payload 
+     FROM gc_developer_profiles 
+     WHERE (payload->>'projectCount')::int > 0 OR (payload->>'activeProjects')::int > 0
+     ORDER BY (payload->>'projectCount')::int DESC NULLS LAST, avg_score DESC`,
   )
   return rows.map(mapDeveloperRow)
 }

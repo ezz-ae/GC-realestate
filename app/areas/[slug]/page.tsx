@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getAreaBySlug, getAreas, getProjectsByArea, getPropertiesByArea } from "@/lib/entrestate"
+import { safeNum, safePercent, safePrice, shouldShow, safeScore } from "@/lib/utils/safeDisplay"
 
 export async function generateStaticParams() {
   const areas = await getAreas().catch(() => [])
@@ -38,11 +39,24 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
   const areaProjects = projectsResult.status === "fulfilled" ? projectsResult.value : []
   const areaProperties = propertiesResult.status === "fulfilled" ? propertiesResult.value : []
 
+  const heroImage = area.image && area.image !== "/logo.png" 
+    ? area.image 
+    : "/images/dubai-skyline.jpg"
+
+  const description = area.description || `${area.name} — ${area.propertyCount || 0} active projects, avg yield ${area.rentalYield || 0}%`
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
         <section className="relative h-[55vh] min-h-[420px]">
-          <Image src={area.image} alt={area.name} fill className="object-cover" priority />
+          <Image 
+            src={heroImage} 
+            alt={area.name} 
+            fill 
+            className="object-cover" 
+            priority 
+            onError={(e) => (e.currentTarget.src = "/images/dubai-skyline.jpg")}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
         </section>
 
@@ -60,7 +74,7 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
               <div className="space-y-4">
                 <h2 className="font-serif text-3xl font-bold">About {area.name}</h2>
                 <p className="text-base text-muted-foreground leading-relaxed">
-                  {area.description}
+                  {description}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {area.lifestyleTags.map((tag) => (
@@ -72,16 +86,19 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
               </div>
               <div className="grid grid-cols-3 gap-3 rounded-lg border border-border bg-muted/50 p-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold gold-text-gradient">AED {area.avgPricePerSqft}</div>
-                  <div className="text-xs text-muted-foreground">Avg. Price/sqft</div>
+                  <div className="text-[11px] font-bold uppercase text-muted-foreground mb-1">Avg Price</div>
+                  <div className="text-xl font-bold gold-text-gradient">{safePrice(area.avgPricePerSqft)}</div>
+                  <div className="text-[9px] text-muted-foreground">per sqft</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{area.rentalYield}%</div>
-                  <div className="text-xs text-muted-foreground">Rental Yield</div>
+                  <div className="text-[11px] font-bold uppercase text-muted-foreground mb-1">Yield</div>
+                  <div className="text-xl font-bold text-green-600">{safePercent(area.rentalYield)}</div>
+                  <div className="text-[9px] text-muted-foreground">annual avg</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold gold-text-gradient">{area.investmentScore}/10</div>
-                  <div className="text-xs text-muted-foreground">Investment Score</div>
+                  <div className="text-[11px] font-bold uppercase text-muted-foreground mb-1">Score</div>
+                  <div className="text-xl font-bold gold-text-gradient">{safeScore(area.investmentScore)}</div>
+                  <div className="text-[9px] text-muted-foreground">Market Rating</div>
                 </div>
               </div>
             </div>

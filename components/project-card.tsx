@@ -1,29 +1,23 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, BedDouble, Bath, MapPin, Ruler } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Project } from "@/lib/types/project"
+import { safeNum, safePercent, safePrice, shouldShow, safeROI, safeScore } from "@/lib/utils/safeDisplay"
+import { TrendingUp, BarChart3, Info, MapPin, BedDouble, Bath, Ruler, ArrowRight } from "lucide-react"
 
 interface ProjectCardProps {
   project: Project
 }
 
-const formatPrice = (value: number) =>
-  new Intl.NumberFormat("en-AE", {
-    style: "currency",
-    currency: "AED",
-    maximumFractionDigits: 0,
-  }).format(value)
-
 const getPriceRange = (project: Project) => {
   const units = Array.isArray(project.units) ? project.units : []
   const prices = units.flatMap((unit) => [unit.priceFrom, unit.priceTo]).filter((p) => p > 0)
   if (!prices.length) {
-    return "Pricing on request"
+    return "Price on Request"
   }
   const minPrice = Math.min(...prices)
-  return `From ${formatPrice(minPrice)}`
+  return `From ${safePrice(minPrice)}`
 }
 
 const getPrimaryUnit = (project: Project) => {
@@ -62,7 +56,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const baths = formatBathLabel(
     typeof primaryUnit?.baths === "number" ? primaryUnit.baths : primaryUnit?.bathrooms,
   )
-  const area = primaryUnit?.sizeFrom ? `${primaryUnit.sizeFrom.toLocaleString()} sq.ft` : null
+  const areaLabel = primaryUnit?.sizeFrom ? `${safeNum(primaryUnit.sizeFrom)} sq.ft` : null
+
+  const showRoi = shouldShow(investmentHighlights.expectedROI)
+  const showYield = shouldShow(investmentHighlights.rentalYield)
+  const showScore = shouldShow(project.sortScore || investmentHighlights.expectedROI)
 
   return (
     <Link href={projectSlug} className="group block" prefetch={false}>
@@ -73,7 +71,22 @@ export function ProjectCard({ project }: ProjectCardProps) {
             alt={project.name || "Project"}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
+            onError={(e) => (e.currentTarget.style.display = "none")}
           />
+          <div className="absolute top-3 right-3 z-10">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/90 backdrop-blur shadow-sm p-1 overflow-hidden">
+              {project.developer?.logo && project.developer.logo !== "/logo.png" ? (
+                <img
+                  src={project.developer.logo}
+                  alt={project.developer.name}
+                  className="h-full w-full object-contain"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+              ) : (
+                <div className="text-[10px] font-bold text-primary">{project.developer?.name?.[0] || "GC"}</div>
+              )}
+            </div>
+          </div>
           <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
             <Badge variant={project.status === "selling" ? "default" : "secondary"} className="shadow-sm backdrop-blur-md bg-background/95 border-none">
               {statusLabel}
@@ -101,7 +114,28 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <p className="gold-text-gradient font-bold text-2xl tracking-tight">{getPriceRange(project)}</p>
           </div>
 
-          {(bedrooms || baths || area) && (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {showRoi && (
+              <div className="flex items-center gap-2 rounded-md bg-muted/50 p-2 border border-border/50">
+                <TrendingUp className="h-4 w-4 text-primary shrink-0" />
+                <div className="text-[10px] font-medium leading-tight">
+                  <div className="text-muted-foreground uppercase tracking-tighter">Est. Breakeven</div>
+                  <div className="font-bold">{safeROI(investmentHighlights.expectedROI)}</div>
+                </div>
+              </div>
+            )}
+            {showYield && (
+              <div className="flex items-center gap-2 rounded-md bg-muted/50 p-2 border border-border/50">
+                <BarChart3 className="h-4 w-4 text-primary shrink-0" />
+                <div className="text-[10px] font-medium leading-tight">
+                  <div className="text-muted-foreground uppercase tracking-tighter">Gross Yield</div>
+                  <div className="font-bold">{safePercent(investmentHighlights.rentalYield)}</div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {(bedrooms || baths || areaLabel) && (
             <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mb-6 pt-4 border-t border-border/50">
               {bedrooms && (
                 <div className="flex items-center gap-1.5">
@@ -115,10 +149,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   <span>{baths}</span>
                 </div>
               )}
-              {area && (
+              {areaLabel && (
                 <div className="flex items-center gap-1.5">
                   <Ruler className="h-4 w-4 text-foreground/70" />
-                  <span>{area}</span>
+                  <span>{areaLabel}</span>
                 </div>
               )}
             </div>

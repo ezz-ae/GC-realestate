@@ -35,9 +35,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
-import { getProjectBySlug, getProjectsForGrid, searchProjects, getAdjacentProjectSlugs } from "@/lib/entrestate"
-import { Toaster } from "@/components/ui/toaster"
-import type { Project } from "@/lib/types/project"
+import { safeNum, safePercent, safePrice, shouldShow, safeROI, safeScore } from "@/lib/utils/safeDisplay"
 import { ProjectLeadForm } from "@/components/project-lead-form"
 
 export const runtime = "nodejs"
@@ -260,6 +258,8 @@ export default async function ProjectPage({
   const amenities = toArray(project.amenities)
   const units = toArray(project.units)
   const landmarks = toArray(location.nearbyLandmarks)
+  const hasMap = location.coordinates && location.coordinates.lat !== 0 && location.coordinates.lng !== 0
+
   const constructionUpdates = toArray(project.constructionUpdates)
   const testimonials = toArray(project.testimonials)
   const faqs = toArray(project.faqs)
@@ -273,13 +273,22 @@ export default async function ProjectPage({
   const unitTypes = getUnitTypes(units)
   const sizeRange = getSizeRange(units)
   const availabilityCount = getAvailabilityCount(units)
+  
+  const showRoi = shouldShow(project.investmentHighlights?.expectedROI)
+  const showYield = shouldShow(project.investmentHighlights?.rentalYield)
+
   const hasTimeline =
     Boolean(timeline.launchDate || timeline.constructionStart || timeline.expectedCompletion || timeline.handoverDate) ||
     Number.isFinite(timeline.progressPercentage)
   const hasSpecifications = Boolean(project.specifications && project.specifications.trim())
+  
+  // Gallery Deduplication (Fix 2.5)
+  const projectGallery = toArray(project.gallery).filter(img => img !== project.heroImage)
+  const hasGallery = projectGallery.length > 0
+
   const hasMedia =
     Boolean(project.heroVideo || project.virtualTour || project.masterplan || project.brochure) ||
-    toArray(project.gallery).length > 0
+    hasGallery
   const factItems = [
     { label: "Status", value: project.status?.replace("-", " ") },
     { label: "Area", value: location.area },
@@ -418,31 +427,35 @@ export default async function ProjectPage({
         <section className="border-b border-border bg-card/50 py-8">
           <div className="container">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
-                  <TrendingUp className="h-6 w-6 text-black" />
+              {showRoi && (
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
+                    <TrendingUp className="h-6 w-6 text-black" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Est. Breakeven</div>
+                    <div className="text-xl font-bold">{safeROI(project.investmentHighlights?.expectedROI)}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Expected ROI</div>
-                  <div className="text-xl font-bold">{project.investmentHighlights?.expectedROI ?? 0}%</div>
+              )}
+              {showYield && (
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
+                    <Home className="h-6 w-6 text-black" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Rental Yield</div>
+                    <div className="text-xl font-bold">{safePercent(project.investmentHighlights?.rentalYield)}</div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
-                  <Home className="h-6 w-6 text-black" />
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Rental Yield</div>
-                  <div className="text-xl font-bold">{project.investmentHighlights?.rentalYield ?? 0}%</div>
-                </div>
-              </div>
+              )}
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
                   <Calendar className="h-6 w-6 text-black" />
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Handover</div>
-                  <div className="text-xl font-bold">{timeline.handoverDate || timeline.expectedCompletion}</div>
+                  <div className="text-xl font-bold">{timeline.handoverDate || timeline.expectedCompletion || "TBD"}</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -451,7 +464,7 @@ export default async function ProjectPage({
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Progress</div>
-                  <div className="text-xl font-bold">{timeline.progressPercentage ?? 0}%</div>
+                  <div className="text-xl font-bold">{timeline.progressPercentage || 0}%</div>
                 </div>
               </div>
             </div>
@@ -486,12 +499,14 @@ export default async function ProjectPage({
                         Media
                       </TabsTrigger>
                     )}
-                    <TabsTrigger
-                      value="location"
-                      className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                    >
-                      Location
-                    </TabsTrigger>
+                    {hasMap && (
+                      <TabsTrigger
+                        value="location"
+                        className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        Location
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger
                       value="payment"
                       className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -771,11 +786,11 @@ export default async function ProjectPage({
                         </div>
                       )}
 
-                      {toArray(project.gallery).length > 0 && (
+                      {projectGallery.length > 0 && (
                         <div>
                           <h3 className="font-serif text-xl font-semibold mb-4">Gallery</h3>
                           <div className="grid gap-4 sm:grid-cols-2">
-                            {toArray(project.gallery).map((img: string, index: number) => (
+                            {projectGallery.map((img: string, index: number) => (
                               <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
                                 <Image
                                   src={img}
@@ -813,43 +828,45 @@ export default async function ProjectPage({
                     </TabsContent>
                   )}
 
-                  <TabsContent value="location" className="mt-8 space-y-8">
-                    <div>
-                      <h2 className="font-serif text-2xl font-bold">Prime Location</h2>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {location.area}, {location.city}
-                      </p>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      <div className="rounded-lg border border-border bg-card p-4">
-                        <div className="text-xs uppercase tracking-wide text-muted-foreground">Area</div>
-                        <div className="mt-2 text-sm font-semibold">{location.area}</div>
+                  {hasMap && (
+                    <TabsContent value="location" className="mt-8 space-y-8">
+                      <div>
+                        <h2 className="font-serif text-2xl font-bold">Prime Location</h2>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          {location.area}, {location.city}
+                        </p>
                       </div>
-                      <div className="rounded-lg border border-border bg-card p-4">
-                        <div className="text-xs uppercase tracking-wide text-muted-foreground">District</div>
-                        <div className="mt-2 text-sm font-semibold">{location.district}</div>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="rounded-lg border border-border bg-card p-4">
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">Area</div>
+                          <div className="mt-2 text-sm font-semibold">{location.area}</div>
+                        </div>
+                        <div className="rounded-lg border border-border bg-card p-4">
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">District</div>
+                          <div className="mt-2 text-sm font-semibold">{location.district}</div>
+                        </div>
+                        <div className="rounded-lg border border-border bg-card p-4">
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">Freehold</div>
+                          <div className="mt-2 text-sm font-semibold">{location.freehold ? "Yes" : "No"}</div>
+                        </div>
                       </div>
-                      <div className="rounded-lg border border-border bg-card p-4">
-                        <div className="text-xs uppercase tracking-wide text-muted-foreground">Freehold</div>
-                        <div className="mt-2 text-sm font-semibold">{location.freehold ? "Yes" : "No"}</div>
-                      </div>
-                    </div>
 
-                    {landmarks.length > 0 && (
-                      <div className="space-y-4">
-                        <h3 className="font-serif text-xl font-semibold">Nearby Landmarks</h3>
-                        {landmarks.map((landmark: any, index: number) => (
-                          <div key={index} className="flex items-center justify-between border-b border-border pb-3">
-                            <div className="flex items-center gap-3">
-                              <MapPin className="h-5 w-5 text-primary" />
-                              <span>{landmark.name}</span>
+                      {landmarks.length > 0 && (
+                        <div className="space-y-4">
+                          <h3 className="font-serif text-xl font-semibold">Nearby Landmarks</h3>
+                          {landmarks.map((landmark: any, index: number) => (
+                            <div key={index} className="flex items-center justify-between border-b border-border pb-3">
+                              <div className="flex items-center gap-3">
+                                <MapPin className="h-5 w-5 text-primary" />
+                                <span>{landmark.name}</span>
+                              </div>
+                              <span className="text-sm text-muted-foreground">{landmark.distance}</span>
                             </div>
-                            <span className="text-sm text-muted-foreground">{landmark.distance}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </TabsContent>
+                          ))}
+                        </div>
+                      )}
+                    </TabsContent>
+                  )}
 
                   <TabsContent value="payment" className="mt-8 space-y-8">
                     <div>
