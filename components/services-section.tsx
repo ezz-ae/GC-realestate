@@ -2,6 +2,7 @@
 
 import { Home, Key, Shield } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 
 const services = [
   {
@@ -109,10 +110,11 @@ export function ServicesSection() {
         <div ref={sectionRef} className="relative px-6 lg:px-8 py-16 lg:py-10 mb-32 overflow-hidden rounded-3xl">
           {/* Background image that spans full width */}
           <div className="absolute inset-0 w-full h-full">
-            <img
+            <Image
               src="/images/7aecbceb-cbd3-4cbd-901c-dd0125d41525.png"
               alt="Beautiful house"
-              className={`w-full h-full object-cover transition-transform duration-1000 ease-out ${
+              fill
+              className={`object-cover transition-transform duration-1000 ease-out ${
                 isVisible ? "scale-100" : "scale-110"
               }`}
             />

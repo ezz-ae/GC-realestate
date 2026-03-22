@@ -117,7 +117,7 @@ export const projectToProperty = (project: Project): Property => {
     launchDate: "",
     constructionStart: "",
   }
-  const timeline = { ...defaultTimeline, ...project.timeline }
+  const timeline = { ...defaultTimeline, ...(project.timeline || {}) }
 
   return {
     id: project.id,

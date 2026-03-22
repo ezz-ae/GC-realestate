@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { AnimatedText } from "./animated-text"
+import Image from "next/image"
 
 export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false)
@@ -100,7 +101,14 @@ export function HeroSection() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[400px]"
               }`}
             >
-              <img src="/images/iphone-frame.png" alt="Application Homie" className="w-full h-auto relative z-10" />
+              <Image
+                src="/images/iphone-frame.png"
+                alt="Application Homie"
+                width={351}
+                height={714}
+                className="w-full h-auto relative z-10"
+                priority
+              />
             </div>
           </div>
         </div>

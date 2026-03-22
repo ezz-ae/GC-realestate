@@ -1,6 +1,6 @@
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals"
 
-export default [
+const config = [
   { ignores: ["node_modules/**", ".next/**"] },
   ...nextCoreWebVitals,
   {
@@ -21,6 +21,9 @@ export default [
           "forbid": ["<", ">", '"']
         },
       ],
+      "import/no-anonymous-default-export": "warn",
     },
   },
 ]
+
+export default config

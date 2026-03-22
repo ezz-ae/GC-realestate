@@ -33,9 +33,11 @@ export const revalidate = 0
 
 export async function generateStaticParams() {
   const properties = await getProperties(5)
-  return properties.map((property) => ({
-    id: property.slug,
-  }))
+  return properties
+    .filter((property) => property && property.slug)
+    .map((property) => ({
+      id: property.slug,
+    }))
 }
 
 export async function generateMetadata({
@@ -44,6 +46,8 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  if (!id) return { title: "Property Not Found" }
+  
   const property = await getPropertyBySlug(id)
   if (!property) {
     return { title: "Property Not Found" }
@@ -60,6 +64,8 @@ export default async function PropertyPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  if (!id) notFound()
+  
   const property = await getPropertyBySlug(id)
 
   if (!property) {

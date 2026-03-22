@@ -12,16 +12,19 @@ export const dynamic = "force-dynamic"
 const inter = Inter({ 
   subsets: ["latin"],
   variable: "--font-sans",
+  preload: false,
 })
 
 const geistMono = Geist_Mono({ 
   subsets: ["latin"],
   variable: "--font-mono",
+  preload: false,
 })
 
 const playfair = Playfair_Display({ 
   subsets: ["latin"],
   variable: "--font-serif",
+  preload: false,
 })
 
 export const metadata: Metadata = {
