@@ -3,52 +3,44 @@ import { FeaturedProperties } from "@/components/featured-properties"
 import { MarketSnapshot } from "@/components/market-snapshot"
 import { BlogSection } from "@/components/blog-section"
 import { Button } from "@/components/ui/button"
-import { TrendingUp, Building2, MapPin, Sparkles, MessageSquare, Map } from "lucide-react"
+import { TrendingUp, Building2, Sparkles, MessageSquare, Map } from "lucide-react"
 import Link from "next/link"
-import { AnimatedText } from "@/components/animated-text"
+import { HeroSection } from "@/components/hero-section"
 
 export default function Home() {
   return (
     <>
-        {/* Restored Premium Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted pt-24 pb-20 md:pt-40 md:pb-32">
+        {/* Premium Video Hero Section */}
+        <HeroSection />
+
+        {/* Action Center: AI Search & Golden Paths */}
+        <section className="relative z-20 -mt-20 pb-20">
           <div className="container">
-            <div className="mx-auto max-w-4xl text-center">
-              <h1 className="font-serif text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl mb-8">
-                <AnimatedText text="Investment Intelligence for" />
-                <br />
-                <span className="gold-text-gradient">Dubai Real Estate</span>
-              </h1>
-              
-              <p className="mt-6 text-lg text-muted-foreground text-balance md:text-xl max-w-2xl mx-auto">
-                Discover 3500+ luxury properties and exclusive off-plan projects in Dubai’s premier locations.
-                Advanced data for profitable real estate investment.
-              </p>
-              
-              {/* Centerpiece: AI Search Bar */}
-              <div className="mx-auto mt-12 max-w-3xl">
+            <div className="mx-auto max-w-4xl">
+              {/* Search Bar Overlay */}
+              <div className="rounded-3xl bg-background/80 shadow-2xl backdrop-blur-xl border border-white/20 p-2 sm:p-4 mb-12">
                 <AISearchBar />
               </div>
-
-              {/* Secondary Actions */}
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full" asChild>
+              
+              {/* Quick Actions */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
+                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full bg-background/50 backdrop-blur-md" asChild>
                   <Link href="/chat">
                     <MessageSquare className="mr-2 h-4 w-4 text-primary" /> AI Assistant
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full" asChild>
+                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full bg-background/50 backdrop-blur-md" asChild>
                   <Link href="/map">
                     <Map className="mr-2 h-4 w-4 text-primary" /> Spatial Map
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full" asChild>
-                  <Link href="/properties">Browse All</Link>
+                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full bg-background/50 backdrop-blur-md" asChild>
+                  <Link href="/properties">Browse Projects</Link>
                 </Button>
               </div>
 
-              {/* Golden Path Buttons (Experience Plane) */}
-              <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {/* Golden Path Buttons */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50 backdrop-blur-sm transition-all hover:shadow-md" asChild>
                   <Link href="/chat?q=Show+me+highest+yield+projects+in+Dubai+Marina">
                     <TrendingUp className="h-8 w-8 text-primary" />
