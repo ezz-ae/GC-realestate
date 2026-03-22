@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Grid, List } from "lucide-react"
+import { safeNum } from "@/lib/utils/safeDisplay"
 
 interface PropertiesToolbarProps {
   total: number
@@ -34,7 +35,7 @@ export function PropertiesToolbar({ total, page, pageSize, sort, view }: Propert
         <span className="font-semibold text-foreground">
           {Math.min(page * pageSize, total)}
         </span>{" "}
-        of <span className="font-semibold text-foreground">{total.toLocaleString()}</span> properties
+        of <span className="font-semibold text-foreground">{safeNum(total)}</span> properties
       </p>
 
       <div className="flex items-center gap-2">

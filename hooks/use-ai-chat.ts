@@ -6,7 +6,13 @@ export interface Message {
   content: string
   timestamp: Date
   properties?: any[]
+  dataCards?: any[]
   data?: any
+  requestId?: string
+  provenance?: {
+    run_id: string
+    snapshot_ts: string
+  }
 }
 
 export function useAIChat(mode: 'public' | 'broker' = 'public') {
@@ -14,6 +20,8 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [lastProperties, setLastProperties] = useState<any[]>([])
+  const [lastProvenance, setLastProvenance] = useState<any>(null)
+  const [lastRequestId, setLastRequestId] = useState<string | null>(null)
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return
@@ -55,16 +63,21 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.reply,
+        content: data.content || data.reply,
         timestamp: new Date(),
-        properties: data.properties,
-        data: data.data
+        dataCards: data.dataCards || data.properties,
+        data: data.data,
+        requestId: data.requestId,
+        provenance: data.provenance
       }
 
       setMessages(prev => [...prev, assistantMessage])
-      if (data.properties) {
-        setLastProperties(data.properties)
+      const properties = data.dataCards || data.properties
+      if (properties) {
+        setLastProperties(properties)
       }
+      if (data.provenance) setLastProvenance(data.provenance)
+      if (data.requestId) setLastRequestId(data.requestId)
     } catch (err) {
       console.error('[v0] Chat error:', err)
       const message = err instanceof Error ? err.message : 'Failed to send message. Please try again.'
@@ -85,6 +98,9 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
   const clearMessages = useCallback(() => {
     setMessages([])
     setError(null)
+    setLastProperties([])
+    setLastProvenance(null)
+    setLastRequestId(null)
   }, [])
 
   return {
@@ -92,6 +108,8 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
     isLoading,
     error,
     lastProperties,
+    lastProvenance,
+    lastRequestId,
     sendMessage,
     clearMessages
   }

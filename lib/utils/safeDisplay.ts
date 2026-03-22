@@ -31,6 +31,13 @@ export function safeScore(value: number | null | undefined, fallback = "—"): s
   return `${Math.round(value)}/100`
 }
 
+export function safeROI(value: number | null | undefined, fallback = "—"): string {
+  if (value === null || value === undefined || value === 0 || Number.isNaN(value)) {
+    return fallback
+  }
+  return `~${value.toFixed(1)} yr ROI`
+}
+
 export function shouldShow(value: any): boolean {
   if (value === null || value === undefined) return false
   if (typeof value === "number") {

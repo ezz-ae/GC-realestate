@@ -3,62 +3,87 @@ import { FeaturedProperties } from "@/components/featured-properties"
 import { MarketSnapshot } from "@/components/market-snapshot"
 import { BlogSection } from "@/components/blog-section"
 import { Button } from "@/components/ui/button"
-import { TrendingUp, Building2, MapPin, Sparkles } from "lucide-react"
+import { TrendingUp, Building2, MapPin, Sparkles, MessageSquare, Search, Map } from "lucide-react"
 import Link from "next/link"
 
 export default function Home() {
   return (
     <>
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted py-20 md:py-32">
+        {/* Experience Plane: Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted py-24 md:py-40">
           <div className="container">
             <div className="mx-auto max-w-4xl text-center">
               <h1 className="font-serif text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl">
-                Investment Intelligence for{" "}
+                The Decision Layer for{" "}
                 <span className="gold-text-gradient">Dubai Real Estate</span>
               </h1>
               <p className="mt-6 text-lg text-muted-foreground text-balance md:text-xl">
-                Discover 3500+ luxury properties and exclusive off-plan projects in Dubai’s premier locations.
-                Your gateway to profitable real estate investment.
+                Advanced intelligence for property investors. 3500+ projects, verified data, AI-driven insights.
               </p>
               
-              {/* AI Search Bar */}
-              <div className="mx-auto mt-10 max-w-2xl">
-                <AISearchBar />
+              {/* Primary Actions: Chat, Search, Map */}
+              <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+                <Button size="lg" className="gold-gradient h-14 px-8 text-lg" asChild>
+                  <Link href="/chat">
+                    <MessageSquare className="mr-2 h-5 w-5" /> AI Chat
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="h-14 px-8 text-lg" asChild>
+                  <Link href="/search">
+                    <Search className="mr-2 h-5 w-5" /> Search Engine
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="h-14 px-8 text-lg" asChild>
+                  <Link href="/map">
+                    <Map className="mr-2 h-5 w-5" /> Spatial Map
+                  </Link>
+                </Button>
               </div>
 
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-                <Button size="lg" className="gold-gradient" asChild>
-                  <Link href="/properties">Browse Properties</Link>
+              {/* 3 Golden Path Buttons (TableSpec JSON presets) */}
+              <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50" asChild>
+                  <Link href="/chat?q=Show+me+highest+yield+projects+in+Dubai+Marina">
+                    <TrendingUp className="h-8 w-8 text-primary" />
+                    <div className="text-center">
+                      <div className="font-bold">Yield Analysis</div>
+                      <div className="text-xs text-muted-foreground">High-yield ROI ranking</div>
+                    </div>
+                  </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/market/why-dubai">Why Dubai</Link>
+                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50" asChild>
+                  <Link href="/chat?q=Show+me+projects+completing+in+2025+under+2M+AED">
+                    <Building2 className="h-8 w-8 text-primary" />
+                    <div className="text-center">
+                      <div className="font-bold">Supply Tracker</div>
+                      <div className="text-xs text-muted-foreground">Projects by delivery date</div>
+                    </div>
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50" asChild>
+                  <Link href="/chat?q=Find+Golden+Visa+eligible+projects+near+Downtown">
+                    <Sparkles className="h-8 w-8 text-primary" />
+                    <div className="text-center">
+                      <div className="font-bold">Visa Eligible</div>
+                      <div className="text-xs text-muted-foreground">Investment migration paths</div>
+                    </div>
+                  </Link>
                 </Button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="border-y border-border bg-card py-12">
+        {/* Trust Bar Section */}
+        <section className="border-y border-border bg-card py-10 overflow-hidden">
           <div className="container">
-            <div className="grid gap-8 md:grid-cols-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold gold-text-gradient md:text-4xl">3500+</div>
-                <div className="mt-2 text-sm text-muted-foreground">Dubai Projects</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold gold-text-gradient md:text-4xl">15+</div>
-                <div className="mt-2 text-sm text-muted-foreground">Years Experience</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold gold-text-gradient md:text-4xl">$2B+</div>
-                <div className="mt-2 text-sm text-muted-foreground">Properties Sold</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold gold-text-gradient md:text-4xl">50+</div>
-                <div className="mt-2 text-sm text-muted-foreground">Countries Served</div>
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-10 md:gap-20 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+              <div className="text-xl font-serif font-bold italic">EMAAR</div>
+              <div className="text-xl font-serif font-bold italic">DAMAC</div>
+              <div className="text-xl font-serif font-bold italic">MERAAS</div>
+              <div className="text-xl font-serif font-bold italic">SOBHA</div>
+              <div className="text-xl font-serif font-bold italic">SELECT GROUP</div>
+              <div className="text-xl font-serif font-bold italic">AZIZI</div>
             </div>
           </div>
         </section>

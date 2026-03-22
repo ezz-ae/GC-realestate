@@ -221,15 +221,17 @@ const mapDeveloperRow = (row: DeveloperRow): DeveloperProfile => {
     logo: payload.logo || row.logo || "/logo.png",
     bannerImage: payload.bannerImage || row.banner_image || "/logo.png",
     galleryImages: payload.galleryImages || [payload.bannerImage || row.banner_image || "/logo.png"],
-    description: payload.description || "Developer profile overview.",
+    description: payload.description || `${payload.name || row.name} is a leading UAE developer.`,
     trackRecord: payload.trackRecord || "Strong delivery track record in Dubai.",
     awards: payload.awards || [],
     website: payload.website || undefined,
     foundedYear: payload.foundedYear ? Number(payload.foundedYear) : undefined,
     headquarters: payload.headquarters || undefined,
     activeProjects: payload.activeProjects ? Number(payload.activeProjects) : undefined,
-    completedProjects: payload.completedProjects ? Number(payload.completedProjects) : undefined,
+    completedProjects: payload.completedProjects || Number(row.payload.completedProjects) || 0,
     projectCount: payload.projectCount ? Number(payload.projectCount) : undefined,
+    stars: Number(payload.stars || row.avg_score || 0),
+    honestyScore: Number(payload.honestyIndex || row.honesty_index || 0),
   }
 }
 
@@ -441,7 +443,10 @@ export async function getPropertyBySlug(slug: string) {
 
 export async function getAreas() {
   const rows = await query<AreaRow>(
-    `SELECT slug, name, area_type, avg_score, median_price_aed, project_count, avg_yield, image, hero_video, payload FROM gc_area_profiles ORDER BY avg_yield DESC`,
+    `SELECT slug, name, area_type, avg_score, median_price_aed, project_count, avg_yield, image, hero_video, payload 
+     FROM gc_area_profiles 
+     WHERE (payload->>'projectCount')::int > 0 OR project_count > 0
+     ORDER BY (payload->>'projectCount')::int DESC NULLS LAST, avg_yield DESC`,
   )
   return rows.map(mapAreaRow)
 }
@@ -456,7 +461,10 @@ export async function getAreaBySlug(slug: string) {
 
 export async function getDevelopers() {
   const rows = await query<DeveloperRow>(
-    `SELECT id, slug, name, tier, avg_score, honesty_index, risk_discount, logo, banner_image, payload FROM gc_developer_profiles ORDER BY avg_score DESC`,
+    `SELECT id, slug, name, tier, avg_score, honesty_index, risk_discount, logo, banner_image, payload 
+     FROM gc_developer_profiles 
+     WHERE (payload->>'projectCount')::int > 0 OR (payload->>'activeProjects')::int > 0
+     ORDER BY (payload->>'projectCount')::int DESC NULLS LAST, avg_score DESC`,
   )
   return rows.map(mapDeveloperRow)
 }

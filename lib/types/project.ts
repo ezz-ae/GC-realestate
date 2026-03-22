@@ -229,4 +229,6 @@ export interface DeveloperProfile {
   activeProjects?: number
   completedProjects?: number
   projectCount?: number
+  stars?: number
+  honestyScore?: number
 }

@@ -48,13 +48,14 @@ const formatPrice = (value: number) =>
 const getPriceRange = (project: Project) => {
   const prices = (project.units || [])
     .flatMap((unit) => [unit.priceFrom, unit.priceTo])
-    .filter((price): price is number => typeof price === "number" && Number.isFinite(price))
+    .filter((price): price is number => shouldShow(price))
   if (!prices.length) {
-    return "Pricing on request"
+    return "Price on Request"
   }
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
-  return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+  if (minPrice === maxPrice) return safePrice(minPrice)
+  return `${safePrice(minPrice)} - ${safePrice(maxPrice)}`
 }
 
 const getUnitPriceRange = (unit: {
@@ -186,10 +187,15 @@ export default async function ProjectPage({
   const timeline = project.timeline || {
     launchDate: "",
     constructionStart: "",
-    expectedCompletion: "TBD",
-    handoverDate: "TBD",
+    expectedCompletion: "TBA",
+    handoverDate: "TBA",
     progressPercentage: 0,
   }
+  
+  // Gallery Deduplication (Fix 2.5)
+  const projectGallery = toArray(project.gallery).filter(img => img !== project.heroImage)
+  const hasGallery = projectGallery.length > 0
+  
   const paymentPlan = project.paymentPlan || {
     downPayment: 0,
     duringConstruction: 0,
@@ -200,6 +206,10 @@ export default async function ProjectPage({
   const amenities = toArray(project.amenities)
   const units = toArray(project.units)
   const landmarks = toArray(location.nearbyLandmarks)
+  
+  // Map Section Guard (Fix 2.6)
+  const hasMap = location.coordinates && location.coordinates.lat !== 0 && location.coordinates.lng !== 0
+
   const constructionUpdates = toArray(project.constructionUpdates)
   const testimonials = toArray(project.testimonials)
   const faqs = toArray(project.faqs)
@@ -213,13 +223,17 @@ export default async function ProjectPage({
   const unitTypes = getUnitTypes(units)
   const sizeRange = getSizeRange(units)
   const availabilityCount = getAvailabilityCount(units)
+  
+  const showRoi = shouldShow(project.investmentHighlights?.expectedROI)
+  const showYield = shouldShow(project.investmentHighlights?.rentalYield)
+
   const hasTimeline =
     Boolean(timeline.launchDate || timeline.constructionStart || timeline.expectedCompletion || timeline.handoverDate) ||
     Number.isFinite(timeline.progressPercentage)
   const hasSpecifications = Boolean(project.specifications && project.specifications.trim())
   const hasMedia =
     Boolean(project.heroVideo || project.virtualTour || project.masterplan || project.brochure) ||
-    toArray(project.gallery).length > 0
+    hasGallery
   const factItems = [
     { label: "Status", value: project.status?.replace("-", " ") },
     { label: "Area", value: location.area },
@@ -340,36 +354,42 @@ export default async function ProjectPage({
           <div className="container">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-6">
               <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">{priceRange}</div>
-                <div className="mt-1 text-sm text-muted-foreground">Price Range</div>
+                <div className="text-xl font-bold gold-text-gradient">{priceRange}</div>
+                <div className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Starting Price</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">
-                  {project.investmentHighlights?.expectedROI ?? 0}%
+              {showRoi && (
+                <div className="text-center">
+                  <div className="text-xl font-bold gold-text-gradient">
+                    {safeROI(project.investmentHighlights?.expectedROI)}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Est. Breakeven</div>
                 </div>
-                <div className="mt-1 text-sm text-muted-foreground">Expected ROI</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">
-                  {project.investmentHighlights?.rentalYield ?? 0}%
+              )}
+              {showYield && (
+                <div className="text-center">
+                  <div className="text-xl font-bold gold-text-gradient">
+                    {safePercent(project.investmentHighlights?.rentalYield)}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Gross Yield</div>
                 </div>
-                <div className="mt-1 text-sm text-muted-foreground">Rental Yield</div>
-              </div>
+              )}
               <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">
+                <div className="text-xl font-bold gold-text-gradient">
                   {timeline.handoverDate || timeline.expectedCompletion}
                 </div>
-                <div className="mt-1 text-sm text-muted-foreground">Handover</div>
+                <div className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Handover</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">{paymentPlan.downPayment}%</div>
-                <div className="mt-1 text-sm text-muted-foreground">Down Payment</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold gold-text-gradient">
-                  {timeline.progressPercentage ?? 0}%
+              {shouldShow(paymentPlan.downPayment) && (
+                <div className="text-center">
+                  <div className="text-xl font-bold gold-text-gradient">{paymentPlan.downPayment}%</div>
+                  <div className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Down Payment</div>
                 </div>
-                <div className="mt-1 text-sm text-muted-foreground">Progress</div>
+              )}
+              <div className="text-center">
+                <div className="text-xl font-bold gold-text-gradient">
+                  {timeline.progressPercentage || 0}%
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Progress</div>
               </div>
             </div>
           </div>
@@ -389,12 +409,14 @@ export default async function ProjectPage({
                     >
                       Overview
                     </TabsTrigger>
-                    <TabsTrigger
-                      value="units"
-                      className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                    >
-                      Units
-                    </TabsTrigger>
+                    {units.length > 0 && (
+                      <TabsTrigger
+                        value="units"
+                        className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        Units
+                      </TabsTrigger>
+                    )}
                     {hasMedia && (
                       <TabsTrigger
                         value="media"
@@ -403,12 +425,14 @@ export default async function ProjectPage({
                         Media
                       </TabsTrigger>
                     )}
-                    <TabsTrigger
-                      value="location"
-                      className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                    >
-                      Location
-                    </TabsTrigger>
+                    {hasMap && (
+                      <TabsTrigger
+                        value="location"
+                        className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        Location
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger
                       value="payment"
                       className="rounded-full border border-border px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"

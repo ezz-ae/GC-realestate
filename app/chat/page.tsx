@@ -16,15 +16,16 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { useAIChat } from "@/hooks/use-ai-chat"
 import type { Property } from "@/lib/types/project"
-import { ArrowLeft, Sparkles, ShieldCheck } from "lucide-react"
+import { ArrowLeft, Sparkles, ShieldCheck, Database } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { EvidenceDrawer } from "@/components/evidence-drawer"
 
 export default function ChatPage() {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get("q")
   
-  const { messages, sendMessage, isLoading, lastProperties, error } = useAIChat()
+  const { messages, sendMessage, isLoading, lastProperties, error, lastProvenance, lastRequestId } = useAIChat()
   const resultProperties = useMemo(() => lastProperties ?? [], [lastProperties])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -237,19 +238,28 @@ export default function ChatPage() {
                               Tailored matches based on your criteria
                             </div>
                           </div>
-                          {shortlistStats && (
-                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                              <span className="rounded-full border border-border px-2 py-1">
-                                {shortlistStats.topArea}
-                              </span>
-                              <span className="rounded-full border border-border px-2 py-1">
-                                {formatShortPrice(shortlistStats.minPrice)} - {formatShortPrice(shortlistStats.maxPrice)}
-                              </span>
-                              <span className="rounded-full border border-border px-2 py-1">
-                                Avg ROI {shortlistStats.avgRoi.toFixed(1)}%
-                              </span>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-3">
+                            {shortlistStats && (
+                              <div className="hidden sm:flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                <span className="rounded-full border border-border px-2 py-1">
+                                  {shortlistStats.topArea}
+                                </span>
+                                <span className="rounded-full border border-border px-2 py-1">
+                                  Avg ROI {shortlistStats.avgRoi.toFixed(1)}%
+                                </span>
+                              </div>
+                            )}
+                            <EvidenceDrawer 
+                              requestId={lastRequestId || undefined}
+                              runId={lastProvenance?.run_id}
+                              timestamp={lastProvenance?.snapshot_ts}
+                            >
+                              <Button variant="ghost" size="sm" className="h-8 gap-2 text-xs border border-border bg-background hover:bg-muted">
+                                <Database className="h-3 w-3" />
+                                Evidence
+                              </Button>
+                            </EvidenceDrawer>
+                          </div>
                         </div>
 
                         <div className="mt-4">

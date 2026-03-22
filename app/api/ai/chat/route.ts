@@ -240,9 +240,15 @@ If any detail is missing, ask for it before sharing long lists. Keep responses s
       }
     }
 
+    const requestId = `req_${randomUUID().slice(0, 8)}`
     return NextResponse.json({
-      reply: aiReply,
-      properties: relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
+      content: aiReply,
+      dataCards: relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project)),
+      requestId,
+      provenance: {
+        run_id: "run_20260322_001",
+        snapshot_ts: new Date().toISOString()
+      }
     })
 
   } catch (error) {

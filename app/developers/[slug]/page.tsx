@@ -54,91 +54,124 @@ export default async function DeveloperDetailPage({
   const foundedYear = developer.foundedYear || stats.firstProjectYear
   const headquarters = developer.headquarters || "Dubai, UAE"
   const officialWebsite = developer.website || "Not listed"
-  const unitsDelivered = developer.completedProjects ?? stats.completed
+  const unitsDelivered = developer.completedProjects || stats.completed || 0
   const projectCountLabel = shouldShow(developerProjects.length)
     ? `${safeNum(developerProjects.length)} projects`
     : "Projects pending"
   const propertyCountLabel = shouldShow(developerProperties.length)
     ? `${safeNum(developerProperties.length)} listings`
     : "Listings pending"
-  const unitsDeliveredLabel = shouldShow(unitsDelivered) ? safeNum(unitsDelivered) : "—"
-  const onTimeLabel = safePercent(stats.onTimeDeliveryRate)
-  const avgScoreLabel = shouldShow(stats.avgScore) ? safeNum(stats.avgScore) : "—"
-  const goldenVisaLabel = shouldShow(stats.goldenVisaCount) ? safeNum(stats.goldenVisaCount) : "—"
-  const minPriceLabel = stats.minPrice ? safePrice(stats.minPrice) : "Price on Request"
-  const maxPriceLabel = stats.maxPrice ? safePrice(stats.maxPrice) : "Price on Request"
-  const listingsLabel = shouldShow(stats.listings) ? safeNum(stats.listings) : "—"
-  const activeLabel = shouldShow(stats.active) ? safeNum(stats.active) : "—"
-  const completedLabel = shouldShow(stats.completed) ? safeNum(stats.completed) : "—"
-  const avgYieldLabel = safePercent(stats.avgYield)
+  
+  const showDelivered = shouldShow(unitsDelivered)
+  const showStars = shouldShow(developer.stars)
+  const showHonesty = shouldShow(developer.honestyScore)
+  const showAwards = shouldShow(developer.awards)
+
+  const bannerImage = developer.bannerImage && developer.bannerImage !== "/logo.png"
+    ? developer.bannerImage
+    : "linear-gradient(to right, #0f172a, #1e3a8a)" // CSS fallback
+
+  const description = developer.description || `${developer.name} is a ${developer.tier || "leading"} UAE developer with ${developerProjects.length || 0} active projects.`
 
   return (
     <>
-        <section className="border-b border-border bg-gradient-to-b from-background to-muted py-16">
-          <div className="container">
-            <Badge className="mb-4 gold-gradient" variant="secondary">
-              Developer Profile
-            </Badge>
-            <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-              {developer.name}
-            </h1>
-            <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
-              {developer.description || "Developer profile overview and flagship project activity in Dubai."}
-            </p>
-              <div className="mt-6 flex flex-wrap gap-3 text-sm text-muted-foreground">
-                <span className="rounded-full border border-border px-3 py-1">
-                  {developer.tier ? `${developer.tier} developer` : "Dubai developer"}
-                </span>
-                <span className="rounded-full border border-border px-3 py-1">
-                  {projectCountLabel}
-                </span>
-                <span className="rounded-full border border-border px-3 py-1">
-                  {propertyCountLabel}
-                </span>
+        <section className="relative border-b border-border py-20 overflow-hidden">
+          {/* Banner Fallback (Codex 3.6) */}
+          <div className="absolute inset-0 z-0">
+            {developer.bannerImage && developer.bannerImage !== "/logo.png" ? (
+              <img src={developer.bannerImage} className="w-full h-full object-cover opacity-20" />
+            ) : (
+              <div className="w-full h-full opacity-10" style={{ background: bannerImage }} />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-b from-background/0 to-background" />
+          </div>
+
+          <div className="container relative z-10">
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              {/* Logo Fallback (Codex 3.5) */}
+              <div className="h-24 w-24 rounded-2xl border-2 border-border bg-card shadow-xl flex items-center justify-center overflow-hidden shrink-0">
+                {developer.logo && developer.logo !== "/logo.png" ? (
+                  <img src={developer.logo} alt={developer.name} className="h-full w-full object-contain p-2" />
+                ) : (
+                  <div className="text-4xl font-bold text-primary">{developer.name?.[0]}</div>
+                )}
               </div>
+              
+              <div>
+                <Badge className="mb-4 gold-gradient" variant="secondary">
+                  Developer Profile
+                </Badge>
+                <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+                  {developer.name}
+                </h1>
+                <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
+                  {description}
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3 text-sm text-muted-foreground">
+                  <span className="rounded-full border border-border px-3 py-1">
+                    {developer.tier ? `${developer.tier} developer` : "Dubai developer"}
+                  </span>
+                  <span className="rounded-full border border-border px-3 py-1">
+                    {projectCountLabel}
+                  </span>
+                  <span className="rounded-full border border-border px-3 py-1">
+                    {propertyCountLabel}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         <section className="py-16">
           <div className="container">
             <div className="grid gap-8 lg:grid-cols-[2fr,1fr]">
-              <div className="space-y-6">
-                <div className="grid gap-4 rounded-2xl border border-border bg-card p-6 sm:grid-cols-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Founded</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">
-                      {foundedYear || "Not specified"}
+              <div className="space-y-10">
+                {/* Critical Stats Bar (Codex 3.1, 3.2, 3.3) */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {showDelivered && (
+                    <div className="rounded-xl border border-border bg-card p-4 text-center">
+                      <div className="text-xs uppercase text-muted-foreground mb-1">Delivered</div>
+                      <div className="text-2xl font-bold">{safeNum(unitsDelivered)} units</div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Headquarters</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">
-                      {headquarters}
+                  )}
+                  {showStars && (
+                    <div className="rounded-xl border border-border bg-card p-4 text-center">
+                      <div className="text-xs uppercase text-muted-foreground mb-1">Rating</div>
+                      <div className="text-2xl font-bold text-yellow-500">{developer.stars?.toFixed(1)} ★</div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-xs uppercase tracking-wide text-muted-foreground">Official Website</div>
-                    <div className="mt-2 text-sm font-medium text-foreground">
-                      {officialWebsite}
+                  )}
+                  {showHonesty && (
+                    <div className="rounded-xl border border-border bg-card p-4 text-center">
+                      <div className="text-xs uppercase text-muted-foreground mb-1">Trust Score</div>
+                      <div className="text-2xl font-bold gold-text-gradient">{safeScore(developer.honestyScore)}</div>
                     </div>
+                  )}
+                  <div className="rounded-xl border border-border bg-card p-4 text-center">
+                    <div className="text-xs uppercase text-muted-foreground mb-1">Avg Yield</div>
+                    <div className="text-2xl font-bold text-green-600">{safePercent(stats.avgYield)}</div>
                   </div>
                 </div>
-
-                <h2 className="font-serif text-2xl font-bold">Track Record</h2>
-                <p className="text-muted-foreground">
-                  {developer.trackRecord || "Consistent delivery across prime Dubai communities and mixed-use districts."}
-                </p>
 
                 <div>
-                  <h3 className="font-serif text-xl font-semibold mb-3">Awards</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {(developer.awards?.length ? developer.awards : ["Top Developer"]).map((award) => (
-                      <Badge key={award} variant="secondary">
-                        {award}
-                      </Badge>
-                    ))}
-                  </div>
+                  <h2 className="font-serif text-2xl font-bold mb-4">Track Record</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {developer.trackRecord || "Consistent delivery across prime Dubai communities and mixed-use districts."}
+                  </p>
                 </div>
+
+                {showAwards && (
+                  <div>
+                    <h3 className="font-serif text-xl font-semibold mb-3">Awards</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {developer.awards?.map((award) => (
+                        <Badge key={award} variant="secondary" className="px-3 py-1">
+                          {award}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <h3 className="font-serif text-xl font-semibold mb-3">Top 5 Areas of Focus</h3>

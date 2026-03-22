@@ -9,42 +9,73 @@ interface DeveloperCardProps {
 }
 
 export function DeveloperCard({ developer }: DeveloperCardProps) {
+  const showCompleted = shouldShow(developer.completedProjects)
+  const showStars = shouldShow(developer.stars)
+  const showHonesty = shouldShow(developer.honestyScore)
+
   return (
     <Link href={`/developers/${developer.slug}`}>
       <Card className="group overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg">
         <CardContent className="p-5">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-card">
-              <Building2 className="h-5 w-5 text-primary" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-card overflow-hidden">
+              {developer.logo && developer.logo !== "/logo.png" ? (
+                <img
+                  src={developer.logo}
+                  alt={developer.name}
+                  className="h-full w-full object-contain p-1"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary font-bold">
+                  {developer.name?.[0]}
+                </div>
+              )}
             </div>
             <div className="flex-1">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-lg font-semibold text-foreground">{developer.name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {developer.tier ? `${developer.tier} developer` : "Dubai developer"}
+                  <div className="text-lg font-semibold text-foreground line-clamp-1">{developer.name}</div>
+                  <div className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">
+                    {developer.tier || "Developer"}
                   </div>
                 </div>
-                <Badge variant="secondary">
-                  {developer.awards[0] || "Top Developer"}
-                </Badge>
+                {developer.awards?.length > 0 && (
+                  <Badge variant="secondary" className="shrink-0">
+                    {developer.awards[0]}
+                  </Badge>
+                )}
               </div>
-              <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
-                {developer.description}
-              </p>
             </div>
           </div>
 
-          <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3">
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">Track record</div>
-            <p className="mt-1 text-sm text-foreground">{developer.trackRecord}</p>
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            {showCompleted && (
+              <div className="rounded-lg bg-muted/30 p-2 text-center">
+                <div className="text-[10px] uppercase text-muted-foreground">Delivered</div>
+                <div className="text-sm font-bold">{safeNum(developer.completedProjects)}</div>
+              </div>
+            )}
+            {showStars && (
+              <div className="rounded-lg bg-muted/30 p-2 text-center">
+                <div className="text-[10px] uppercase text-muted-foreground">Rating</div>
+                <div className="text-sm font-bold">{developer.stars?.toFixed(1)} ★</div>
+              </div>
+            )}
+            {showHonesty && (
+              <div className="rounded-lg bg-muted/30 p-2 text-center col-span-2">
+                <div className="text-[10px] uppercase text-muted-foreground">Trust Score</div>
+                <div className="text-sm font-bold">{safeScore(developer.honestyScore)}</div>
+              </div>
+            )}
           </div>
 
-          <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-            <span className="rounded-full border border-border px-2 py-1">
-              {developer.tier ? developer.tier : "Core"}
-            </span>
-            <span className="text-foreground">View profile →</span>
+          <p className="mt-4 text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {developer.description}
+          </p>
+
+          <div className="mt-4 flex items-center justify-end text-xs font-medium gold-text-gradient">
+            View profile →
           </div>
         </CardContent>
       </Card>

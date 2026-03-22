@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { SlidersHorizontal, X } from "lucide-react"
+import { safeNum } from "@/lib/utils/safeDisplay"
 
 const dubaiAreas = [
   "Dubai Marina", "Downtown Dubai", "Palm Jumeirah", "Business Bay",
@@ -157,10 +158,10 @@ export function PropertyFilters() {
           />
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
-              {currency} {priceRange[0].toLocaleString()}
+              {currency} {safeNum(priceRange[0])}
             </span>
             <span className="text-muted-foreground">
-              {currency} {priceRange[1].toLocaleString()}
+              {currency} {safeNum(priceRange[1])}
             </span>
           </div>
         </div>
