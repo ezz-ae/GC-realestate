@@ -165,7 +165,7 @@ export function ProjectLeadForm({ projectName, projectSlug }: ProjectLeadFormPro
       <div className="border-t border-border p-6 text-center">
         <p className="text-sm text-muted-foreground">Or speak to a consultant directly</p>
         <Button variant="outline" className="mt-4 w-full" asChild>
-          <a href="https://wa.me/971507505175" target="_blank" rel="noopener noreferrer">
+          <a href="https://wa.me/97150000000" target="_blank" rel="noopener noreferrer">
             <MessageCircle className="mr-2 h-4 w-4" />
             WhatsApp Us
           </a>

@@ -13,6 +13,16 @@ import {
   getPropertiesByDeveloper,
   getDeveloperStats,
 } from "@/lib/entrestate"
+import {
+  safeNum,
+  safePercent,
+  safePrice,
+  safeScore,
+  shouldShow,
+  getAvatarInitial,
+  nameToColor,
+} from "@/lib/utils/safeDisplay"
+import { filterAuthorizedDevelopers, isAuthorizedDeveloper } from "@/lib/utils/authorized"
 
 const fallbackStats = {
   listings: 0,
@@ -30,7 +40,8 @@ const fallbackStats = {
 }
 
 export async function generateStaticParams() {
-  const developers = await getDevelopers().catch(() => [])
+  const rawDevelopers = await getDevelopers().catch(() => [])
+  const developers = filterAuthorizedDevelopers(rawDevelopers)
   return developers
     .map((developer) => ({ slug: developer.slug }))
     .filter((params) => Boolean(params.slug))
@@ -60,7 +71,7 @@ export default async function DeveloperDetailPage({
   const { slug } = await params
   const developer = await getDeveloperBySlug(slug).catch(() => null)
 
-  if (!developer) {
+  if (!developer || !isAuthorizedDeveloper(developer)) {
     notFound()
   }
 
@@ -86,6 +97,49 @@ export default async function DeveloperDetailPage({
   const headquarters = developer.headquarters || "Dubai, UAE"
   const officialWebsite = developer.website || "Not listed"
   const unitsDelivered = developer.completedProjects ?? stats.completed
+  const PRICE_FALLBACK = "Price on Request"
+  const minPriceLabel = safePrice(stats.minPrice)
+  const maxPriceLabel = safePrice(stats.maxPrice)
+  const priceRangeLabel = (() => {
+    if (minPriceLabel === PRICE_FALLBACK && maxPriceLabel === PRICE_FALLBACK) {
+      return PRICE_FALLBACK
+    }
+    if (minPriceLabel === PRICE_FALLBACK) return `Up to ${maxPriceLabel}`
+    if (maxPriceLabel === PRICE_FALLBACK) return `${minPriceLabel}+`
+    return `${minPriceLabel} - ${maxPriceLabel}`
+  })()
+  const showPriceRange = shouldShow(stats.minPrice) || shouldShow(stats.maxPrice)
+  const trustSignalRows = [
+    {
+      label: "Units delivered",
+      value: safeNum(unitsDelivered),
+      show: shouldShow(unitsDelivered),
+    },
+    {
+      label: "On-time delivery rate",
+      value: safePercent(stats.onTimeDeliveryRate),
+      show: shouldShow(stats.onTimeDeliveryRate),
+    },
+    {
+      label: "Avg market score",
+      value: safeScore(stats.avgScore),
+      show: shouldShow(stats.avgScore),
+    },
+    {
+      label: "Golden Visa eligible",
+      value: safeNum(stats.goldenVisaCount),
+      show: shouldShow(stats.goldenVisaCount),
+    },
+  ]
+  const overviewStats = [
+    { label: "Listings", value: safeNum(stats.listings), show: shouldShow(stats.listings) },
+    { label: "Active", value: safeNum(stats.active), show: shouldShow(stats.active) },
+    { label: "Completed", value: safeNum(stats.completed), show: shouldShow(stats.completed) },
+    { label: "Avg Yield", value: safePercent(stats.avgYield), show: shouldShow(stats.avgYield) },
+    { label: "Avg Score", value: safeScore(stats.avgScore), show: shouldShow(stats.avgScore) },
+    { label: "GV Count", value: safeNum(stats.goldenVisaCount), show: shouldShow(stats.goldenVisaCount) },
+  ]
+  const visibleTrustRows = trustSignalRows.filter((row) => row.show)
 
   return (
     <>
@@ -104,12 +158,16 @@ export default async function DeveloperDetailPage({
               <span className="rounded-full border border-border px-3 py-1">
                 {developer.tier ? `${developer.tier} developer` : "Dubai developer"}
               </span>
-              <span className="rounded-full border border-border px-3 py-1">
-                {developerProjects.length} projects
-              </span>
-              <span className="rounded-full border border-border px-3 py-1">
-                {developerProperties.length} listings
-              </span>
+              {developerProjects.length > 0 && (
+                <span className="rounded-full border border-border px-3 py-1">
+                  {developerProjects.length} projects
+                </span>
+              )}
+              {developerProperties.length > 0 && (
+                <span className="rounded-full border border-border px-3 py-1">
+                  {developerProperties.length} listings
+                </span>
+              )}
             </div>
           </div>
         </section>
@@ -199,31 +257,24 @@ export default async function DeveloperDetailPage({
                   <CardContent className="p-6 space-y-4">
                     <h3 className="font-serif text-xl font-semibold">Trust Signals</h3>
                     <div className="space-y-3 text-sm text-muted-foreground">
-                      <div className="flex items-center justify-between">
-                        <span>Units delivered</span>
-                        <span className="text-foreground">{unitsDelivered}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>On-time delivery rate</span>
-                        <span className="text-foreground">
-                          {stats.onTimeDeliveryRate != null ? `${stats.onTimeDeliveryRate}%` : "N/A"}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Avg market score</span>
-                        <span className="text-foreground">{stats.avgScore || "N/A"}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Golden Visa eligible</span>
-                        <span className="text-foreground">{stats.goldenVisaCount}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Price range</span>
-                        <span className="text-foreground">
-                          {stats.minPrice ? formatPrice(stats.minPrice) : "N/A"} -{" "}
-                          {stats.maxPrice ? formatPrice(stats.maxPrice) : "N/A"}
-                        </span>
-                      </div>
+                      {visibleTrustRows.length > 0 ? (
+                        visibleTrustRows.map((row) => (
+                          <div key={row.label} className="flex items-center justify-between">
+                            <span>{row.label}</span>
+                            <span className="text-foreground">{row.value}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-xs text-muted-foreground uppercase tracking-[0.2em]">
+                          Trust signals are being updated.
+                        </div>
+                      )}
+                      {showPriceRange && (
+                        <div className="flex items-center justify-between">
+                          <span>Price range</span>
+                          <span className="text-foreground">{priceRangeLabel}</span>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -252,41 +303,27 @@ export default async function DeveloperDetailPage({
         <section className="py-10">
           <div className="container">
             <div className="grid gap-4 rounded-2xl border border-border bg-card p-6 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Listings</div>
-                <div className="mt-2 text-lg font-semibold">{stats.listings}</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Active</div>
-                <div className="mt-2 text-lg font-semibold">{stats.active}</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Completed</div>
-                <div className="mt-2 text-lg font-semibold">{stats.completed}</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Avg Yield</div>
-                <div className="mt-2 text-lg font-semibold">{stats.avgYield}%</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Avg Score</div>
-                <div className="mt-2 text-lg font-semibold">{stats.avgScore}</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">GV Count</div>
-                <div className="mt-2 text-lg font-semibold">{stats.goldenVisaCount}</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Price Range</div>
-                <div className="mt-2 text-lg font-semibold">
-                  {stats.minPrice ? formatPrice(stats.minPrice) : "N/A"} -{" "}
-                  {stats.maxPrice ? formatPrice(stats.maxPrice) : "N/A"}
+              {overviewStats.map(
+                (stat) =>
+                  stat.show && (
+                    <div key={stat.label}>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">{stat.label}</div>
+                      <div className="mt-2 text-lg font-semibold">{stat.value}</div>
+                    </div>
+                  ),
+              )}
+              {showPriceRange && (
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Price Range</div>
+                  <div className="mt-2 text-lg font-semibold">{priceRangeLabel}</div>
                 </div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">Units Delivered</div>
-                <div className="mt-2 text-lg font-semibold">{unitsDelivered}</div>
-              </div>
+              )}
+              {shouldShow(unitsDelivered) && (
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Units Delivered</div>
+                  <div className="mt-2 text-lg font-semibold">{safeNum(unitsDelivered)}</div>
+                </div>
+              )}
             </div>
           </div>
         </section>

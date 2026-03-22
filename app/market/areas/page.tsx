@@ -1,9 +1,11 @@
 import { Badge } from "@/components/ui/badge"
 import { getAreas } from "@/lib/entrestate"
+import { filterAuthorizedAreas } from "@/lib/utils/authorized"
 import { AreasGuideClient } from "@/components/areas-guide-client"
 
 export default async function AreasGuidePage() {
-  const areas = await getAreas().catch(() => [])
+  const rawAreas = await getAreas().catch(() => [])
+  const areas = filterAuthorizedAreas(rawAreas)
 
   return (
     <>

@@ -86,16 +86,16 @@ export function LeadForm({ projectName, source = "website" }: LeadFormProps) {
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number *</Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          placeholder="+971 50 750 5175"
-          required
-        />
-      </div>
+        <div className="space-y-2">
+          <Label htmlFor="phone">Phone Number *</Label>
+          <Input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="+97150000000"
+            required
+          />
+        </div>
 
       <div className="space-y-2">
         <Label htmlFor="country">Country *</Label>

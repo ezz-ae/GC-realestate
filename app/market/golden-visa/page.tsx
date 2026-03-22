@@ -50,14 +50,14 @@ export default function GoldenVisaPage() {
                     <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg gold-gradient">
                       <Award className="h-6 w-6 text-primary-foreground" />
                     </div>
-                    <CardTitle className="font-serif">AED 2 Million</CardTitle>
+                    <CardTitle className="font-serif">AED 1 Million</CardTitle>
                     <CardDescription>5-Year Golden Visa</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>Purchase property valued at minimum AED 2M</span>
+                        <span>Purchase property valued at minimum AED 1M</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
@@ -69,7 +69,7 @@ export default function GoldenVisaPage() {
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>Must not be mortgaged (or mortgage &lt; AED 2M)</span>
+                        <span>Mortgages allowed when total investment still meets the AED 1M threshold</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
@@ -84,14 +84,14 @@ export default function GoldenVisaPage() {
                     <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg gold-gradient">
                       <Award className="h-6 w-6 text-primary-foreground" />
                     </div>
-                    <CardTitle className="font-serif">AED 5 Million+</CardTitle>
+                    <CardTitle className="font-serif">AED 2 Million</CardTitle>
                     <CardDescription>10-Year Golden Visa</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>Purchase property valued at minimum AED 5M</span>
+                        <span>Purchase property valued at minimum AED 2M</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
@@ -99,15 +99,15 @@ export default function GoldenVisaPage() {
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>Premium tier with enhanced benefits</span>
+                        <span>Priority approvals for family sponsorship and renewals</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>Fully paid (no mortgage allowed)</span>
+                        <span>Fully paid investment (no mortgage allowed)</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>Longer validity with more stability</span>
+                        <span>Ten-year stability for you and your dependents</span>
                       </li>
                     </ul>
                   </CardContent>
@@ -215,7 +215,7 @@ export default function GoldenVisaPage() {
                   {
                     step: 1,
                     title: "Purchase Eligible Property",
-                    description: "Buy property worth minimum AED 2 million (5-year visa) or AED 5 million (10-year visa). Property must be freehold and registered with Dubai Land Department.",
+                    description: "Buy property worth minimum AED 1 million (5-year visa) or AED 2 million (10-year visa). Property must be freehold and registered with Dubai Land Department.",
                   },
                   {
                     step: 2,

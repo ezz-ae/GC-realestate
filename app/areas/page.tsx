@@ -5,6 +5,8 @@ import { SmallLeadForm } from "@/components/small-lead-form"
 import { getAreas } from "@/lib/entrestate"
 import Link from "next/link"
 import { Metadata } from "next"
+import { filterAuthorizedAreas } from "@/lib/utils/authorized"
+import { safeNum, safePercent, shouldShow } from "@/lib/utils/safeDisplay"
 
 export const metadata: Metadata = {
   title: "Dubai Area Guides & Neighborhood Insights | Gold Century",
@@ -17,10 +19,18 @@ export const metadata: Metadata = {
 }
 
 export default async function AreasPage() {
-  const areas = await getAreas().catch(() => [])
+  const rawAreas = await getAreas().catch(() => [])
+  const areas = filterAuthorizedAreas(rawAreas)
   const topYieldAreas = [...areas].sort((a, b) => b.rentalYield - a.rentalYield).slice(0, 3)
   const bestValueAreas = [...areas].sort((a, b) => a.avgPricePerSqft - b.avgPricePerSqft).slice(0, 3)
   const topScoreAreas = [...areas].sort((a, b) => b.investmentScore - a.investmentScore).slice(0, 3)
+  const formatPriceLabel = (value?: number) => {
+    const formatted = safeNum(value)
+    return formatted === "—" ? "—" : `AED ${formatted}`
+  }
+  const formatYieldLabel = (value?: number) => safePercent(value)
+  const formatScoreLabel = (value?: number) =>
+    shouldShow(value) ? `${value}/10` : "—"
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -71,7 +81,7 @@ export default async function AreasPage() {
                   {topYieldAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
                       <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
-                      <span className="font-semibold text-green-600">{area.rentalYield}%</span>
+                      <span className="font-semibold text-green-600">{formatYieldLabel(area.rentalYield)}</span>
                     </li>
                   ))}
                 </ul>
@@ -84,7 +94,7 @@ export default async function AreasPage() {
                   {bestValueAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
                       <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
-                      <span className="font-semibold">AED {area.avgPricePerSqft.toLocaleString()}</span>
+                      <span className="font-semibold">{formatPriceLabel(area.avgPricePerSqft)}</span>
                     </li>
                   ))}
                 </ul>
@@ -97,7 +107,7 @@ export default async function AreasPage() {
                   {topScoreAreas.map((area) => (
                     <li key={area.slug} className="flex justify-between">
                       <Link href={`/areas/${area.slug}`} className="hover:underline">{area.name}</Link>
-                      <span className="font-semibold gold-text-gradient">{area.investmentScore}/10</span>
+                      <span className="font-semibold gold-text-gradient">{formatScoreLabel(area.investmentScore)}</span>
                     </li>
                   ))}
                 </ul>

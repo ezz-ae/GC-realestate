@@ -100,7 +100,7 @@ export default function ChatPage() {
   ]
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-theme(spacing.16)-theme(spacing.16))] md:h-[calc(100vh-theme(spacing.16)-theme(spacing.4))] overflow-hidden">
+    <div className="flex min-h-screen flex-col bg-background">
        {/* Header */}
        <header className="flex-none border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
           <div className="container flex h-14 items-center justify-between">
@@ -125,15 +125,14 @@ export default function ChatPage() {
        </header>
 
        {/* Main Chat Area */}
-       <div className="flex-1 overflow-hidden relative bg-background/50">
+       <main className="flex-1 min-h-0 overflow-hidden relative bg-background/50">
             {/* Background Effects */}
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-30">
                 <div className="absolute -top-[10%] -right-[5%] h-[600px] w-[600px] rounded-full bg-primary/10 blur-[120px]" />
                 <div className="absolute top-[30%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div className="h-full">
-              <div ref={scrollViewportRef} className="h-full overflow-y-auto overscroll-contain px-4 py-8 md:px-8">
+            <div ref={scrollViewportRef} className="h-full min-h-0 overflow-y-auto overscroll-contain px-4 py-8 md:px-8">
                 <div className="mx-auto max-w-4xl space-y-10 pb-8">
                     {messages.length === 0 ? (
                          <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
@@ -219,9 +218,8 @@ export default function ChatPage() {
                         </>
                     )}
                 </div>
-              </div>
             </div>
-       </div>
+       </main>
 
        {/* Input Area */}
        <div className="flex-none bg-background p-4 md:pb-6">

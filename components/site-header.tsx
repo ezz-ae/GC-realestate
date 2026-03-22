@@ -190,7 +190,7 @@ export function SiteHeader() {
             asChild
             className="border border-border/40 text-foreground"
           >
-            <a href="https://wa.me/971507505175" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+            <a href="https://wa.me/97150000000" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
               <MessageCircle className="h-4 w-4" />
             </a>
           </Button>

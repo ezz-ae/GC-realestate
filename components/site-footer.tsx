@@ -44,17 +44,16 @@ const footerSections = [
       { href: "/market/financing#pre-approval", label: "Get Pre-Approved" },
     ],
   },
-  {
-    title: "Tools & Analytics",
-    links: [
-      { href: "/tools", label: "Tools Hub" },
-      { href: "/tools/payment-simulator", label: "Payment Simulator" },
-      { href: "/tools/roi-calculator", label: "ROI Calculator" },
-      { href: "/tools/comparator", label: "Project Comparator" },
-      { href: "/tools/market-tracker", label: "Market Tracker" },
-      { href: "/api/intelligence-block", label: "Live Pulse API" },
-    ],
-  },
+          {
+            title: "Tools & Analytics",
+            links: [
+              { href: "/tools", label: "Tools Hub" },
+              { href: "/tools/payment-simulator", label: "Payment Simulator" },
+              { href: "/tools/roi-calculator", label: "ROI Calculator" },
+              { href: "/tools/comparator", label: "Project Comparator" },
+              { href: "/tools/market-tracker", label: "Market Tracker" },
+            ],
+          },
   {
     title: "Company",
     links: [
@@ -110,7 +109,7 @@ export function SiteFooter() {
                 <div className="h-8 w-8 rounded-full border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
                   <Phone className="h-4 w-4 text-primary" />
                 </div>
-                <span>+971 50 750 5175</span>
+                <span>+97150000000</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground group">
                 <div className="h-8 w-8 rounded-full border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
@@ -149,7 +148,7 @@ export function SiteFooter() {
                 </a>
               </Button>
               <Button size="icon" variant="outline" className="rounded-full h-10 w-10" aria-label="WhatsApp" asChild>
-                <a href="https://wa.me/971507505175" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/97150000000" target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                 </a>
               </Button>

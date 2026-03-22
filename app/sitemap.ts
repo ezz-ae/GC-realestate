@@ -1,12 +1,14 @@
 import { MetadataRoute } from 'next'
 import { getProjectsForGrid, getAreas, getProperties } from '@/lib/entrestate'
+import { filterAuthorizedAreas } from '@/lib/utils/authorized'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://goldcentury.ae'
 
   // Fetch dynamic data
   const projects = await getProjectsForGrid(120)
-  const areas = await getAreas()
+  const rawAreas = await getAreas()
+  const areas = filterAuthorizedAreas(rawAreas)
   const properties = await getProperties(120)
 
   // Dynamic routes

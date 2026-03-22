@@ -106,7 +106,7 @@ export default function RootLayout({
     "image": "https://goldcentury.ae/logo_blsck.png",
     "@id": "https://goldcentury.ae",
     "url": "https://goldcentury.ae",
-    "telephone": "+971501234567",
+    "telephone": "+97150000000",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Business Bay",

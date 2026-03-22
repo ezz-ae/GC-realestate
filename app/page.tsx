@@ -94,11 +94,11 @@ export default async function Home() {
               </label>
               <label className="flex flex-col space-y-1 text-xs uppercase tracking-widest text-muted-foreground">
                 WhatsApp or Phone
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  placeholder="+971 50 750 5175"
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="+97150000000"
                   className="rounded-2xl border border-border bg-background/80 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/70"
                 />
               </label>

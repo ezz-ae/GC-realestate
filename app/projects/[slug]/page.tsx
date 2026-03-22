@@ -39,6 +39,15 @@ import { getProjectBySlug, getProjectsForGrid, searchProjects, getAdjacentProjec
 import { Toaster } from "@/components/ui/toaster"
 import type { Project } from "@/lib/types/project"
 import { ProjectLeadForm } from "@/components/project-lead-form"
+import { ProjectMap } from "@/components/project-map"
+import {
+  safePercent,
+  shouldShow,
+  isPositiveNumber,
+  nameToColor,
+  getAvatarInitial,
+  hasValidCoordinates,
+} from "@/lib/utils/safeDisplay"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -264,7 +273,7 @@ export default async function ProjectPage({
   const testimonials = toArray(project.testimonials)
   const faqs = toArray(project.faqs)
   const developer = project.developer || { name: "Gold Century", logo: "" }
-  const phoneNumber = "+971507505175"
+  const phoneNumber = "+97150000000"
   const heroImage = project.heroImage || "/logo.png"
   const heroImageClass = project.heroImage ? "object-cover" : "object-contain bg-card"
 
@@ -276,6 +285,23 @@ export default async function ProjectPage({
   const hasTimeline =
     Boolean(timeline.launchDate || timeline.constructionStart || timeline.expectedCompletion || timeline.handoverDate) ||
     Number.isFinite(timeline.progressPercentage)
+  const hasMapCoordinates = hasValidCoordinates(location.coordinates?.lat ?? null, location.coordinates?.lng ?? null)
+  const roiLabel = safePercent(project.investmentHighlights?.expectedROI)
+  const yieldLabel = safePercent(project.investmentHighlights?.rentalYield)
+  const hasRoi = isPositiveNumber(project.investmentHighlights?.expectedROI)
+  const hasYield = isPositiveNumber(project.investmentHighlights?.rentalYield)
+  const showProgress = shouldShow(timeline.progressPercentage)
+  const formatUnitSizeRange = (unit: { sizeFrom?: number; sizeTo?: number }) => {
+    const sizes = [unit.sizeFrom, unit.sizeTo].filter(isPositiveNumber)
+    if (!sizes.length) return ""
+    const min = Math.min(...sizes)
+    const max = Math.max(...sizes)
+    return min === max
+      ? `${min.toLocaleString()} sq ft`
+      : `${min.toLocaleString()} - ${max.toLocaleString()} sq ft`
+  }
+  const formatUnitAvailability = (value?: number) =>
+    isPositiveNumber(value) ? `${value} available` : "Sold out"
   const hasSpecifications = Boolean(project.specifications && project.specifications.trim())
   const hasMedia =
     Boolean(project.heroVideo || project.virtualTour || project.masterplan || project.brochure) ||
@@ -418,42 +444,48 @@ export default async function ProjectPage({
         <section className="border-b border-border bg-card/50 py-8">
           <div className="container">
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
-                  <TrendingUp className="h-6 w-6 text-black" />
+              {hasRoi && (
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
+                    <TrendingUp className="h-6 w-6 text-black" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Expected ROI</div>
+                    <div className="text-xl font-bold">{roiLabel}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Expected ROI</div>
-                  <div className="text-xl font-bold">{project.investmentHighlights?.expectedROI ?? 0}%</div>
+              )}
+              {hasYield && (
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
+                    <Home className="h-6 w-6 text-black" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Rental Yield</div>
+                    <div className="text-xl font-bold">{yieldLabel}</div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
-                  <Home className="h-6 w-6 text-black" />
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Rental Yield</div>
-                  <div className="text-xl font-bold">{project.investmentHighlights?.rentalYield ?? 0}%</div>
-                </div>
-              </div>
+              )}
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
                   <Calendar className="h-6 w-6 text-black" />
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Handover</div>
-                  <div className="text-xl font-bold">{timeline.handoverDate || timeline.expectedCompletion}</div>
+                  <div className="text-xl font-bold">{timeline.handoverDate || timeline.expectedCompletion || "TBD"}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
-                  <Maximize className="h-6 w-6 text-black" />
+              {showProgress && (
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg gold-gradient flex-shrink-0">
+                    <Maximize className="h-6 w-6 text-black" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Progress</div>
+                    <div className="text-xl font-bold">{timeline.progressPercentage}%</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Progress</div>
-                  <div className="text-xl font-bold">{timeline.progressPercentage ?? 0}%</div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
@@ -658,19 +690,23 @@ export default async function ProjectPage({
                   <TabsContent value="units" className="mt-8">
                     <h2 className="font-serif text-2xl font-bold mb-6">Available Units</h2>
                     <div className="space-y-6">
-                      {units.map((unit: any, index: number) => (
-                        <Card key={index}>
-                          <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.1fr,1fr]">
-                            <div>
-                              <h3 className="font-semibold text-lg">{unit.type || "Unit"}</h3>
-                              <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <Maximize className="h-4 w-4" />
-                                  {unit.sizeFrom || 0} - {unit.sizeTo || 0} sq ft
-                                </div>
+                    {units.map((unit: any, index: number) => {
+                      const unitSizeLabel = formatUnitSizeRange(unit)
+                      return (
+                      <Card key={index}>
+                        <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.1fr,1fr]">
+                          <div>
+                            <h3 className="font-semibold text-lg">{unit.type || "Unit"}</h3>
+                            <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                {unitSizeLabel && (
+                                  <div className="flex items-center gap-1">
+                                    <Maximize className="h-4 w-4" />
+                                    {unitSizeLabel}
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-1">
                                   <Home className="h-4 w-4" />
-                                  {unit.available || 0} available
+                                  {formatUnitAvailability(unit.available)}
                                 </div>
                               </div>
                               <div className="mt-4 font-semibold gold-text-gradient text-lg">
@@ -707,7 +743,7 @@ export default async function ProjectPage({
                             </div>
                           </CardContent>
                         </Card>
-                      ))}
+                      )})}
                     </div>
                   </TabsContent>
 
@@ -849,6 +885,12 @@ export default async function ProjectPage({
                         ))}
                       </div>
                     )}
+
+                    <ProjectMap
+                      projectName={project.name}
+                      area={location.area}
+                      coordinates={hasMapCoordinates ? location.coordinates : undefined}
+                    />
                   </TabsContent>
 
                   <TabsContent value="payment" className="mt-8 space-y-8">
@@ -920,7 +962,7 @@ export default async function ProjectPage({
                     </div>
                     <div className="rounded-lg border border-border bg-card p-6">
                       <div className="flex flex-wrap items-start gap-4">
-                        {developer.logo && (
+                        {developer.logo ? (
                           <div className="rounded-xl border border-border bg-background p-3">
                             <Image
                               src={developer.logo}
@@ -929,6 +971,13 @@ export default async function ProjectPage({
                               height={60}
                               className="h-10 w-auto object-contain"
                             />
+                          </div>
+                        ) : (
+                          <div
+                            className="flex h-16 w-16 items-center justify-center rounded-xl border border-border text-xl font-semibold text-white"
+                            style={{ backgroundColor: nameToColor(developer.name) }}
+                          >
+                            {getAvatarInitial(developer.name)}
                           </div>
                         )}
                         <div>
@@ -949,8 +998,8 @@ export default async function ProjectPage({
                               <div className="text-sm font-semibold">{faq.question}</div>
                               <div className="mt-2 text-sm text-muted-foreground">{faq.answer}</div>
                             </CardContent>
-                          </Card>
-                        ))}
+                        </Card>
+                      )})
                       </div>
                     </TabsContent>
                   )}

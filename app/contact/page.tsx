@@ -46,8 +46,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm">Call Center</div>
-                      <a href="tel:+971507505175" className="text-base text-muted-foreground hover:text-primary transition-colors">
-                        +971 50 750 5175
+                      <a href="tel:+97150000000" className="text-base text-muted-foreground hover:text-primary transition-colors">
+                        +97150000000
                       </a>
                     </div>
                   </div>
@@ -58,7 +58,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm">WhatsApp</div>
-                      <a href="https://wa.me/971507505175" className="text-base text-muted-foreground hover:text-green-600 transition-colors">
+                      <a href="https://wa.me/97150000000" className="text-base text-muted-foreground hover:text-green-600 transition-colors">
                         Available 24/7
                       </a>
                     </div>
@@ -155,10 +155,10 @@ export default function ContactPage() {
                     </div>
                   </div>
                 </div>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div>
-                    <span className="font-medium text-foreground">Phone:</span> +971 50 750 5175
-                  </div>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <div>
+                      <span className="font-medium text-foreground">Phone:</span> +97150000000
+                    </div>
                   <div>
                     <span className="font-medium text-foreground">Email:</span> hello@goldcentury.ae
                   </div>

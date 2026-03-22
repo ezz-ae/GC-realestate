@@ -2,6 +2,7 @@ import { DeveloperCard } from "@/components/developer-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getDevelopers } from "@/lib/entrestate"
+import { filterAuthorizedDevelopers } from "@/lib/utils/authorized"
 import Link from "next/link"
 import { Metadata } from "next"
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function DevelopersPage() {
-  const developers = await getDevelopers()
+  const developers = filterAuthorizedDevelopers(await getDevelopers())
 
   return (
     <>

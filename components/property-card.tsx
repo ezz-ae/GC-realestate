@@ -6,6 +6,7 @@ import { MapPin, BedDouble, Bath, Maximize, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Property } from "@/lib/types/project"
+import { isPositiveNumber, shouldShow } from "@/lib/utils/safeDisplay"
 
 interface PropertyCardProps {
   property: Property
@@ -65,7 +66,7 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
           <h3 className={`font-serif font-bold group-hover:text-primary transition-colors ${compact ? "text-base line-clamp-2" : "text-xl line-clamp-1"}`}>
             {property.title}
           </h3>
-          {property.investmentMetrics.roi && (
+          {isPositiveNumber(property.investmentMetrics.roi) && (
             <Badge
               variant="outline"
               className={`shrink-0 border-primary/20 bg-primary/5 text-primary ${compact ? "text-[9px] h-4 px-1.5" : "text-[10px] h-5"}`}
@@ -90,7 +91,7 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
             <Bath className="h-4 w-4 text-foreground/70" />
             <span>{bathLabel}</span>
           </div>
-          {!compact && (
+          {!compact && shouldShow(property.specifications.sizeSqft) && (
             <div className="flex items-center gap-1.5">
               <Maximize className="h-4 w-4 text-foreground/70" />
               <span>{property.specifications.sizeSqft.toLocaleString()} sqft</span>

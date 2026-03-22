@@ -389,13 +389,13 @@ export default async function PropertyPage({
                     </p>
                     <div className="space-y-3">
                       <Button className="w-full gold-gradient text-black font-semibold" size="lg" asChild>
-                        <a href="tel:+971507505175">
+                        <a href="tel:+97150000000">
                           <Phone className="mr-2 h-4 w-4" />
                           Call Now
                         </a>
                       </Button>
                       <Button className="w-full" variant="outline" size="lg" asChild>
-                        <a href="https://wa.me/971507505175" target="_blank" rel="noopener noreferrer">
+                        <a href="https://wa.me/97150000000" target="_blank" rel="noopener noreferrer">
                           <MessageSquare className="mr-2 h-4 w-4" />
                           WhatsApp
                         </a>

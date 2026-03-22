@@ -1,5 +1,6 @@
 import type { AreaProfile, DeveloperProfile, Project, Property } from "@/lib/types/project"
 import { query } from "@/lib/db"
+import { normalizeSlug } from "@/lib/utils/slug"
 
 type ProjectRow = {
   id?: string
@@ -129,15 +130,6 @@ const getTableColumns = async (tableName: string) => {
     [tableName],
   )
   return new Set(rows.map((row) => row.column_name))
-}
-
-const normalizeSlug = (value?: string) => {
-  if (!value) return ""
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
 }
 
 const parseBedrooms = (unitType?: string) => {

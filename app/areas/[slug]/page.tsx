@@ -9,9 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getAreaBySlug, getAreas, getProjectsByArea, getPropertiesByArea } from "@/lib/entrestate"
+import { filterAuthorizedAreas, isAuthorizedAreaSlug } from "@/lib/utils/authorized"
+import { safeNum, safePercent, shouldShow } from "@/lib/utils/safeDisplay"
 
 export async function generateStaticParams() {
-  const areas = await getAreas().catch(() => [])
+  const rawAreas = await getAreas().catch(() => [])
+  const areas = filterAuthorizedAreas(rawAreas)
   return areas.map((area) => ({ slug: area.slug }))
 }
 
@@ -19,7 +22,7 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
   const { slug: rawSlug } = await params
   const slug = typeof rawSlug === "string" ? rawSlug.trim() : ""
 
-  if (!slug) {
+  if (!slug || !isAuthorizedAreaSlug(slug)) {
     notFound()
   }
 
@@ -37,6 +40,15 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
 
   const areaProjects = projectsResult.status === "fulfilled" ? projectsResult.value : []
   const areaProperties = propertiesResult.status === "fulfilled" ? propertiesResult.value : []
+  const formatPriceLabel = (value?: number) => {
+    const formatted = safeNum(value)
+    return formatted === "—" ? "—" : `AED ${formatted}`
+  }
+  const formatYieldLabel = (value?: number) => safePercent(value)
+  const formatScoreLabel = (value?: number) => (shouldShow(value) ? `${value}/10` : "—")
+  const formatListingsLabel = (value?: number) =>
+    shouldShow(value) ? `${value}+ listings` : "—"
+  const formatListingCount = (value?: number) => (shouldShow(value) ? `${value}+` : "—")
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -72,15 +84,15 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
               </div>
               <div className="grid grid-cols-3 gap-3 rounded-lg border border-border bg-muted/50 p-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold gold-text-gradient">AED {area.avgPricePerSqft}</div>
+                <div className="text-2xl font-bold gold-text-gradient">{formatPriceLabel(area.avgPricePerSqft)}</div>
                   <div className="text-xs text-muted-foreground">Avg. Price/sqft</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{area.rentalYield}%</div>
+                  <div className="text-2xl font-bold text-green-600">{formatYieldLabel(area.rentalYield)}</div>
                   <div className="text-xs text-muted-foreground">Rental Yield</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold gold-text-gradient">{area.investmentScore}/10</div>
+                  <div className="text-2xl font-bold gold-text-gradient">{formatScoreLabel(area.investmentScore)}</div>
                   <div className="text-xs text-muted-foreground">Investment Score</div>
                 </div>
               </div>
@@ -94,7 +106,7 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
               <Card>
                 <CardContent className="p-4 space-y-2">
                   <div className="text-xs uppercase tracking-wide text-muted-foreground">Liquidity</div>
-                  <div className="text-xl font-semibold">{area.propertyCount}+ listings</div>
+                  <div className="text-xl font-semibold">{formatListingsLabel(area.propertyCount)}</div>
                   <p className="text-sm text-muted-foreground">
                     Depth of available inventory signals easier entry and exit.
                   </p>
@@ -103,7 +115,7 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
               <Card>
                 <CardContent className="p-4 space-y-2">
                   <div className="text-xs uppercase tracking-wide text-muted-foreground">Yield Signal</div>
-                  <div className="text-xl font-semibold text-green-600">{area.rentalYield}%</div>
+                  <div className="text-xl font-semibold text-green-600">{formatYieldLabel(area.rentalYield)}</div>
                   <p className="text-sm text-muted-foreground">
                     Income-led returns with rental demand anchored by nearby landmarks.
                   </p>
@@ -172,7 +184,7 @@ export default async function AreaDetailPage({ params }: { params: Promise<{ slu
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Active Listings</span>
-                        <span className="font-medium">{area.propertyCount}+</span>
+                        <span className="font-medium">{formatListingCount(area.propertyCount)}</span>
                       </div>
                     </div>
                     <Button className="w-full gold-gradient" asChild>
