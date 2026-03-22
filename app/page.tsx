@@ -3,46 +3,53 @@ import { FeaturedProperties } from "@/components/featured-properties"
 import { MarketSnapshot } from "@/components/market-snapshot"
 import { BlogSection } from "@/components/blog-section"
 import { Button } from "@/components/ui/button"
-import { TrendingUp, Building2, MapPin, Sparkles, MessageSquare, Search, Map } from "lucide-react"
+import { TrendingUp, Building2, MapPin, Sparkles, MessageSquare, Map } from "lucide-react"
 import Link from "next/link"
+import { AnimatedText } from "@/components/animated-text"
 
 export default function Home() {
   return (
     <>
-        {/* Experience Plane: Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted py-24 md:py-40">
+        {/* Restored Premium Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted pt-24 pb-20 md:pt-40 md:pb-32">
           <div className="container">
             <div className="mx-auto max-w-4xl text-center">
-              <h1 className="font-serif text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl">
-                The Decision Layer for{" "}
+              <h1 className="font-serif text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl mb-8">
+                <AnimatedText text="Investment Intelligence for" />
+                <br />
                 <span className="gold-text-gradient">Dubai Real Estate</span>
               </h1>
-              <p className="mt-6 text-lg text-muted-foreground text-balance md:text-xl">
-                Advanced intelligence for property investors. 3500+ projects, verified data, AI-driven insights.
+              
+              <p className="mt-6 text-lg text-muted-foreground text-balance md:text-xl max-w-2xl mx-auto">
+                Discover 3500+ luxury properties and exclusive off-plan projects in Dubai’s premier locations.
+                Advanced data for profitable real estate investment.
               </p>
               
-              {/* Primary Actions: Chat, Search, Map */}
-              <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
-                <Button size="lg" className="gold-gradient h-14 px-8 text-lg" asChild>
+              {/* Centerpiece: AI Search Bar */}
+              <div className="mx-auto mt-12 max-w-3xl">
+                <AISearchBar />
+              </div>
+
+              {/* Secondary Actions */}
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full" asChild>
                   <Link href="/chat">
-                    <MessageSquare className="mr-2 h-5 w-5" /> AI Chat
+                    <MessageSquare className="mr-2 h-4 w-4 text-primary" /> AI Assistant
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-14 px-8 text-lg" asChild>
-                  <Link href="/search">
-                    <Search className="mr-2 h-5 w-5" /> Search Engine
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" className="h-14 px-8 text-lg" asChild>
+                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full" asChild>
                   <Link href="/map">
-                    <Map className="mr-2 h-5 w-5" /> Spatial Map
+                    <Map className="mr-2 h-4 w-4 text-primary" /> Spatial Map
                   </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="h-12 px-6 rounded-full" asChild>
+                  <Link href="/properties">Browse All</Link>
                 </Button>
               </div>
 
-              {/* 3 Golden Path Buttons (TableSpec JSON presets) */}
-              <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50" asChild>
+              {/* Golden Path Buttons (Experience Plane) */}
+              <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50 backdrop-blur-sm transition-all hover:shadow-md" asChild>
                   <Link href="/chat?q=Show+me+highest+yield+projects+in+Dubai+Marina">
                     <TrendingUp className="h-8 w-8 text-primary" />
                     <div className="text-center">
@@ -51,7 +58,7 @@ export default function Home() {
                     </div>
                   </Link>
                 </Button>
-                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50" asChild>
+                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50 backdrop-blur-sm transition-all hover:shadow-md" asChild>
                   <Link href="/chat?q=Show+me+projects+completing+in+2025+under+2M+AED">
                     <Building2 className="h-8 w-8 text-primary" />
                     <div className="text-center">
@@ -60,7 +67,7 @@ export default function Home() {
                     </div>
                   </Link>
                 </Button>
-                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50" asChild>
+                <Button variant="ghost" className="h-auto p-6 border border-border hover:border-primary/50 flex flex-col items-center gap-3 bg-card/50 backdrop-blur-sm transition-all hover:shadow-md" asChild>
                   <Link href="/chat?q=Find+Golden+Visa+eligible+projects+near+Downtown">
                     <Sparkles className="h-8 w-8 text-primary" />
                     <div className="text-center">
