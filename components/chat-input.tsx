@@ -46,27 +46,25 @@ export function ChatInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="min-h-[72px] resize-none border-0 bg-transparent p-2 pr-12 text-base focus-visible:ring-0"
-          rows={2}
+          className="min-h-[84px] resize-none border-0 bg-transparent px-2 py-1 text-base focus-visible:ring-0"
+          rows={3}
         />
-        <div className="flex items-center justify-between px-2 pb-1">
-          <span className="text-[11px] text-muted-foreground">
-            Press Enter to send, Shift+Enter for a new line.
-          </span>
+        <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+          <span>Press Enter to send, Shift+Enter for a new line.</span>
+          <Button
+            type="submit"
+            size="icon"
+            disabled={!input.trim() || disabled}
+            className="h-9 w-9 rounded-full gold-gradient shadow-sm"
+          >
+            {disabled ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
-      <Button
-        type="submit"
-        size="icon"
-        disabled={!input.trim() || disabled}
-        className="absolute bottom-3 right-4 h-9 w-9 gold-gradient shadow-sm"
-      >
-        {disabled ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Send className="h-4 w-4" />
-        )}
-      </Button>
     </form>
   )
 }

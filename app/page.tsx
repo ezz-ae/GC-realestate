@@ -1,5 +1,3 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
 import { AISearchBar } from "@/components/ai-search-bar"
 import { FeaturedProperties } from "@/components/featured-properties"
 import { MarketSnapshot } from "@/components/market-snapshot"
@@ -10,9 +8,7 @@ import Link from "next/link"
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
+    <>
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted py-20 md:py-32">
           <div className="container">
@@ -22,7 +18,7 @@ export default function Home() {
                 <span className="gold-text-gradient">Dubai Real Estate</span>
               </h1>
               <p className="mt-6 text-lg text-muted-foreground text-balance md:text-xl">
-                Discover 3500+ luxury properties and exclusive off-plan projects in Dubai's premier locations.
+                Discover 3500+ luxury properties and exclusive off-plan projects in Dubai’s premier locations.
                 Your gateway to profitable real estate investment.
               </p>
               
@@ -153,10 +149,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </main>
-      
-      {/* Simple Footer */}
-      <SiteFooter />
-    </div>
+    </>
   )
 }

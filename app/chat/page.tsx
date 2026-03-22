@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
-import { SiteHeader } from "@/components/site-header"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { ChatMessage } from "@/components/chat-message"
 import { ChatInput } from "@/components/chat-input"
 import { PropertyCard } from "@/components/property-card"
@@ -26,7 +25,7 @@ export default function ChatPage() {
   const initialQuery = searchParams.get("q")
   
   const { messages, sendMessage, isLoading, lastProperties, error } = useAIChat()
-  const [resultProperties, setResultProperties] = useState<Property[]>([])
+  const resultProperties = useMemo(() => lastProperties ?? [], [lastProperties])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const formatShortPrice = (value: number) =>
@@ -58,29 +57,62 @@ export default function ChatPage() {
     }
   }, [resultProperties])
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+  }, [])
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, scrollToBottom])
+
+  useEffect(() => {
+    if (keyboardSpacer > 0) {
+      scrollToBottom()
+    }
+  }, [keyboardSpacer, scrollToBottom])
+
+  const [keyboardSpacer, setKeyboardSpacer] = useState(0)
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const updateSpacer = () => {
+      const viewport = window.visualViewport
+      if (!viewport) {
+        setKeyboardSpacer(0)
+        return
+      }
+      const inset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)
+      setKeyboardSpacer(inset)
+    }
+
+    updateSpacer()
+    window.addEventListener("resize", updateSpacer)
+    window.addEventListener("orientationchange", updateSpacer)
+    const viewport = window.visualViewport
+    viewport?.addEventListener("resize", updateSpacer)
+    viewport?.addEventListener("scroll", updateSpacer)
+
+    return () => {
+      window.removeEventListener("resize", updateSpacer)
+      window.removeEventListener("orientationchange", updateSpacer)
+      viewport?.removeEventListener("resize", updateSpacer)
+      viewport?.removeEventListener("scroll", updateSpacer)
+    }
+  }, [])
+
+  const handleSendMessage = useCallback(
+    async (content: string) => {
+      await sendMessage(content)
+    },
+    [sendMessage],
+  )
 
   useEffect(() => {
     if (initialQuery && messages.length === 0) {
       handleSendMessage(initialQuery)
     }
-  }, [initialQuery])
-
-  const handleSendMessage = async (content: string) => {
-    await sendMessage(content)
-  }
-
-  useEffect(() => {
-    if (lastProperties?.length) {
-      setResultProperties(lastProperties)
-    }
-  }, [lastProperties])
+  }, [initialQuery, messages.length, handleSendMessage])
 
   const suggestedQuestions = [
     "Show me 2BR apartments in Dubai Marina under AED 2M",
@@ -91,9 +123,7 @@ export default function ChatPage() {
   ]
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      
+    <>
       <div className="container relative flex-1 py-6">
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -top-24 right-6 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />
@@ -168,7 +198,10 @@ export default function ChatPage() {
                 </div>
               </div>
               {/* Messages */}
-              <ScrollArea className="flex-1 p-4" style={{ height: "calc(100vh - 360px)" }}>
+              <ScrollArea
+                className="flex-1 min-h-0 p-4"
+                style={{ paddingBottom: `${Math.max(64, keyboardSpacer + 72)}px` }}
+              >
                 {messages.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center text-center">
                     <div className="mb-6 rounded-2xl border border-border bg-background/80 px-6 py-5">
@@ -242,22 +275,22 @@ export default function ChatPage() {
                 )}
               </ScrollArea>
 
-              <Separator />
-
-              {/* Input */}
-              <div className="p-4">
-                {error && (
-                  <div className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                    {error}
-                  </div>
-                )}
-                <ChatInput onSend={handleSendMessage} disabled={isLoading} />
+              <div className="sticky bottom-0 z-20 w-full border-t border-border bg-card/80 backdrop-blur">
+                <Separator className="m-0" />
+                <div className="p-4 pt-3 pb-5">
+                  {error && (
+                    <div className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                      {error}
+                    </div>
+                  )}
+                  <ChatInput onSend={handleSendMessage} disabled={isLoading} />
+                </div>
               </div>
             </Card>
         </div>
       </div>
     </div>
-  </div>
+    </>
   )
 }
 

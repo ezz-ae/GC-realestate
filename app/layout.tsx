@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Inter, Geist_Mono, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SiteHeader } from "@/components/site-header"
+import { SiteFooter } from "@/components/site-footer"
 import "./globals.css"
 
 export const dynamic = "force-dynamic"
@@ -43,7 +45,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          {children}
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1 flex flex-col">{children}</main>
+            <SiteFooter />
+          </div>
         </ThemeProvider>
         <Analytics />
       </body>

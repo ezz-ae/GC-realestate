@@ -100,7 +100,7 @@ export function SiteFooter() {
             </Link>
             <p className="text-base text-muted-foreground max-w-md text-pretty leading-relaxed">
               <span className="block">Gold Century Real Estate delivers investment intelligence</span>
-              <span className="block">and premium access to Dubai's top-performing projects</span>
+              <span className="block">and premium access to Dubai’s top-performing projects</span>
               <span className="block">for international buyers.</span>
             </p>
             <div className="space-y-2 text-base">

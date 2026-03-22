@@ -22,7 +22,7 @@ export default async function AreasGuidePage() {
                 Dubai Areas & Neighborhoods
               </h1>
               <p className="mt-6 text-lg text-muted-foreground">
-                Comprehensive guide to Dubai's most sought-after locations. Compare areas, explore lifestyle options, and find your perfect neighborhood.
+                Comprehensive guide to Dubai’s most sought-after locations. Compare areas, explore lifestyle options, and find your perfect neighborhood.
               </p>
             </div>
           </div>

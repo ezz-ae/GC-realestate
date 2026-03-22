@@ -1,18 +1,15 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
 import { ProjectCard } from "@/components/project-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getProjectsForGrid } from "@/lib/entrestate"
 import Link from "next/link"
+import { safeNum, shouldShow } from "@/lib/utils/safeDisplay"
 
 export default async function ProjectsPage() {
   const projects = await getProjectsForGrid(24)
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
+    <>
         <section className="border-b border-border bg-gradient-to-b from-background to-muted py-16">
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
@@ -43,7 +40,9 @@ export default async function ProjectsPage() {
               <div>
                 <h2 className="font-serif text-2xl font-bold">Featured Developments</h2>
                 <p className="text-sm text-muted-foreground">
-                  {projects.length} curated projects across Dubai
+                  {shouldShow(projects.length)
+                    ? `${safeNum(projects.length)} curated projects across Dubai`
+                    : "Curated projects available soon"}
                 </p>
               </div>
               <Button variant="outline" asChild>
@@ -58,8 +57,6 @@ export default async function ProjectsPage() {
             </div>
           </div>
         </section>
-      </main>
-      <SiteFooter />
-    </div>
+    </>
   )
 }

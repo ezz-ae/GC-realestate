@@ -4,12 +4,22 @@ import { MapPin, TrendingUp, Home, CheckCircle2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { AreaProfile } from "@/lib/types/project"
+import { safeNum, safePercent, safePrice, shouldShow } from "@/lib/utils/safeDisplay"
 
 interface AreaCardProps {
   area: AreaProfile
 }
 
 export function AreaCard({ area }: AreaCardProps) {
+  const priceLabel = safePrice(area.avgPricePerSqft, "AED")
+  const rentalYieldLabel = safePercent(area.rentalYield)
+  const propertyCountLabel = shouldShow(area.propertyCount)
+    ? `${safeNum(area.propertyCount)}+`
+    : "—"
+  const investmentScoreLabel = shouldShow(area.investmentScore)
+    ? safeNum(area.investmentScore)
+    : "—"
+  const scoreSuffix = shouldShow(area.investmentScore) ? "/10" : ""
   return (
     <Link href={`/areas/${area.slug}`}>
       <Card className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
@@ -41,7 +51,9 @@ export function AreaCard({ area }: AreaCardProps) {
                 <Home className="h-4 w-4" />
                 <span>Avg. Price</span>
               </div>
-              <div className="font-semibold">AED {area.avgPricePerSqft}/sqft</div>
+              <div className="font-semibold">
+                {priceLabel}/sqft
+              </div>
             </div>
 
             <div className="flex items-center justify-between text-sm">
@@ -49,7 +61,7 @@ export function AreaCard({ area }: AreaCardProps) {
                 <TrendingUp className="h-4 w-4" />
                 <span>Rental Yield</span>
               </div>
-              <div className="font-semibold text-green-600">{area.rentalYield}%</div>
+              <div className="font-semibold text-green-600">{rentalYieldLabel}</div>
             </div>
 
             <div className="flex items-center justify-between text-sm">
@@ -57,7 +69,7 @@ export function AreaCard({ area }: AreaCardProps) {
                 <MapPin className="h-4 w-4" />
                 <span>Properties</span>
               </div>
-              <div className="font-semibold">{area.propertyCount}+</div>
+              <div className="font-semibold">{propertyCountLabel}</div>
             </div>
 
             <div className="pt-2 border-t border-border">
@@ -74,8 +86,10 @@ export function AreaCard({ area }: AreaCardProps) {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Investment Score</span>
                 <div className="flex items-center gap-2">
-                  <div className="text-lg font-bold gold-text-gradient">{area.investmentScore}</div>
-                  <div className="text-xs text-muted-foreground">/10</div>
+                  <div className="text-lg font-bold gold-text-gradient">{investmentScoreLabel}</div>
+                  {scoreSuffix && (
+                    <div className="text-xs text-muted-foreground">{scoreSuffix}</div>
+                  )}
                 </div>
               </div>
             </div>

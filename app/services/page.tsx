@@ -1,5 +1,3 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { Search, TrendingUp, FileText, Globe, Shield, HeadphonesIcon, Home, Briefcase, Check } from "lucide-react"
 import Link from "next/link"
@@ -110,9 +108,7 @@ export default function ServicesPage() {
   ]
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
+    <>
         {/* Hero Section */}
         <section className="relative bg-gradient-to-b from-background to-muted py-20">
           <div className="container">
@@ -223,8 +219,6 @@ export default function ServicesPage() {
             </div>
           </div>
         </section>
-      </main>
-      <SiteFooter />
-    </div>
+    </>
   )
 }

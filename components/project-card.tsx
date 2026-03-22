@@ -5,26 +5,29 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Project } from "@/lib/types/project"
+import { safeNum, safePercent, safePrice, shouldShow } from "@/lib/utils/safeDisplay"
 
 interface ProjectCardProps {
   project: Project
 }
 
-const formatPrice = (value: number) =>
-  new Intl.NumberFormat("en-AE", {
-    style: "currency",
-    currency: "AED",
-    maximumFractionDigits: 0,
-  }).format(value)
-
 const getPriceRange = (project: Project) => {
-  const prices = project.units.flatMap((unit) => [unit.priceFrom, unit.priceTo])
+  const prices = project.units
+    .flatMap((unit) => [unit.priceFrom, unit.priceTo])
+    .filter((value): value is number => shouldShow(value))
+
   if (!prices.length) {
     return "Pricing on request"
   }
+
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
-  return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+
+  if (minPrice === maxPrice) {
+    return safePrice(minPrice)
+  }
+
+  return `${safePrice(minPrice)} - ${safePrice(maxPrice)}`
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
@@ -68,10 +71,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
         <div className="flex items-center justify-between border-y border-border py-3 text-sm">
           <div className="font-semibold gold-text-gradient">{getPriceRange(project)}</div>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            {project.investmentHighlights.expectedROI}% ROI
-          </div>
+          {shouldShow(project.investmentHighlights.expectedROI) && (
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              {safePercent(project.investmentHighlights.expectedROI)} ROI
+            </div>
+          )}
         </div>
 
         <Button className="mt-4 w-full" variant="outline" asChild>

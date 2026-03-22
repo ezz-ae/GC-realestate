@@ -237,9 +237,7 @@ export default async function ProjectPage({
   ].filter((item) => item.value)
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
+    <>
         {/* Hero Section */}
         <section className="relative h-[60vh] min-h-[500px]">
           <Image
@@ -604,7 +602,7 @@ export default async function ProjectPage({
                           {testimonials.map((testimonial: any, index: number) => (
                             <Card key={`${testimonial.name}-${index}`}>
                               <CardContent className="p-6">
-                                <p className="text-sm text-muted-foreground">"{testimonial.quote}"</p>
+                                <p className="text-sm text-muted-foreground">“{testimonial.quote}”</p>
                                 <div className="mt-4 text-sm font-semibold">{testimonial.name}</div>
                                 <div className="text-xs text-muted-foreground">{testimonial.country}</div>
                               </CardContent>
@@ -930,7 +928,7 @@ export default async function ProjectPage({
                     <Button className="gold-gradient w-full" asChild>
                       <Link
                         href={`/chat?q=${encodeURIComponent(
-                          `I'm interested in ${project.name} in ${location.area}. Please share pricing, payment plan, and ROI.`,
+                          `I’m interested in ${project.name} in ${location.area}. Please share pricing, payment plan, and ROI.`,
                         )}`}
                       >
                         Start AI Conversation
@@ -1043,8 +1041,6 @@ export default async function ProjectPage({
             </div>
           </div>
         </section>
-      </main>
-      <SiteFooter />
-    </div>
+    </>
   )
 }

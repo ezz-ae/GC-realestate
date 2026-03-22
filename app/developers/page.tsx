@@ -1,18 +1,15 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
 import { DeveloperCard } from "@/components/developer-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getDevelopers } from "@/lib/entrestate"
 import Link from "next/link"
+import { safeNum, shouldShow } from "@/lib/utils/safeDisplay"
 
 export default async function DevelopersPage() {
   const developers = await getDevelopers()
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
+    <>
         <section className="border-b border-border bg-gradient-to-b from-background to-muted py-16">
           <div className="container">
             <div className="mx-auto max-w-3xl text-center">
@@ -23,7 +20,7 @@ export default async function DevelopersPage() {
                 Dubai Developer Profiles
               </h1>
               <p className="mt-6 text-lg text-muted-foreground">
-                Learn about Dubai's leading developers and their track records.
+                Learn about Dubai’s leading developers and their track records.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <Button className="gold-gradient" asChild>
@@ -39,6 +36,11 @@ export default async function DevelopersPage() {
 
         <section className="py-16">
           <div className="container">
+            <div className="mb-4 text-sm text-muted-foreground">
+              {shouldShow(developers.length)
+                ? `${safeNum(developers.length)} preferred developers`
+                : "Developer data coming soon"}
+            </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {developers.map((developer) => (
                 <DeveloperCard key={developer.id} developer={developer} />
@@ -46,8 +48,6 @@ export default async function DevelopersPage() {
             </div>
           </div>
         </section>
-      </main>
-      <SiteFooter />
-    </div>
+    </>
   )
 }

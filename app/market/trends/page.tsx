@@ -28,7 +28,7 @@ export default function MarketTrendsPage() {
                 Dubai Real Estate Market Trends
               </h1>
               <p className="mt-6 text-lg text-muted-foreground">
-                Latest data, analytics, and AI-powered insights into Dubai's property market
+                Latest data, analytics, and AI-powered insights into Dubai’s property market
               </p>
 
               {/* AI Assistant CTA */}
@@ -302,7 +302,7 @@ export default function MarketTrendsPage() {
                   Our AI analyzes 3500+ projects in real-time.
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center mb-6">
-                  <Badge variant="outline">What's the best area for ROI?</Badge>
+                  <Badge variant="outline">What’s the best area for ROI?</Badge>
                   <Badge variant="outline">Which developer is most reliable?</Badge>
                   <Badge variant="outline">Are prices going up or down?</Badge>
                   <Badge variant="outline">Best time to invest in off-plan?</Badge>

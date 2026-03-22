@@ -7,21 +7,20 @@ import { MapPin, BedDouble, Bath, Maximize, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Property } from "@/lib/types/project"
+import { safeNum, safePercent, safePrice, shouldShow } from "@/lib/utils/safeDisplay"
 
 interface PropertyCardProps {
   property: Property
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  const formatPrice = (price: number, currency: Property["currency"]) => {
-    const locale = currency === "AED" ? "en-AE" : "en-US"
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
+  const showRoi = shouldShow(property.investmentMetrics.roi)
+  const sizeLabel = shouldShow(property.specifications.sizeSqft)
+    ? `${safeNum(property.specifications.sizeSqft)} sqft`
+    : "Size TBA"
+  const bathroomLabel = shouldShow(property.specifications.bathrooms)
+    ? `${safeNum(property.specifications.bathrooms)} BA`
+    : "Bathrooms TBA"
 
   const imageSrc = property.images?.[0] || "/logo.png"
   const imageClass = property.images?.[0]
@@ -52,10 +51,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
       <CardContent className="p-4">
         <div className="mb-2 flex items-start justify-between gap-2">
           <h3 className="font-semibold line-clamp-1">{property.title}</h3>
-          {property.investmentMetrics.roi && (
+          {showRoi && (
             <Badge variant="outline" className="shrink-0 text-xs">
               <TrendingUp className="mr-1 h-3 w-3" />
-              {property.investmentMetrics.roi}% ROI
+              {safePercent(property.investmentMetrics.roi)} ROI
             </Badge>
           )}
         </div>
@@ -65,7 +64,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <span className="line-clamp-1">{property.location.area}, Dubai</span>
         </div>
 
-        <div className="mb-3 flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="mb-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <BedDouble className="h-4 w-4" />
             <span>
@@ -76,16 +75,16 @@ export function PropertyCard({ property }: PropertyCardProps) {
           </div>
           <div className="flex items-center gap-1">
             <Bath className="h-4 w-4" />
-            <span>{property.specifications.bathrooms} BA</span>
+            <span>{bathroomLabel}</span>
           </div>
           <div className="flex items-center gap-1">
             <Maximize className="h-4 w-4" />
-            <span>{property.specifications.sizeSqft.toLocaleString()} sqft</span>
+            <span>{sizeLabel}</span>
           </div>
         </div>
 
         <div className="text-xl font-bold gold-text-gradient">
-          {formatPrice(property.price, property.currency)}
+          {safePrice(property.price, property.currency)}
         </div>
       </CardContent>
 

@@ -59,8 +59,8 @@ export function SiteHeader() {
   const megaMenuCompact = "w-[min(520px,92vw)] min-w-[320px] p-2"
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-72 items-center justify-between md:h-80">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
+      <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
           <Image
@@ -68,7 +68,7 @@ export function SiteHeader() {
             alt="Gold Century Real Estate"
             width={635}
             height={771}
-            className="h-64 w-auto shrink-0 md:h-72 dark:hidden"
+            className="h-10 w-auto dark:hidden"
             priority
           />
           <Image
@@ -76,7 +76,7 @@ export function SiteHeader() {
             alt="Gold Century Real Estate"
             width={635}
             height={771}
-            className="hidden h-64 w-auto shrink-0 md:h-72 dark:block"
+            className="hidden h-10 w-auto dark:block"
             priority
           />
         </Link>

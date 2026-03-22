@@ -25,6 +25,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { getProperties, getPropertyBySlug } from "@/lib/entrestate"
 import { notFound } from "next/navigation"
+import { safeNum, safePercent, safePrice, shouldShow } from "@/lib/utils/safeDisplay"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -65,7 +66,6 @@ export default async function PropertyPage({
     notFound()
   }
 
-  const usdPrice = property.currency === "AED" ? Math.round(property.price / 3.67) : property.price
   const nearbyLandmarks = property.nearbyLandmarks ?? []
   const bedroomLabel =
     property.specifications.bedrooms === 0 ? "Studio" : `${property.specifications.bedrooms} Bedrooms`
@@ -75,17 +75,38 @@ export default async function PropertyPage({
   const description =
     property.description ||
     `Explore ${property.title} in ${property.location.area}, offering premium finishes and a prime location in Dubai.`
+  const sizeLabel = shouldShow(property.specifications.sizeSqft)
+    ? `${safeNum(property.specifications.sizeSqft)} sqft`
+    : undefined
+  const parkingLabel = shouldShow(property.specifications.parkingSpaces)
+    ? `${safeNum(property.specifications.parkingSpaces)} parking`
+    : undefined
   const highlights =
     property.highlights?.length
       ? property.highlights
       : [
           bedroomLabel,
-          `${property.specifications.sizeSqft} sqft`,
-          `${property.specifications.parkingSpaces} parking`,
+          sizeLabel,
+          parkingLabel,
           property.specifications.view || "City view",
           property.location.freehold ? "Freehold" : "Leasehold",
           property.investmentMetrics.goldenVisaEligible ? "Golden Visa eligible" : "Investment ready",
         ].filter(Boolean)
+  const priceLabel = safePrice(property.price, property.currency)
+  const secondaryCurrency = property.currency === "AED" ? "USD" : "AED"
+  const secondaryPrice = property.currency === "AED" ? Math.round(property.price / 3.67) : Math.round(property.price * 3.67)
+  const secondaryPriceLabel = safePrice(secondaryPrice, secondaryCurrency)
+  const bathroomsLabel = shouldShow(property.specifications.bathrooms)
+    ? `${safeNum(property.specifications.bathrooms)} Bathrooms`
+    : "Bathrooms TBA"
+  const sizeStatLabel = sizeLabel || "Size TBA"
+  const parkingStatLabel = parkingLabel || "Parking TBA"
+  const roiLabel = safePercent(property.investmentMetrics.roi)
+  const rentalYieldLabel = safePercent(property.investmentMetrics.rentalYield)
+  const appreciationLabel = safePercent(property.investmentMetrics.appreciationRate)
+  const hasRoi = shouldShow(property.investmentMetrics.roi)
+  const hasRentalYield = shouldShow(property.investmentMetrics.rentalYield)
+  const hasAppreciation = shouldShow(property.investmentMetrics.appreciationRate)
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -152,10 +173,10 @@ export default async function PropertyPage({
                 <div className="flex flex-wrap items-baseline gap-4">
                   <div>
                     <span className="text-3xl font-bold gold-text-gradient">
-                      AED {property.price.toLocaleString()}
+                      {priceLabel}
                     </span>
                     <span className="ml-2 text-sm text-muted-foreground">
-                      (${usdPrice.toLocaleString()} USD)
+                      {secondaryPriceLabel}
                     </span>
                   </div>
                 </div>
@@ -168,15 +189,15 @@ export default async function PropertyPage({
                   </div>
                   <div className="flex items-center gap-2">
                     <Bath className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">{property.specifications.bathrooms} Bathrooms</span>
+                    <span className="font-medium">{bathroomsLabel}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Maximize className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">{property.specifications.sizeSqft} sqft</span>
+                    <span className="font-medium">{sizeStatLabel}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Car className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">{property.specifications.parkingSpaces} Parking</span>
+                    <span className="font-medium">{parkingStatLabel}</span>
                   </div>
                 </div>
               </div>
@@ -267,41 +288,37 @@ export default async function PropertyPage({
                           <TrendingUp className="h-5 w-5 text-primary" />
                           <span className="text-sm text-muted-foreground">Expected ROI</span>
                         </div>
-                        <div className="text-2xl font-bold gold-text-gradient">{property.investmentMetrics.roi}%</div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
+                    <div className="text-2xl font-bold gold-text-gradient">{roiLabel}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
                         <div className="mb-2 flex items-center gap-2">
                           <Building2 className="h-5 w-5 text-primary" />
                           <span className="text-sm text-muted-foreground">Rental Yield</span>
                         </div>
-                        <div className="text-2xl font-bold gold-text-gradient">
-                          {property.investmentMetrics.rentalYield}%
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-6">
+                    <div className="text-2xl font-bold gold-text-gradient">{rentalYieldLabel}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
                         <div className="mb-2 flex items-center gap-2">
                           <Calendar className="h-5 w-5 text-primary" />
                           <span className="text-sm text-muted-foreground">Appreciation</span>
                         </div>
-                        <div className="text-2xl font-bold gold-text-gradient">
-                          {property.investmentMetrics.appreciationRate}%
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                    <div className="text-2xl font-bold gold-text-gradient">{appreciationLabel}</div>
+                  </CardContent>
+                </Card>
+              </div>
 
                   <div>
                     <h3 className="mb-4 font-serif text-xl font-semibold">Investment Analysis</h3>
                     <Card>
                       <CardContent className="p-6 space-y-4">
                         <p className="text-muted-foreground leading-relaxed">
-                          This property offers strong investment potential with an expected ROI of {property.investmentMetrics.roi}% 
-                          and annual rental yields of {property.investmentMetrics.rentalYield}%. Located in {property.location.area}, one of 
-                          Dubai's most sought-after neighborhoods, the property benefits from excellent connectivity 
+                          This property offers strong investment potential with an expected ROI of {roiLabel} 
+                          and annual rental yields of {rentalYieldLabel}. Located in {property.location.area}, one of 
+                          Dubai’s most sought-after neighborhoods, the property benefits from excellent connectivity 
                           and premium amenities.
                         </p>
                         {property.investmentMetrics.goldenVisaEligible && (

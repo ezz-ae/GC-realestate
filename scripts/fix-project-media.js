@@ -1,5 +1,5 @@
-const fs = require("fs")
-const { Client } = require("pg")
+import fs from "fs"
+import { Client } from "pg"
 
 const env = fs.readFileSync(".env.local", "utf8")
 const match = env.match(/^DATABASE_URL=(.+)$/m)

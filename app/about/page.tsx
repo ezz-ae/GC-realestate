@@ -40,15 +40,15 @@ export default function AboutPage() {
                 <div className="mt-6 space-y-4 text-muted-foreground">
                   <p>
                     Founded in 2009, Gold Century Real Estate has established itself as a premier destination for 
-                    international investors seeking opportunities in Dubai's dynamic property market. Our journey 
-                    began with a simple vision: to bridge the gap between global investors and Dubai's world-class 
+                    international investors seeking opportunities in Dubai’s dynamic property market. Our journey 
+                    began with a simple vision: to bridge the gap between global investors and Dubai’s world-class 
                     real estate offerings.
                   </p>
                   <p>
-                    Over 15 years, we've facilitated over $2 billion in property transactions, helping clients from 
+                    Over 15 years, we’ve facilitated over $2 billion in property transactions, helping clients from 
                     50+ countries achieve their investment goals. Our deep market knowledge, combined with 
                     cutting-edge technology and AI-powered insights, ensures our clients make informed decisions 
-                    in one of the world's most exciting property markets.
+                    in one of the world’s most exciting property markets.
                   </p>
                   <p>
                     Today, we manage a comprehensive database of 3500+ verified projects across Dubai, offering 
@@ -145,9 +145,9 @@ export default function AboutPage() {
                   <Heart className="h-8 w-8 text-primary-foreground" />
                 </div>
                 <h3 className="font-serif text-xl font-semibold">Long-Term Partnership</h3>
-                <p className="mt-3 text-sm text-muted-foreground">
-                  We're here for the long haul, providing ongoing support from property search to portfolio management.
-                </p>
+                  <p className="mt-3 text-sm text-muted-foreground">
+                  We’re here for the long haul, providing ongoing support from property search to portfolio management.
+                  </p>
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function AboutPage() {
                 Ready to Start Your Investment Journey?
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Let our experienced team guide you through Dubai's real estate market
+                Let our experienced team guide you through Dubai’s real estate market
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <Button size="lg" className="gold-gradient" asChild>

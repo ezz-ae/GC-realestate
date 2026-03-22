@@ -18,7 +18,7 @@ export default function WhyDubaiPage() {
                 Why Invest in <span className="gold-text-gradient">Dubai Real Estate</span>
               </h1>
               <p className="mt-6 text-lg text-muted-foreground text-balance">
-                Discover why Dubai has become the world's most attractive destination for international property investors
+                Discover why Dubai has become the world’s most attractive destination for international property investors
               </p>
             </div>
           </div>
@@ -74,7 +74,7 @@ export default function WhyDubaiPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Gateway between East and West. Within 8 hours flight time to 70% of the world's population. Dubai's position as a global business hub ensures constant demand from international residents and investors.
+                    Gateway between East and West. Within 8 hours flight time to 70% of the world’s population. Dubai’s position as a global business hub ensures constant demand from international residents and investors.
                   </p>
                 </CardContent>
               </Card>
@@ -102,7 +102,7 @@ export default function WhyDubaiPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    State-of-the-art infrastructure, world's busiest international airport, cutting-edge metro system, and iconic developments. Continuous investment in infrastructure supports long-term property value growth.
+                    State-of-the-art infrastructure, world’s busiest international airport, cutting-edge metro system, and iconic developments. Continuous investment in infrastructure supports long-term property value growth.
                   </p>
                 </CardContent>
               </Card>
@@ -116,7 +116,7 @@ export default function WhyDubaiPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Invest AED 2M+ in property and qualify for long-term UAE residency. Sponsor your family, enjoy visa-free travel to 180+ countries, and establish a base in one of the world's safest cities.
+                    Invest AED 2M+ in property and qualify for long-term UAE residency. Sponsor your family, enjoy visa-free travel to 180+ countries, and establish a base in one of the world’s safest cities.
                   </p>
                 </CardContent>
               </Card>
@@ -195,13 +195,13 @@ export default function WhyDubaiPage() {
                   <div className="space-y-4">
                     <div className="border-l-2 border-primary pl-4">
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        "Purchased a 2BR in Dubai Marina in 2019 for AED 1.8M. Today it's valued at AED 2.6M with consistent rental income of AED 150K annually. The Golden Visa was an added bonus for my family."
+                        “Purchased a 2BR in Dubai Marina in 2019 for AED 1.8M. Today it’s valued at AED 2.6M with consistent rental income of AED 150K annually. The Golden Visa was an added bonus for my family.”
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">- James K., UK Investor</p>
                     </div>
                     <div className="border-l-2 border-primary pl-4">
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        "Off-plan investment in Downtown delivered 22% ROI over 3 years. The tax-free rental income and capital appreciation exceeded all expectations. Now expanding portfolio with 2 more units."
+                        “Off-plan investment in Downtown delivered 22% ROI over 3 years. The tax-free rental income and capital appreciation exceeded all expectations. Now expanding portfolio with 2 more units.”
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">- Sarah M., Singapore Investor</p>
                     </div>

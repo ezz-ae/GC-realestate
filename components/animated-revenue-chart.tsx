@@ -20,53 +20,25 @@ function generateRandomData() {
 }
 
 export function AnimatedRevenueChart() {
-  const [mounted, setMounted] = useState(false)
-  const [data, setData] = useState(() => 
-    revenueCategories.map((cat) => ({ ...cat, value: 20000 }))
-  )
-  const [totalRevenue, setTotalRevenue] = useState(80000)
-  const [growth, setGrowth] = useState(12.5)
+  const [data, setData] = useState(() => generateRandomData())
+  const [growth, setGrowth] = useState(() => Math.round((Math.random() * 20 + 5) * 10) / 10)
   const [activeIndex, setActiveIndex] = useState(0)
+  const totalRevenue = useMemo(() => data.reduce((sum, item) => sum + item.value, 0), [data])
 
   useEffect(() => {
-    setMounted(true)
-    setData(generateRandomData())
-  }, [])
-
-  useEffect(() => {
-    const total = data.reduce((sum, item) => sum + item.value, 0)
-    setTotalRevenue(total)
-  }, [data])
-
-  // Animate data changes
-  useEffect(() => {
-    if (!mounted) return
     const interval = setInterval(() => {
       setData(generateRandomData())
       setGrowth(Math.round((Math.random() * 20 + 5) * 10) / 10)
     }, 4000)
     return () => clearInterval(interval)
-  }, [mounted])
+  }, [])
 
-  // Cycle through active segments
   useEffect(() => {
-    if (!mounted) return
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % revenueCategories.length)
     }, 2000)
     return () => clearInterval(interval)
-  }, [mounted])
-
-  if (!mounted) {
-    return (
-      <div className="w-full max-w-md mx-auto rounded-3xl bg-white p-8 h-[400px] animate-pulse"
-        style={{
-          boxShadow:
-            "rgba(14, 63, 126, 0.06) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.06) 0px 6px 6px -3px, rgba(42, 51, 70, 0.06) 0px 12px 12px -6px, rgba(14, 63, 126, 0.06) 0px 24px 24px -12px",
-        }}
-      />
-    )
-  }
+  }, [])
 
   return (
     <motion.div

@@ -347,7 +347,7 @@ export default function RegulationsPage() {
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span><strong className="text-foreground">Legal protection</strong> - Dubai courts protect foreign investors' property rights equally</span>
+                        <span><strong className="text-foreground">Legal protection</strong> - Dubai courts protect foreign investors’ property rights equally</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />

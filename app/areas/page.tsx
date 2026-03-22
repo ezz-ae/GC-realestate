@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getAreas } from "@/lib/entrestate"
 import Link from "next/link"
+import { safeNum, shouldShow } from "@/lib/utils/safeDisplay"
 
 export default async function AreasPage() {
   const areas = await getAreas()
@@ -39,6 +40,11 @@ export default async function AreasPage() {
 
         <section className="py-16">
           <div className="container">
+            <div className="mb-4 text-sm text-muted-foreground">
+              {shouldShow(areas.length)
+                ? `${safeNum(areas.length)} areas curated`
+                : "Area data coming soon"}
+            </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {areas.map((area) => (
                 <AreaCard key={area.id} area={area} />

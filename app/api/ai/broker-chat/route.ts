@@ -10,7 +10,7 @@ import {
   BROKER_SYSTEM_PROMPT,
   buildConversationHistory,
 } from "@/lib/gemini"
-import { getLeads, getTopROIProjects, projectToProperty, searchProjects } from "@/lib/entrestate"
+import { getRecentLeads, getTopROIProjects, projectToProperty, searchProjects } from "@/lib/entrestate"
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     // CRM queries
     if (lowerMessage.includes('lead') || lowerMessage.includes('follow up')) {
-      const leads = await getLeads(5)
+      const leads = await getRecentLeads(5)
       if (leads.length) {
         context += `\n\nRECENT LEADS:\n`
         leads.forEach(lead => {
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
     // Extract any data the AI might be referencing
     let attachedData = null
     if (lowerMessage.includes('lead')) {
-      const leads = await getLeads(10)
+      const leads = await getRecentLeads(10)
       attachedData = { type: 'leads', data: leads }
     } else if (lowerMessage.includes('project') || lowerMessage.includes('roi')) {
       const topProjects = await getTopROIProjects(5)

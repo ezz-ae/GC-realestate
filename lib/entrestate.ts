@@ -67,6 +67,15 @@ type DeveloperRow = {
 }
 
 const USD_RATE = 0.2723
+const DEFAULT_COORDINATES = { lat: 25.2048, lng: 55.2708 }
+const DEFAULT_LOCATION: Project["location"] = {
+  area: "Dubai",
+  district: "Dubai",
+  city: "Dubai",
+  coordinates: DEFAULT_COORDINATES,
+  freehold: true,
+  nearbyLandmarks: [],
+}
 
 const titleCase = (value: string) =>
   value
@@ -87,6 +96,28 @@ export const projectToProperty = (project: Project): Property => {
   const sizeSqft = primaryUnit?.sizeFrom ?? 900
   const sizeSqm = Math.round(sizeSqft * 0.0929)
   const price = primaryUnit?.priceFrom ?? 1500000
+  const locationSource = project.location ?? DEFAULT_LOCATION
+  const safeCoordinates = locationSource.coordinates ?? DEFAULT_COORDINATES
+  const safeLocation = {
+    ...DEFAULT_LOCATION,
+    ...locationSource,
+    coordinates: safeCoordinates,
+    nearbyLandmarks: locationSource.nearbyLandmarks ?? [],
+  }
+  const investmentHighlights = project.investmentHighlights ?? {
+    expectedROI: 0,
+    rentalYield: 0,
+    goldenVisaEligible: false,
+    paymentPlanAvailable: false,
+  }
+  const defaultTimeline = {
+    expectedCompletion: "",
+    handoverDate: "",
+    progressPercentage: 0,
+    launchDate: "",
+    constructionStart: "",
+  }
+  const timeline = { ...defaultTimeline, ...project.timeline }
 
   return {
     id: project.id,
@@ -97,11 +128,11 @@ export const projectToProperty = (project: Project): Property => {
     price,
     currency: "AED",
     location: {
-      area: project.location.area,
-      district: project.location.district || "Dubai",
-      city: project.location.city || "Dubai",
-      coordinates: project.location.coordinates,
-      freehold: project.location.freehold,
+      area: safeLocation.area,
+      district: safeLocation.district,
+      city: safeLocation.city,
+      coordinates: safeLocation.coordinates,
+      freehold: safeLocation.freehold,
     },
     specifications: {
       bedrooms,
@@ -121,20 +152,20 @@ export const projectToProperty = (project: Project): Property => {
     developer: project.developer,
     project: { id: project.id, name: project.name, slug: project.slug },
     investmentMetrics: {
-      roi: project.investmentHighlights.expectedROI,
-      rentalYield: project.investmentHighlights.rentalYield,
-      appreciationRate: project.investmentHighlights.rentalYield,
-      goldenVisaEligible: project.investmentHighlights.goldenVisaEligible,
+      roi: investmentHighlights.expectedROI,
+      rentalYield: investmentHighlights.rentalYield,
+      appreciationRate: investmentHighlights.rentalYield,
+      goldenVisaEligible: investmentHighlights.goldenVisaEligible,
     },
     paymentPlan: project.paymentPlan,
-    completionDate: project.timeline.expectedCompletion,
-    handoverDate: project.timeline.handoverDate,
+    completionDate: timeline.expectedCompletion,
+    handoverDate: timeline.handoverDate,
     status: "available",
     featured: project.featured,
     seoTitle: project.seoTitle,
     seoDescription: project.seoDescription,
     seoKeywords: project.seoKeywords,
-    nearbyLandmarks: project.location.nearbyLandmarks?.map((landmark) => ({
+    nearbyLandmarks: safeLocation.nearbyLandmarks.map((landmark) => ({
       name: landmark.name,
       distance: landmark.distance,
     })),
@@ -624,6 +655,87 @@ export interface LeadRecord {
   created_at: string
 }
 
+export interface DashboardKpis {
+  todaysLeads: number
+  assignedThisWeek: number
+  activeInquiries: number
+  scheduledViewings: number
+  pipelineValue: number
+  unassignedLeads: number
+}
+
+export interface HotLead extends LeadRecord {
+  score: number
+}
+
+export interface ProjectPerformance {
+  id: string
+  slug: string
+  name: string
+  area: string | null
+  marketScore: number | null
+  expectedRoi: number | null
+  rentalYield: number | null
+}
+
+export interface DashboardOverviewData {
+  kpis: DashboardKpis
+  hotLeads: HotLead[]
+  topProjects: ProjectPerformance[]
+  recentLeads: LeadRecord[]
+}
+
+export interface LeadSourceSummary {
+  source: string
+  count: number
+}
+
+export interface AreaPerformanceSummary {
+  area: string
+  count: number
+}
+
+export interface BrokerPerformanceSummary {
+  brokerId: string
+  count: number
+}
+
+export interface AnalyticsOverview {
+  leadSources: LeadSourceSummary[]
+  areaPerformance: AreaPerformanceSummary[]
+  brokerPerformance: BrokerPerformanceSummary[]
+  topProjects: ProjectPerformance[]
+  pipelineValue: number
+}
+
+export interface DashboardProjectRow {
+  id: string
+  slug: string
+  name: string
+  area: string | null
+  status: string | null
+  developerName: string | null
+  priceFrom: number | null
+  priceTo: number | null
+  marketScore: number | null
+  expectedRoi: number | null
+  rentalYield: number | null
+  unitsAvailable: number
+}
+
+export interface DashboardProjectFilters {
+  page?: number
+  pageSize?: number
+  search?: string
+  area?: string
+  developer?: string
+  status?: string
+  minPrice?: number
+  maxPrice?: number
+  minRoi?: number
+  sort?: "market" | "price-low" | "price-high" | "roi"
+}
+
 export interface BlogPostSummary {
   id: string
   slug: string
@@ -769,4 +881,402 @@ export async function getLeads(role: "admin" | "broker", brokerId?: string) {
 
 export function toUSD(aed: number) {
   return Math.round(aed * USD_RATE)
+}
+
+const buildLeadFilter = (alias: string, role: "admin" | "broker", brokerId?: string) => {
+  if (role === "broker" && brokerId) {
+    return { clause: `${alias}.assigned_broker_id = $1`, params: [brokerId] }
+  }
+  return { clause: "TRUE", params: [] as Array<string | number> }
+}
+
+export async function getRecentLeads(limit = 5, role: "admin" | "broker" = "admin", brokerId?: string) {
+  const filter = buildLeadFilter("l", role, brokerId)
+  const params = [...filter.params, limit]
+  return query<LeadRecord>(
+    `SELECT l.id, l.name, l.phone, l.email, l.source, l.project_slug, l.assigned_broker_id, l.created_at
+     FROM gc_leads l
+     WHERE ${filter.clause}
+     ORDER BY l.created_at DESC
+     LIMIT $${params.length}`,
+    params,
+  )
+}
+
+export async function getDashboardOverviewData(
+  role: "admin" | "broker" = "admin",
+  brokerId?: string,
+): Promise<DashboardOverviewData> {
+  const filter = buildLeadFilter("l", role, brokerId)
+  const params = filter.params
+
+  const [todays] = await query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count
+     FROM gc_leads l
+     WHERE ${filter.clause}
+       AND l.created_at >= CURRENT_DATE`,
+    params,
+  )
+
+  const [assignedThisWeek] = await query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count
+     FROM gc_leads l
+     WHERE ${filter.clause}
+       AND l.assigned_broker_id IS NOT NULL
+       AND l.created_at >= date_trunc('week', now())`,
+    params,
+  )
+
+  const [activeInquiries] = await query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count
+     FROM gc_leads l
+     WHERE ${filter.clause}
+       AND l.created_at >= now() - interval '30 days'`,
+    params,
+  )
+
+  const [scheduledViewings] = await query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count
+     FROM gc_leads l
+     WHERE ${filter.clause}
+       AND l.source ILIKE ANY(ARRAY['%view%', '%tour%', '%meeting%', '%showing%'])`,
+    params,
+  )
+
+  const [pipeline] = await query<{ total: number }>(
+    `SELECT COALESCE(SUM(p.price_from_aed), 0)::bigint AS total
+     FROM gc_leads l
+     JOIN gc_projects p ON p.slug = l.project_slug
+     WHERE ${filter.clause}
+       AND l.created_at >= now() - interval '30 days'`,
+    params,
+  )
+
+  const [unassigned] = await query<{ count: number }>(
+    `SELECT COUNT(*)::int AS count
+     FROM gc_leads l
+     WHERE ${filter.clause}
+       AND l.assigned_broker_id IS NULL`,
+    params,
+  )
+
+  const recentLeads = await getRecentLeads(6, role, brokerId)
+
+  const hotLeadRows = await query<LeadRecord>(
+    `SELECT l.id, l.name, l.phone, l.email, l.source, l.project_slug, l.assigned_broker_id, l.created_at
+     FROM gc_leads l
+     WHERE ${filter.clause}
+     ORDER BY l.created_at DESC
+     LIMIT 40`,
+    params,
+  )
+
+  const hotLeads = hotLeadRows
+    .map((lead) => {
+      let score = 0
+      if (lead.email) score += 2
+      if (lead.phone) score += 2
+      if (lead.project_slug) score += 3
+      if (lead.source) score += 1
+      if (lead.assigned_broker_id) score += 2
+      const createdAt = new Date(lead.created_at)
+      if (Date.now() - createdAt.getTime() < 7 * 24 * 60 * 60 * 1000) score += 2
+      return { ...lead, score }
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+
+  const projectRows = await query<{
+    id: string
+    slug: string
+    name: string
+    area: string | null
+    market_score: number | null
+    rental_yield: number | null
+    payload: Project
+  }>(
+    `SELECT id, slug, name, area, market_score, rental_yield, payload
+     FROM gc_projects
+     ORDER BY market_score DESC NULLS LAST
+     LIMIT 5`,
+  )
+
+  const topProjects = projectRows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    area: row.area,
+    marketScore: row.market_score,
+    expectedRoi: row.payload?.investmentHighlights?.expectedROI ?? null,
+    rentalYield: row.rental_yield ?? row.payload?.investmentHighlights?.rentalYield ?? null,
+  }))
+
+  return {
+    kpis: {
+      todaysLeads: todays?.count || 0,
+      assignedThisWeek: assignedThisWeek?.count || 0,
+      activeInquiries: activeInquiries?.count || 0,
+      scheduledViewings: scheduledViewings?.count || 0,
+      pipelineValue: pipeline?.total || 0,
+      unassignedLeads: unassigned?.count || 0,
+    },
+    hotLeads,
+    topProjects,
+    recentLeads,
+  }
+}
+
+export async function getDashboardAnalyticsData(
+  role: "admin" | "broker" = "admin",
+  brokerId?: string,
+): Promise<AnalyticsOverview> {
+  const filter = buildLeadFilter("l", role, brokerId)
+  const params = filter.params
+
+  const leadSources = await query<LeadSourceSummary>(
+    `SELECT COALESCE(l.source, 'Unknown') AS source, COUNT(*)::int AS count
+     FROM gc_leads l
+     WHERE ${filter.clause}
+     GROUP BY l.source
+     ORDER BY count DESC`,
+    params,
+  )
+
+  const areaPerformance = await query<AreaPerformanceSummary>(
+    `SELECT COALESCE(p.area, 'Unknown') AS area, COUNT(*)::int AS count
+     FROM gc_leads l
+     JOIN gc_projects p ON p.slug = l.project_slug
+     WHERE ${filter.clause}
+     GROUP BY p.area
+     ORDER BY count DESC
+     LIMIT 6`,
+    params,
+  )
+
+  const brokerPerformance = await query<BrokerPerformanceSummary>(
+    `SELECT COALESCE(l.assigned_broker_id, 'Unassigned') AS "brokerId", COUNT(*)::int AS count
+     FROM gc_leads l
+     WHERE ${filter.clause}
+     GROUP BY l.assigned_broker_id
+     ORDER BY count DESC`,
+    params,
+  )
+
+  const projectRows = await query<{
+    id: string
+    slug: string
+    name: string
+    area: string | null
+    market_score: number | null
+    rental_yield: number | null
+    payload: Project
+  }>(
+    `SELECT id, slug, name, area, market_score, rental_yield, payload
+     FROM gc_projects
+     ORDER BY market_score DESC NULLS LAST
+     LIMIT 6`,
+  )
+
+  const topProjects = projectRows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    area: row.area,
+    marketScore: row.market_score,
+    expectedRoi: row.payload?.investmentHighlights?.expectedROI ?? null,
+    rentalYield: row.rental_yield ?? row.payload?.investmentHighlights?.rentalYield ?? null,
+  }))
+
+  const [pipeline] = await query<{ total: number }>(
+    `SELECT COALESCE(SUM(p.price_from_aed), 0)::bigint AS total
+     FROM gc_leads l
+     JOIN gc_projects p ON p.slug = l.project_slug
+     WHERE ${filter.clause}
+       AND l.created_at >= now() - interval '30 days'`,
+    params,
+  )
+
+  return {
+    leadSources,
+    areaPerformance,
+    brokerPerformance,
+    topProjects,
+    pipelineValue: pipeline?.total || 0,
+  }
+}
+
+const buildProjectFilters = (filters: DashboardProjectFilters, values: Array<string | number>) => {
+  const where: string[] = []
+
+  if (filters.search) {
+    values.push(`%${filters.search}%`)
+    where.push(`(name ILIKE $${values.length} OR slug ILIKE $${values.length})`)
+  }
+
+  if (filters.area) {
+    values.push(`%${filters.area}%`)
+    where.push(`area ILIKE $${values.length}`)
+  }
+
+  if (filters.developer) {
+    values.push(`%${filters.developer}%`)
+    where.push(`developer_name ILIKE $${values.length}`)
+  }
+
+  if (filters.status) {
+    values.push(filters.status)
+    where.push(`status = $${values.length}`)
+  }
+
+  if (typeof filters.minPrice === "number") {
+    values.push(filters.minPrice)
+    where.push(`price_from_aed >= $${values.length}`)
+  }
+
+  if (typeof filters.maxPrice === "number") {
+    values.push(filters.maxPrice)
+    where.push(`price_from_aed <= $${values.length}`)
+  }
+
+  if (typeof filters.minRoi === "number") {
+    values.push(filters.minRoi)
+    where.push(`COALESCE((payload->'investmentHighlights'->>'expectedROI')::numeric, 0) >= $${values.length}`)
+  }
+
+  return where
+}
+
+export async function getDashboardProjects(filters: DashboardProjectFilters) {
+  const pageSize = Math.max(1, filters.pageSize || 20)
+  const page = Math.max(1, filters.page || 1)
+  const offset = (page - 1) * pageSize
+  const values: Array<string | number> = []
+  const where = buildProjectFilters(filters, values)
+  const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : ""
+
+  let orderBy = "market_score DESC NULLS LAST"
+  switch (filters.sort) {
+    case "price-low":
+      orderBy = "price_from_aed ASC NULLS LAST"
+      break
+    case "price-high":
+      orderBy = "price_from_aed DESC NULLS LAST"
+      break
+    case "roi":
+      orderBy = "COALESCE((payload->'investmentHighlights'->>'expectedROI')::numeric, rental_yield) DESC NULLS LAST"
+      break
+    default:
+      break
+  }
+
+  const countRows = await query<{ total: number }>(
+    `SELECT COUNT(*)::int AS total FROM gc_projects ${whereClause}`,
+    values,
+  )
+  const total = countRows[0]?.total || 0
+
+  values.push(pageSize, offset)
+  const rows = await query<{
+    id: string
+    slug: string
+    name: string
+    area: string | null
+    status: string | null
+    developer_name: string | null
+    price_from_aed: number | null
+    price_to_aed: number | null
+    market_score: number | null
+    rental_yield: number | null
+    payload: Project
+  }>(
+    `SELECT id, slug, name, area, status, developer_name, price_from_aed, price_to_aed, market_score, rental_yield, payload
+     FROM gc_projects ${whereClause}
+     ORDER BY ${orderBy}
+     LIMIT $${values.length - 1} OFFSET $${values.length}`,
+    values,
+  )
+
+  const projects = rows.map((row) => {
+    const units = Array.isArray(row.payload?.units) ? row.payload.units : []
+    const unitsAvailable = units.reduce((sum, unit) => sum + (Number.isFinite(unit.available) ? unit.available : 0), 0)
+    return {
+      id: row.id,
+      slug: row.slug,
+      name: row.name,
+      area: row.area,
+      status: row.status,
+      developerName: row.developer_name,
+      priceFrom: row.price_from_aed ?? null,
+      priceTo: row.price_to_aed ?? null,
+      marketScore: row.market_score ?? null,
+      expectedRoi: row.payload?.investmentHighlights?.expectedROI ?? null,
+      rentalYield: row.rental_yield ?? row.payload?.investmentHighlights?.rentalYield ?? null,
+      unitsAvailable,
+    }
+  })
+
+  return { total, projects }
+}
+
+export async function getDashboardProjectFilters() {
+  const areas = await query<{ area: string | null }>(
+    `SELECT DISTINCT area FROM gc_projects WHERE area IS NOT NULL ORDER BY area ASC LIMIT 30`,
+  )
+  const developers = await query<{ developer_name: string | null }>(
+    `SELECT DISTINCT developer_name FROM gc_projects WHERE developer_name IS NOT NULL ORDER BY developer_name ASC LIMIT 30`,
+  )
+  return {
+    areas: areas.map((row) => row.area).filter(Boolean) as string[],
+    developers: developers.map((row) => row.developer_name).filter(Boolean) as string[],
+  }
+}
+
+export interface UserProfileRecord {
+  id: string
+  name: string
+  email: string
+  role: string
+  created_at: string
+}
+
+export async function ensureUsersTable() {
+  await query(`
+    CREATE TABLE IF NOT EXISTS gc_users (
+      id text PRIMARY KEY,
+      name text,
+      email text UNIQUE,
+      role text,
+      created_at timestamptz DEFAULT now()
+    )
+  `)
+}
+
+export async function getUserProfileByEmail(email: string) {
+  await ensureUsersTable()
+  const rows = await query<UserProfileRecord>(
+    `SELECT id, name, email, role, created_at
+     FROM gc_users
+     WHERE email = $1
+     LIMIT 1`,
+    [email],
+  )
+  return rows[0] || null
+}
+
+export async function upsertUserProfile(profile: {
+  id: string
+  name: string
+  email: string
+  role: string
+}) {
+  await ensureUsersTable()
+  const rows = await query<UserProfileRecord>(
+    `INSERT INTO gc_users (id, name, email, role)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (email)
+     DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role
+     RETURNING id, name, email, role, created_at`,
+    [profile.id, profile.name, profile.email, profile.role],
+  )
+  return rows[0]
 }

@@ -1,5 +1,3 @@
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -14,9 +12,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="flex-1">
+    <>
         {/* Hero Section */}
         <section className="relative bg-gradient-to-b from-background to-muted py-20">
           <div className="container">
@@ -122,7 +118,7 @@ export default function ContactPage() {
                 <div className="rounded-lg border border-border bg-card p-8">
                   <h2 className="font-serif text-2xl font-bold">Send us a Message</h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Fill out the form below and we'll get back to you within 24 hours
+                    Fill out the form below and we’ll get back to you within 24 hours
                   </p>
 
                   <form className="mt-8 space-y-6">
@@ -267,8 +263,6 @@ export default function ContactPage() {
             </div>
           </div>
         </section>
-      </main>
-      <SiteFooter />
-    </div>
+    </>
   )
 }
