@@ -998,8 +998,8 @@ export default async function ProjectPage({
                               <div className="text-sm font-semibold">{faq.question}</div>
                               <div className="mt-2 text-sm text-muted-foreground">{faq.answer}</div>
                             </CardContent>
-                        </Card>
-                      )})
+                          </Card>
+                        ))}
                       </div>
                     </TabsContent>
                   )}
