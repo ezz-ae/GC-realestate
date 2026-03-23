@@ -4,23 +4,18 @@ import { ArrowRight, BedDouble, Bath, MapPin, Ruler } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Project } from "@/lib/types/project"
+import { safeNum, safePercent, safePrice, shouldShow, safeROI, safeScore } from "@/lib/utils/safeDisplay"
+import { TrendingUp, BarChart3, Info, MapPin, BedDouble, Bath, Ruler, ArrowRight } from "lucide-react"
 
 interface ProjectCardProps {
   project: Project
 }
 
-const formatPrice = (value: number) =>
-  new Intl.NumberFormat("en-AE", {
-    style: "currency",
-    currency: "AED",
-    maximumFractionDigits: 0,
-  }).format(value)
-
 const getPriceRange = (project: Project) => {
   const units = Array.isArray(project.units) ? project.units : []
   const prices = units.flatMap((unit) => [unit.priceFrom, unit.priceTo]).filter((p) => p > 0)
   if (!prices.length) {
-    return "Pricing on request"
+    return "Price on Request"
   }
   const minPrice = Math.min(...prices)
   return `From ${formatPrice(minPrice)}`

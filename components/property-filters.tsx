@@ -153,10 +153,10 @@ export function PropertyFilters({ collapsible = false, defaultOpen = true }: Pro
           />
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
-              {currency} {priceRange[0].toLocaleString()}
+              {currency} {safeNum(priceRange[0])}
             </span>
             <span className="text-muted-foreground">
-              {currency} {priceRange[1].toLocaleString()}
+              {currency} {safeNum(priceRange[1])}
             </span>
           </div>
         </div>

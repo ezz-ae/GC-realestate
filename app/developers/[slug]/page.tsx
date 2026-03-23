@@ -39,6 +39,21 @@ const fallbackStats = {
   flagshipProjects: [] as Array<{ id: string; slug: string; name: string; marketScore: number | null }>,
 }
 
+const fallbackStats = {
+  listings: 0,
+  active: 0,
+  completed: 0,
+  avgYield: 0,
+  avgScore: 0,
+  goldenVisaCount: 0,
+  minPrice: 0,
+  maxPrice: 0,
+  onTimeDeliveryRate: null,
+  firstProjectYear: null,
+  topAreas: [] as Array<{ area: string; count: number }>,
+  flagshipProjects: [] as Array<{ id: string; slug: string; name: string; marketScore: number | null }>,
+}
+
 export async function generateStaticParams() {
   const rawDevelopers = await getDevelopers().catch(() => [])
   const developers = filterAuthorizedDevelopers(rawDevelopers)
@@ -175,7 +190,33 @@ export default async function DeveloperDetailPage({
         <section className="py-16">
           <div className="container">
             <div className="grid gap-8 lg:grid-cols-[2fr,1fr]">
-              <div className="space-y-6">
+              <div className="space-y-10">
+                {/* Critical Stats Bar (Codex 3.1, 3.2, 3.3) */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {showDelivered && (
+                    <div className="rounded-xl border border-border bg-card p-4 text-center">
+                      <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Delivered</div>
+                      <div className="text-2xl font-bold">{safeNum(unitsDelivered)} units</div>
+                    </div>
+                  )}
+                  {showStars && (
+                    <div className="rounded-xl border border-border bg-card p-4 text-center">
+                      <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Rating</div>
+                      <div className="text-2xl font-bold text-yellow-500">{developer.stars?.toFixed(1)} ★</div>
+                    </div>
+                  )}
+                  {showHonesty && (
+                    <div className="rounded-xl border border-border bg-card p-4 text-center">
+                      <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Trust Score</div>
+                      <div className="text-2xl font-bold gold-text-gradient">{safeScore(developer.honestyScore)}</div>
+                    </div>
+                  )}
+                  <div className="rounded-xl border border-border bg-card p-4 text-center">
+                    <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Avg Yield</div>
+                    <div className="text-2xl font-bold text-green-600">{safePercent(stats.avgYield)}</div>
+                  </div>
+                </div>
+
                 <div className="grid gap-4 rounded-2xl border border-border bg-card p-6 sm:grid-cols-3">
                   <div>
                     <div className="text-xs uppercase tracking-wide text-muted-foreground">Founded</div>
@@ -324,6 +365,18 @@ export default async function DeveloperDetailPage({
                   <div className="mt-2 text-lg font-semibold">{safeNum(unitsDelivered)}</div>
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12">
+          <div className="container">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-[0_20px_45px_rgba(15,23,42,0.2)] md:p-10">
+              <SmallLeadForm
+                source={developer.name}
+                title={`Discuss ${developer.name} projects`}
+                caption="Get a quick summary of available inventory, ROI expectations, and financing options."
+              />
             </div>
           </div>
         </section>

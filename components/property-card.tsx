@@ -72,7 +72,7 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
               className={`shrink-0 border-primary/20 bg-primary/5 text-primary ${compact ? "text-[9px] h-4 px-1.5" : "text-[10px] h-5"}`}
             >
               <TrendingUp className="mr-1 h-3 w-3" />
-              {property.investmentMetrics.roi}% ROI
+              {safeROI(property.investmentMetrics.roi)}
             </Badge>
           )}
         </div>

@@ -17,6 +17,7 @@ import type { Property } from "@/lib/types/project"
 import { ArrowLeft, Sparkles, ShieldCheck, Zap } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { EvidenceDrawer } from "@/components/evidence-drawer"
 
 export default function ChatPage() {
   const searchParams = useSearchParams()

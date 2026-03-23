@@ -14,7 +14,7 @@ export default function MarketPage() {
                 Dubai Real Estate <span className="gold-text-gradient">Market Intelligence</span>
               </h1>
               <p className="mt-6 text-lg text-muted-foreground">
-                Comprehensive insights, regulations, and opportunities in the world's most dynamic property market
+                Comprehensive insights, regulations, and opportunities in the world’s most dynamic property market
               </p>
             </div>
           </div>
@@ -33,7 +33,7 @@ export default function MarketPage() {
                 <div className="mt-1 text-sm text-muted-foreground">Transaction Volume 2025</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold gold-text-gradient">0%</div>
+                <div className="text-3xl font-bold gold-text-gradient">No tax</div>
                 <div className="mt-1 text-sm text-muted-foreground">Property Tax</div>
               </div>
               <div className="text-center">
@@ -60,7 +60,7 @@ export default function MarketPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 text-sm text-muted-foreground mb-4">
-                    <li>• 0% property tax and capital gains tax</li>
+                    <li>• No property or capital gains tax</li>
                     <li>• 8-12% average rental yields</li>
                     <li>• Strategic global location</li>
                     <li>• World-class infrastructure</li>
@@ -155,7 +155,7 @@ export default function MarketPage() {
                   </div>
                   <CardTitle className="font-serif">Areas Guide</CardTitle>
                   <CardDescription>
-                    Compare Dubai's premier neighborhoods and locations
+                    Compare Dubai’s premier neighborhoods and locations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

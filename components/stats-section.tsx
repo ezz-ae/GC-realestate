@@ -54,7 +54,7 @@ export function StatsSection() {
     if (section) observer.observe(section)
 
     return () => observer.disconnect()
-  }, [isVisible])
+  }, [isVisible, homes, cities, users])
 
   return (
     <section id="stats-section" className="py-24 px-6 bg-background">

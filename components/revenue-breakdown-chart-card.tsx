@@ -1,6 +1,7 @@
 "use client"
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"
+import { safeNum, safePrice, safePercent, shouldShow } from "@/lib/utils/safeDisplay"
 
 export interface RevenueBreakdownChartCardProps {
   title?: string
@@ -42,10 +43,10 @@ export function RevenueBreakdownChartCard({
           <p className="text-sm text-slate-500">{period}</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-slate-900">${totalRevenue.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-slate-900">{safePrice(totalRevenue)}</p>
           <p className={`text-sm font-medium ${growth >= 0 ? "text-emerald-600" : "text-red-600"}`}>
             {growth >= 0 ? "+" : ""}
-            {growth}% vs last period
+            {safePercent(growth)} vs last period
           </p>
         </div>
       </div>
@@ -53,7 +54,15 @@ export function RevenueBreakdownChartCard({
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value">
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={90}
+              paddingAngle={2}
+              dataKey="value"
+            >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
@@ -76,15 +85,20 @@ export function RevenueBreakdownChartCard({
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
-        {data.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-sm text-slate-600">{item.name}</span>
-            <span className="ml-auto text-sm font-medium text-slate-900">
-              {((item.value / totalRevenue) * 100).toFixed(0)}%
-            </span>
-          </div>
-        ))}
+        {data.map((item, index) => {
+          const percent = shouldShow(totalRevenue) && shouldShow(item.value)
+            ? safePercent((item.value / totalRevenue) * 100)
+            : "—"
+          return (
+            <div key={index} className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+              <span className="text-sm text-slate-600">{item.name}</span>
+              <span className="ml-auto text-sm font-medium text-slate-900">
+                {percent}
+              </span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )

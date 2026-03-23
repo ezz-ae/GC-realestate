@@ -517,6 +517,7 @@ export async function POST(req: NextRequest) {
     const emailSent = await maybeSendLeadAck({ lead, contact, message, relevantProjects })
     await maybeNotifyInternalTeam({ lead, contact, message, relevantProjects })
 
+    const requestId = `req_${randomUUID().slice(0, 8)}`
     return NextResponse.json({
       reply: maybeAppendEmailConfirmation(aiReply, emailSent),
       properties: wantsProperties

@@ -242,7 +242,7 @@ export default function FinancingPage() {
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="font-serif text-3xl font-bold">Required Documents</h2>
-              <p className="mt-2 text-muted-foreground">What you'll need for mortgage application</p>
+              <p className="mt-2 text-muted-foreground">What you’ll need for mortgage application</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
@@ -296,7 +296,7 @@ export default function FinancingPage() {
           <div className="container">
             <div className="text-center mb-12">
               <h2 className="font-serif text-3xl font-bold">Our Partner Banks</h2>
-              <p className="mt-2 text-muted-foreground">Access to UAE's leading financial institutions</p>
+              <p className="mt-2 text-muted-foreground">Access to UAE’s leading financial institutions</p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5 max-w-4xl mx-auto">

@@ -2,6 +2,7 @@
 
 import { Home, Key, Shield } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 
 const services = [
   {
@@ -109,10 +110,11 @@ export function ServicesSection() {
         <div ref={sectionRef} className="relative px-6 lg:px-8 py-16 lg:py-10 mb-32 overflow-hidden rounded-3xl">
           {/* Background image that spans full width */}
           <div className="absolute inset-0 w-full h-full">
-            <img
+            <Image
               src="/images/7aecbceb-cbd3-4cbd-901c-dd0125d41525.png"
               alt="Beautiful house"
-              className={`w-full h-full object-cover transition-transform duration-1000 ease-out ${
+              fill
+              className={`object-cover transition-transform duration-1000 ease-out ${
                 isVisible ? "scale-100" : "scale-110"
               }`}
             />
@@ -133,7 +135,7 @@ export function ServicesSection() {
                   owners and tenants directly, with no agency fees.
                 </p>
                 <p>
-                  Every listing is verified, every transaction secured. We've reimagined the rental experience to make
+                  Every listing is verified, every transaction secured. We’ve reimagined the rental experience to make
                   it transparent, fast, and human.
                 </p>
               </div>
@@ -145,7 +147,7 @@ export function ServicesSection() {
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-normal mb-6 text-balance font-serif">Everything you need</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            A complete platform to manage your rentals from A to Z, whether you're an owner or a tenant.
+            A complete platform to manage your rentals from A to Z, whether you’re an owner or a tenant.
           </p>
         </div>
 

@@ -3,12 +3,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Building2 } from "lucide-react"
 import type { DeveloperProfile } from "@/lib/types/project"
+import { safeNum, safeScore, shouldShow } from "@/lib/utils/safeDisplay"
 
 interface DeveloperCardProps {
   developer: DeveloperProfile
 }
 
 export function DeveloperCard({ developer }: DeveloperCardProps) {
+  const showCompleted = shouldShow(developer.completedProjects)
+  const showStars = shouldShow(developer.stars)
+  const showHonesty = shouldShow(developer.honestyScore)
+
   return (
     <Link href={`/developers/${developer.slug}`}>
       <Card className="group overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">

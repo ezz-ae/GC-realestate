@@ -193,7 +193,7 @@ export default function GoldenVisaPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      Access to world-class healthcare, education, and lifestyle in one of the world's safest cities.
+                      Access to world-class healthcare, education, and lifestyle in one of the world’s safest cities.
                     </p>
                   </CardContent>
                 </Card>
