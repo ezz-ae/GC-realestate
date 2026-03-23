@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { LeadForm } from "@/components/lead-form"
 import { Sparkles } from "lucide-react"
@@ -29,6 +29,7 @@ export function LeadFormPopup({
         </Button>
       </SheetTrigger>
       <SheetContent side="bottom" className="w-[min(720px,92vw)] max-w-[720px] border-none p-0 shadow-2xl">
+        <SheetTitle className="sr-only">Request a consultation</SheetTitle>
         <div className="relative rounded-3xl bg-card p-6">
           <div className="mb-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">

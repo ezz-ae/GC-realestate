@@ -21,6 +21,8 @@ export function useAIChat(mode: 'public' | 'broker' = 'public') {
   const [error, setError] = useState<string | null>(null)
   const [lastProperties, setLastProperties] = useState<any[]>([])
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const [lastProvenance, setLastProvenance] = useState<Message['provenance'] | null>(null)
+  const [lastRequestId, setLastRequestId] = useState<string | null>(null)
   const isSendingRef = useRef(false)
   const messagesRef = useRef<Message[]>([])
 

@@ -896,18 +896,17 @@ export default async function ProjectPage({
                               </div>
                               <span className="text-sm text-muted-foreground">{landmark.distance}</span>
                             </div>
-                            <span className="text-sm text-muted-foreground">{landmark.distance}</span>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
                     )}
 
-                    <ProjectMap
-                      projectName={project.name}
-                      area={location.area}
-                      coordinates={hasMapCoordinates ? location.coordinates : undefined}
-                    />
-                  </TabsContent>
+                  <ProjectMap
+                    projectName={project.name}
+                    area={location.area}
+                    coordinates={hasMapCoordinates ? location.coordinates : undefined}
+                  />
+                </TabsContent>
+                )}
 
                   <TabsContent value="payment" className="mt-8 space-y-8">
                     <div>

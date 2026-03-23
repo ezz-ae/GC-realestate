@@ -39,21 +39,6 @@ const fallbackStats = {
   flagshipProjects: [] as Array<{ id: string; slug: string; name: string; marketScore: number | null }>,
 }
 
-const fallbackStats = {
-  listings: 0,
-  active: 0,
-  completed: 0,
-  avgYield: 0,
-  avgScore: 0,
-  goldenVisaCount: 0,
-  minPrice: 0,
-  maxPrice: 0,
-  onTimeDeliveryRate: null,
-  firstProjectYear: null,
-  topAreas: [] as Array<{ area: string; count: number }>,
-  flagshipProjects: [] as Array<{ id: string; slug: string; name: string; marketScore: number | null }>,
-}
-
 export async function generateStaticParams() {
   const rawDevelopers = await getDevelopers().catch(() => [])
   const developers = filterAuthorizedDevelopers(rawDevelopers)

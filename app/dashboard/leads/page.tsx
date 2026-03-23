@@ -33,13 +33,11 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
         </div>
       </section>
 
-        <section className="py-12">
-          <div className="container">
-            <LeadsTable leads={leads} isAdmin={role === "admin"} teamMembers={[]} />
-          </div>
-        </section>
-      </main>
-      <SiteFooter />
+      <section className="py-12">
+        <div className="container">
+          <LeadsTable leads={leads} isAdmin={role === "admin"} teamMembers={[]} />
+        </div>
+      </section>
     </div>
   )
 }

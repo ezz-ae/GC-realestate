@@ -5,7 +5,13 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Project } from "@/lib/types/project"
 import { safeNum, safePercent, safePrice, shouldShow, safeROI, safeScore } from "@/lib/utils/safeDisplay"
-import { TrendingUp, BarChart3, Info, MapPin, BedDouble, Bath, Ruler, ArrowRight } from "lucide-react"
+
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat("en-AE", {
+    style: "currency",
+    currency: "AED",
+    maximumFractionDigits: 0,
+  }).format(value)
 
 interface ProjectCardProps {
   project: Project

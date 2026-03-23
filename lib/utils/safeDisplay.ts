@@ -33,8 +33,18 @@ export function safePercent(
   decimals = 1,
   fallback = "—",
 ): string {
-  if (!isPositiveNumber(val)) return fallback
+  if (val === null || val === undefined || typeof val !== "number" || !Number.isFinite(val)) {
+    return fallback
+  }
   return `${val.toFixed(decimals)}%`
+}
+
+export function safeROI(
+  val: number | null | undefined,
+  decimals = 1,
+  fallback = "—",
+): string {
+  return safePercent(val, decimals, fallback)
 }
 
 export function safeScore(val: number | null | undefined, fallback = "—"): string {
