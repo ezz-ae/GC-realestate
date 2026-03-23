@@ -109,6 +109,9 @@ export default async function DeveloperDetailPage({
     return `${minPriceLabel} - ${maxPriceLabel}`
   })()
   const showPriceRange = shouldShow(stats.minPrice) || shouldShow(stats.maxPrice)
+  const showDelivered = shouldShow(unitsDelivered)
+  const showStars = shouldShow(developer.stars)
+  const showHonesty = shouldShow(developer.honestyScore)
   const trustSignalRows = [
     {
       label: "Units delivered",
