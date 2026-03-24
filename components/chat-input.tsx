@@ -71,9 +71,9 @@ export function ChatInput({
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); submit() }}
-      className="relative w-full max-w-4xl mx-auto touch-none"
+      className="relative w-full max-w-4xl mx-auto"
     >
-      <div className="relative flex items-end rounded-2xl sm:rounded-3xl border bg-background px-2 py-2 sm:px-4 sm:py-3 shadow-lg ring-offset-background transition-shadow hover:shadow-xl focus-within:shadow-xl focus-within:border-primary/20 touch-auto">
+      <div className="relative flex items-end rounded-2xl sm:rounded-3xl border bg-background px-2 py-2 sm:px-4 sm:py-3 shadow-lg ring-offset-background transition-shadow hover:shadow-xl focus-within:shadow-xl focus-within:border-primary/20">
         <div className="flex items-center">
           {suggestedQuestions.length > 0 && (
             <DropdownMenu>

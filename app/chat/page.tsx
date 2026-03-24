@@ -25,9 +25,29 @@ export default function ChatPage() {
   
   const { messages, sendMessage, isLoading, lastProperties, error } = useAIChat()
   const [isMobileView, setIsMobileView] = useState(false)
+  const [viewportHeight, setViewportHeight] = useState("100dvh")
   const scrollViewportRef = useRef<HTMLDivElement>(null)
   const listEndRef = useRef<HTMLDivElement>(null)
   const resultProperties = useMemo(() => lastProperties || [], [lastProperties])
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return
+
+    const handleResize = () => {
+      if (window.visualViewport) {
+        setViewportHeight(`${window.visualViewport.height}px`)
+      }
+    }
+
+    window.visualViewport.addEventListener("resize", handleResize)
+    window.visualViewport.addEventListener("scroll", handleResize)
+    handleResize()
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize)
+      window.visualViewport?.removeEventListener("scroll", handleResize)
+    }
+  }, [])
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     const viewport = scrollViewportRef.current
@@ -101,24 +121,27 @@ export default function ChatPage() {
   ]
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-background overflow-hidden overscroll-none">
+    <div 
+      className="flex flex-col bg-background overflow-hidden overscroll-none"
+      style={{ height: viewportHeight }}
+    >
        {/* Header */}
        <header className="flex-none border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
-          <div className="container flex h-14 items-center justify-between">
+          <div className="container flex h-14 items-center justify-between px-4">
             <div className="flex items-center">
-                <Button variant="ghost" size="sm" className="mr-4 text-muted-foreground hover:text-foreground rounded-full" asChild>
+                <Button variant="ghost" size="sm" className="mr-2 text-muted-foreground hover:text-foreground rounded-full h-8 w-8 p-0 sm:w-auto sm:px-3 sm:mr-4" asChild>
                     <Link href="/">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back
+                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Back</span>
                     </Link>
                 </Button>
-                <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 shadow-sm">
-                        <Sparkles className="h-4 w-4 text-primary" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-primary/10 shadow-sm">
+                        <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                     </span>
                     <div>
-                        <h1 className="text-sm font-semibold leading-none">AI Assistant</h1>
-                        <p className="text-xs text-muted-foreground mt-1">Powered by Entrestate Intelligence</p>
+                        <h1 className="text-xs sm:text-sm font-semibold leading-none">AI Assistant</h1>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Gold Century Intelligence</p>
                     </div>
                 </div>
             </div>
@@ -133,9 +156,9 @@ export default function ChatPage() {
                 <div className="absolute top-[30%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div className="flex-1 flex flex-col overflow-hidden px-0 sm:px-2 md:px-4 py-0 sm:py-4 md:py-8">
+            <div className="flex-1 flex flex-col overflow-hidden">
               <section
-                className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col sm:rounded-2xl md:rounded-[2rem] border-x-0 sm:border border-border bg-card/80 shadow-2xl backdrop-blur-xl overflow-hidden touch-pan-y"
+                className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col sm:rounded-2xl md:rounded-[2rem] sm:border border-border bg-card/80 sm:shadow-2xl backdrop-blur-xl overflow-hidden touch-pan-y sm:my-4 md:my-8"
               >
                 <div
                     ref={scrollViewportRef}
@@ -227,7 +250,7 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                <div className="flex-none border-t border-border bg-background/95 px-2 py-2 sm:px-4 sm:py-4 backdrop-blur">
+                <div className="flex-none border-t border-border bg-background/95 px-2 py-2 sm:px-4 sm:py-4 backdrop-blur pb-[env(safe-area-inset-bottom,16px)]">
                   <div className="mx-auto w-full max-w-4xl space-y-2">
                     {error && (
                       <div className="rounded-2xl border border-destructive/50 bg-destructive/5 px-4 py-2 text-xs text-destructive">
