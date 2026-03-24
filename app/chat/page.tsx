@@ -27,6 +27,7 @@ export default function ChatPage() {
   const [resultProperties, setResultProperties] = useState<Property[]>([])
   const [isMobileView, setIsMobileView] = useState(false)
   const scrollViewportRef = useRef<HTMLDivElement>(null)
+  const listEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     const viewport = scrollViewportRef.current
@@ -91,6 +92,14 @@ export default function ChatPage() {
     const frame = window.requestAnimationFrame(() => scrollToBottom(behavior))
     return () => window.cancelAnimationFrame(frame)
   }, [isLoading, messages.length, resultProperties.length, scrollToBottom])
+
+  useEffect(() => {
+    const behavior: ScrollBehavior = messages.length <= 1 ? "auto" : "smooth"
+    const frame = window.requestAnimationFrame(() => {
+      listEndRef.current?.scrollIntoView({ behavior, block: "end" })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [messages.length, isLoading])
 
   const suggestedQuestions = [
     "Show me 2BR apartments in Dubai Marina under AED 2M",
@@ -168,7 +177,7 @@ export default function ChatPage() {
                              </div>
                         ) : (
                             <>
-                                {messages.map((message, index) => (
+                                  {messages.map((message, index) => (
                                     <ChatMessage
                                         key={index}
                                         role={message.role}
@@ -176,12 +185,13 @@ export default function ChatPage() {
                                         timestamp={message.timestamp}
                                     />
                                 ))}
-                                {isLoading && (
-                                    <ChatMessage
-                                        role="assistant"
-                                        content="Thinking..."
-                                    />
-                                )}
+                                    {isLoading && (
+                                        <ChatMessage
+                                            role="assistant"
+                                            content="Thinking..."
+                                        />
+                                    )}
+                                    <div ref={listEndRef} />
                                 
                                 {/* Property Results Carousel */}
                                  {resultProperties.length > 0 && (
