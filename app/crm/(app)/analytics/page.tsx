@@ -11,6 +11,12 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value)
 
+const EmptyState = ({ text }: { text: string }) => (
+  <div className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+    {text}
+  </div>
+)
+
 export default async function DashboardAnalyticsPage() {
   const user = await getSessionUser()
   const accessRole = resolveAccessRole(user?.role)
@@ -20,12 +26,6 @@ export default async function DashboardAnalyticsPage() {
   const hasBrokerData = analytics.brokerPerformance.length > 0
   const hasAreaData = analytics.areaPerformance.length > 0
   const hasProjectData = analytics.topProjects.length > 0
-
-  const EmptyState = ({ text }: { text: string }) => (
-    <div className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
-      {text}
-    </div>
-  )
 
   return (
     <div className="space-y-8">

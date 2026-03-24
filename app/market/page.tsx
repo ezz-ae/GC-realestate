@@ -111,7 +111,7 @@ export default function MarketPage() {
                 <CardContent>
                   <ul className="space-y-2 text-sm text-muted-foreground mb-4">
                     <li>• AED 2M+ property eligibility</li>
-                    <li>• 5-10 year residency permits</li>
+                    <li>• 10-year residency permits</li>
                     <li>• Family sponsorship benefits</li>
                     <li>• Application process guide</li>
                   </ul>

@@ -10,7 +10,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react"
-import { safeNum } from "@/lib/utils/safeDisplay"
 
 const dubaiAreas = [
   "Dubai Marina", "Downtown Dubai", "Palm Jumeirah", "Business Bay",
@@ -26,6 +25,8 @@ const developers = [
   "All Developers", "Emaar", "Damac", "Nakheel", "Dubai Properties",
   "Meraas", "Azizi", "Sobha", "Select Group"
 ]
+
+const sliderFormatter = new Intl.NumberFormat("en-AE", { maximumFractionDigits: 0 })
 
 interface PropertyFiltersProps {
   collapsible?: boolean
@@ -144,23 +145,23 @@ export function PropertyFilters({ collapsible = false, defaultOpen = true }: Pro
         <Label className="text-sm font-medium">
           Price Range ({currency})
         </Label>
-        <div className="mt-4 space-y-4">
-          <Slider
-            value={priceRange}
-            onValueChange={setPriceRange}
-            max={10000000}
-            step={100000}
-            className="w-full"
-          />
-          <div className="flex items-center justify-between text-sm">
+      <div className="mt-4 space-y-4">
+        <Slider
+          value={priceRange}
+          onValueChange={setPriceRange}
+          max={10000000}
+          step={100000}
+          className="w-full"
+        />
+        <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
-              {currency} {safeNum(priceRange[0])}
+              {currency} {sliderFormatter.format(priceRange[0])}
             </span>
             <span className="text-muted-foreground">
-              {currency} {safeNum(priceRange[1])}
+              {currency} {sliderFormatter.format(priceRange[1])}
             </span>
-          </div>
         </div>
+      </div>
       </div>
 
       {/* Property Type */}

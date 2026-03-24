@@ -60,22 +60,40 @@ export default function DashboardAIAssistantPage() {
     }))
   }, [latestAttachment])
 
-  const loadHistory = async () => {
+  const maybeFetchConversations = async () => {
     const response = await fetch("/api/ai/history")
-    if (!response.ok) return
+    if (!response.ok) return []
     const data = await response.json()
-    if (Array.isArray(data?.conversations)) {
-      setHistory(data.conversations)
-    }
+    if (!Array.isArray(data?.conversations)) return []
+    return data.conversations
   }
 
   useEffect(() => {
-    loadHistory()
+    let active = true
+    const load = async () => {
+      const conversations = await maybeFetchConversations()
+      if (active && conversations.length) {
+        setHistory(conversations)
+      }
+    }
+    void load()
+    return () => {
+      active = false
+    }
   }, [])
 
   useEffect(() => {
-    if (messages.length) {
-      loadHistory()
+    if (!messages.length) return
+    let active = true
+    const load = async () => {
+      const conversations = await maybeFetchConversations()
+      if (active && conversations.length) {
+        setHistory(conversations)
+      }
+    }
+    void load()
+    return () => {
+      active = false
     }
   }, [messages.length])
 

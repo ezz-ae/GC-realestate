@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -165,7 +166,7 @@ export function CreateLandingPageForm({ projects }: CreateLandingPageFormProps) 
                 <a href={result.url} target="_blank" rel="noreferrer">Open LP</a>
               </Button>
               <Button size="sm" asChild>
-                <a href="/crm/landing-pages">Open CRM LP List</a>
+                <Link href="/crm/landing-pages">Open CRM LP List</Link>
               </Button>
             </div>
           </CardContent>

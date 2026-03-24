@@ -186,7 +186,7 @@ export function AiProjectUpdatePanel({ projects, updates }: AiProjectUpdatePanel
                   <Badge variant="outline" className="rounded-full text-[9px] h-5 bg-muted/50 border-border/60">{update.target_status ?? "active"}</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed italic">
-                  "{update.notes}"
+                  &ldquo;{update.notes}&rdquo;
                 </p>
                 <div className="mt-3 text-[9px] text-muted-foreground/60 font-medium text-right">
                   Deployed {new Date(update.created_at).toLocaleDateString()}

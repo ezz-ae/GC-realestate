@@ -4,8 +4,6 @@ import { ArrowRight, BedDouble, Bath, MapPin, Ruler } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Project } from "@/lib/types/project"
-import { safeNum, safePercent, safePrice, shouldShow, safeROI, safeScore } from "@/lib/utils/safeDisplay"
-
 const formatPrice = (value: number) =>
   new Intl.NumberFormat("en-AE", {
     style: "currency",

@@ -1,3 +1,4 @@
+import Link from "next/link"
 import {
   LayoutDashboard,
   Bot,
@@ -289,10 +290,10 @@ export default function PlaybookPage() {
               <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
               <span><strong className="text-foreground">Save conversations</strong> — Pin any conversation you want to keep. The AI remembers your pinned sessions as learning material to improve its answers over time.</span>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
-              <span><strong className="text-foreground">It remembers context</strong> — If you ask about a property and then say "write a message for the client who asked about this", it connects the dots. You don&apos;t need to repeat yourself.</span>
-            </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                <span><strong className="text-foreground">It remembers context</strong> — If you ask about a property and then say &ldquo;write a message for the client who asked about this&rdquo;, it connects the dots. You don&apos;t need to repeat yourself.</span>
+              </div>
           </div>
         </div>
 
@@ -923,15 +924,24 @@ export default function PlaybookPage() {
           Open the AI Assistant and type <em>&ldquo;who should I call first today?&rdquo;</em> — let the system tell you where to focus.
         </p>
         <div className="flex flex-wrap gap-3 justify-center pt-2">
-          <a href="/crm/ai-assistant" className="inline-flex items-center gap-2 rounded-xl gold-gradient px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-opacity hover:opacity-90">
+          <Link
+            href="/crm/ai-assistant"
+            className="inline-flex items-center gap-2 rounded-xl gold-gradient px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-opacity hover:opacity-90"
+          >
             <Bot className="h-4 w-4" /> Open AI Assistant
-          </a>
-          <a href="/crm/leads" className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+          </Link>
+          <Link
+            href="/crm/leads"
+            className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+          >
             <Users className="h-4 w-4" /> View My Leads
-          </a>
-          <a href="/crm/overview" className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+          </Link>
+          <Link
+            href="/crm/overview"
+            className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+          >
             <LayoutDashboard className="h-4 w-4" /> Go to Overview
-          </a>
+          </Link>
         </div>
       </section>
 

@@ -24,10 +24,10 @@ export default function ChatPage() {
   const initialQuery = searchParams.get("q")
   
   const { messages, sendMessage, isLoading, lastProperties, error } = useAIChat()
-  const [resultProperties, setResultProperties] = useState<Property[]>([])
   const [isMobileView, setIsMobileView] = useState(false)
   const scrollViewportRef = useRef<HTMLDivElement>(null)
   const listEndRef = useRef<HTMLDivElement>(null)
+  const resultProperties = useMemo(() => lastProperties || [], [lastProperties])
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     const viewport = scrollViewportRef.current
@@ -82,10 +82,6 @@ export default function ChatPage() {
       handleSendMessage(initialQuery)
     }
   }, [handleSendMessage, initialQuery, messages.length])
-
-  useEffect(() => {
-    setResultProperties(lastProperties || [])
-  }, [lastProperties])
 
   useEffect(() => {
     const behavior: ScrollBehavior = messages.length <= 1 ? "auto" : "smooth"
@@ -235,18 +231,21 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                {/* Pinned Input */}
-                <div className="sticky bottom-0 flex-none border-t border-border bg-background/90 px-4 py-4 shadow-[0_-4px_20px_rgba(15,23,42,0.2)] backdrop-blur md:px-8">
-                    <div className="mx-auto max-w-3xl">
+                <div className="border-t border-border bg-background/90 px-4 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
+                    <div className="mx-auto w-full max-w-4xl space-y-3">
                         {error && (
-                          <div className="mb-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive flex items-center gap-2">
-                            <ShieldCheck className="h-4 w-4" />
-                            {error}
-                          </div>
+                            <div className="rounded-2xl border border-destructive/50 bg-destructive/5 px-4 py-2 text-xs text-destructive">
+                                {error}
+                            </div>
                         )}
-                        <ChatInput onSend={handleSendMessage} disabled={isLoading} />
+                        <ChatInput
+                            onSend={handleSendMessage}
+                            disabled={isLoading}
+                            placeholder="Ask about Dubai properties, ROI, or Golden Visa eligibility"
+                        />
                     </div>
                 </div>
+
             </div>
        </main>
     </div>

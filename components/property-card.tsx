@@ -6,7 +6,12 @@ import { MapPin, BedDouble, Bath, Maximize, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Property } from "@/lib/types/project"
-import { isFiniteNumber, safeROI, shouldShow } from "@/lib/utils/safeDisplay"
+import { isFiniteNumber, shouldShow } from "@/lib/utils/safeDisplay"
+
+const formatRoiLabel = (value?: number | null) => {
+  if (!isFiniteNumber(value) || value <= 0) return null
+  return `~${value.toFixed(1)} yr ROI`
+}
 
 interface PropertyCardProps {
   property: Property
@@ -35,6 +40,7 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
   const bathLabel = `${property.specifications.bathrooms} Bath${
     property.specifications.bathrooms === 1 ? "" : "s"
   }`
+  const roiLabel = formatRoiLabel(property.investmentMetrics.roi)
 
   return (
     <Link href={`/properties/${property.slug}`} className="group block" prefetch={false}>
@@ -66,13 +72,13 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
           <h3 className={`font-serif font-bold group-hover:text-primary transition-colors ${compact ? "text-base line-clamp-2" : "text-xl line-clamp-1"}`}>
             {property.title}
           </h3>
-          {isFiniteNumber(property.investmentMetrics.roi) && (
+          {roiLabel && (
             <Badge
               variant="outline"
               className={`shrink-0 border-primary/20 bg-primary/5 text-primary ${compact ? "text-[9px] h-4 px-1.5" : "text-[10px] h-5"}`}
             >
               <TrendingUp className="mr-1 h-3 w-3" />
-              {safeROI(property.investmentMetrics.roi)}
+              {formatRoiLabel(property.investmentMetrics.roi)}
             </Badge>
           )}
         </div>

@@ -689,7 +689,7 @@ export default async function ProjectPage({
                           {testimonials.map((testimonial: any, index: number) => (
                             <Card key={`${testimonial.name}-${index}`}>
                               <CardContent className="p-6">
-                                <p className="text-sm text-muted-foreground">"{testimonial.quote}"</p>
+                                <p className="text-sm text-muted-foreground">&ldquo;{testimonial.quote}&rdquo;</p>
                                 <div className="mt-4 text-sm font-semibold">{testimonial.name}</div>
                                 <div className="text-xs text-muted-foreground">{testimonial.country}</div>
                               </CardContent>
