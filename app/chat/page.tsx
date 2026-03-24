@@ -138,116 +138,120 @@ export default function ChatPage() {
                 <div className="absolute top-[30%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div className="flex flex-1 flex-col">
-                <div
-                  ref={scrollViewportRef}
-                  className="flex-1 overflow-y-auto overscroll-contain px-4 py-8 md:px-8"
-                >
-                    <div className="mx-auto max-w-4xl space-y-10 pb-32">
-                        {messages.length === 0 ? (
-                             <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
-                                <div className="space-y-4">
-                                    <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 ring-8 ring-primary/5">
-                                        <Sparkles className="h-8 w-8 text-primary" />
-                                    </div>
-                                    <h2 className="text-2xl font-bold tracking-tight">How can I help you today?</h2>
-                                    <p className="text-muted-foreground max-w-md mx-auto">
-                                        I can help you find properties, analyze market trends, and calculate ROI for your investments in Dubai.
-                                    </p>
-                                </div>
-                                
-                                <div className="grid gap-2 sm:grid-cols-2 w-full max-w-2xl px-4">
-                                    {suggestedQuestions.map((question, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleSendMessage(question)}
-                                            className="flex items-center gap-3 rounded-xl border bg-background/50 p-4 text-sm text-left transition-all hover:bg-muted/50 hover:border-primary/30 hover:shadow-sm"
-                                        >
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                                                <Zap className="h-4 w-4 text-primary" />
-                                            </div>
-                                            {question}
-                                        </button>
-                                    ))}
-                                </div>
-                             </div>
-                        ) : (
-                            <>
-                                  {messages.map((message, index) => (
-                                    <ChatMessage
-                                        key={index}
-                                        role={message.role}
-                                        content={message.content}
-                                        timestamp={message.timestamp}
-                                    />
-                                ))}
-                                    {isLoading && (
-                                        <ChatMessage
-                                            role="assistant"
-                                            content="Thinking..."
-                                        />
-                                    )}
-                                    <div ref={listEndRef} />
-                                
-                                {/* Property Results Carousel */}
-                                 {resultProperties.length > 0 && (
-                                    <div className="mt-8 overflow-hidden rounded-2xl border bg-card shadow-sm">
-                                        <div className="border-b bg-muted/30 px-6 py-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <h3 className="font-semibold">Featured Properties</h3>
-                                                    <p className="text-xs text-muted-foreground">Based on your preferences</p>
-                                                </div>
-                                                {shortlistStats && (
-                                                     <div className="hidden sm:flex gap-2">
-                                                        <span className="inline-flex items-center rounded-full border bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                                                            {shortlistStats.topArea}
-                                                        </span>
-                                                        <span className="inline-flex items-center rounded-full border bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                                                            ROI: {shortlistStats.avgRoi.toFixed(1)}%
-                                                        </span>
-                                                     </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="p-4 md:p-6 bg-muted/10">
-                                            <Carousel opts={{ align: "start" }} className="w-full">
-                                                <CarouselContent>
-                                                    {resultProperties.map((property) => (
-                                                        <CarouselItem key={property.id} className="basis-[74%] sm:basis-[58%] md:basis-[44%] lg:basis-[36%] xl:basis-[32%] pl-4">
-                                                            <PropertyCard property={property} compact />
-                                                        </CarouselItem>
-                                                    ))}
-                                                </CarouselContent>
-                                                <CarouselPrevious className="-left-3" />
-                                                <CarouselNext className="-right-3" />
-                                            </Carousel>
-                                        </div>
-                                    </div>
-                                 )}
-                                 <div className="h-4" />
-                            </>
-                        )}
-                    </div>
-                </div>
-
-                <div className="border-t border-border bg-background/90 px-4 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
-                    <div className="mx-auto w-full max-w-4xl space-y-3">
-                        {error && (
-                            <div className="rounded-2xl border border-destructive/50 bg-destructive/5 px-4 py-2 text-xs text-destructive">
-                                {error}
+            <div className="flex flex-1 overflow-hidden px-4 py-8">
+              <section
+                className="relative mx-auto flex h-full w-full max-w-4xl flex-1 flex-col overflow-hidden rounded-[2rem] border border-border bg-card/80 shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+                style={{ maxHeight: "calc(100vh - 156px)" }}
+              >
+                <div className="flex-1 overflow-hidden">
+                  <div
+                    ref={scrollViewportRef}
+                    className="flex h-full flex-col overflow-y-auto px-4 py-6 md:px-6"
+                  >
+                    <div className="space-y-10 pb-6">
+                      {messages.length === 0 ? (
+                        <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
+                          <div className="space-y-4">
+                            <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 ring-8 ring-primary/5">
+                              <Sparkles className="h-8 w-8 text-primary" />
                             </div>
-                        )}
-                        <ChatInput
-                            onSend={handleSendMessage}
-                            disabled={isLoading}
-                            placeholder="Ask about Dubai properties, ROI, or Golden Visa eligibility"
-                        />
+                            <h2 className="text-2xl font-bold tracking-tight">How can I help you today?</h2>
+                            <p className="text-muted-foreground max-w-md mx-auto">
+                              I can help you find properties, analyze market trends, and calculate ROI for your investments in Dubai.
+                            </p>
+                          </div>
+
+                          <div className="grid gap-2 sm:grid-cols-2 w-full px-2 md:px-4">
+                            {suggestedQuestions.map((question, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleSendMessage(question)}
+                                className="flex items-center gap-3 rounded-xl border bg-background/50 p-4 text-sm text-left transition-all hover:bg-muted/50 hover:border-primary/30 hover:shadow-sm"
+                              >
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                  <Zap className="h-4 w-4 text-primary" />
+                                </div>
+                                {question}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {messages.map((message, index) => (
+                            <ChatMessage
+                              key={index}
+                              role={message.role}
+                              content={message.content}
+                              timestamp={message.timestamp}
+                            />
+                          ))}
+                          {isLoading && (
+                            <ChatMessage
+                              role="assistant"
+                              content="Thinking..."
+                            />
+                          )}
+                          <div ref={listEndRef} />
+
+                          {resultProperties.length > 0 && (
+                            <div className="mt-8 overflow-hidden rounded-2xl border bg-card shadow-sm">
+                              <div className="border-b bg-muted/30 px-6 py-4">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <h3 className="font-semibold">Featured Properties</h3>
+                                    <p className="text-xs text-muted-foreground">Based on your preferences</p>
+                                  </div>
+                                  {shortlistStats && (
+                                    <div className="hidden sm:flex gap-2">
+                                      <span className="inline-flex items-center rounded-full border bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                                        {shortlistStats.topArea}
+                                      </span>
+                                      <span className="inline-flex items-center rounded-full border bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                                        ROI: {shortlistStats.avgRoi.toFixed(1)}%
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="p-4 md:p-6 bg-muted/10">
+                                <Carousel opts={{ align: "start" }} className="w-full">
+                                  <CarouselContent>
+                                    {resultProperties.map((property) => (
+                                      <CarouselItem key={property.id} className="basis-[74%] sm:basis-[58%] md:basis-[44%] lg:basis-[36%] xl:basis-[32%] pl-4">
+                                        <PropertyCard property={property} compact />
+                                      </CarouselItem>
+                                    ))}
+                                  </CarouselContent>
+                                  <CarouselPrevious className="-left-3" />
+                                  <CarouselNext className="-right-3" />
+                                </Carousel>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
+                  </div>
                 </div>
 
+                <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
+                  <div className="mx-auto w-full max-w-4xl space-y-3">
+                    {error && (
+                      <div className="rounded-2xl border border-destructive/50 bg-destructive/5 px-4 py-2 text-xs text-destructive">
+                        {error}
+                      </div>
+                    )}
+                    <ChatInput
+                      onSend={handleSendMessage}
+                      disabled={isLoading}
+                      placeholder="Ask about Dubai properties, ROI, or Golden Visa eligibility"
+                    />
+                  </div>
+                </div>
+              </section>
             </div>
-       </main>
+        </main>
     </div>
   )
 }
