@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import { promises as fs } from "fs"
-import formidable from "formidable"
-import pdf from "pdf-parse"
+import { createRequire } from "module"
+
+const require = createRequire(import.meta.url)
+const pdf = require("pdf-parse")
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
