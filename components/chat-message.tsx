@@ -14,20 +14,20 @@ export function ChatMessage({ role, content, timestamp }: ChatMessageProps) {
   const isUser = role === "user"
 
   return (
-    <div className={cn("flex w-full gap-4 py-4 px-4", isUser ? "justify-end" : "justify-start")}>
+    <div className={cn("flex w-full gap-2 sm:gap-4 py-2 sm:py-4 px-2 sm:px-4", isUser ? "justify-end" : "justify-start")}>
       {!isUser && (
-        <Avatar className="mt-0.5 h-8 w-8 border border-border/50 shadow-sm shrink-0">
+        <Avatar className="mt-0.5 h-7 w-7 sm:h-8 sm:w-8 border border-border/50 shadow-sm shrink-0">
           <AvatarImage src="/images/ai-avatar.png" alt="AI" />
           <AvatarFallback className="gold-gradient text-black">
-            <Bot className="h-4 w-4" />
+            <Bot className="h-3 w-3 sm:h-4 sm:w-4" />
           </AvatarFallback>
         </Avatar>
       )}
 
-      <div className={cn("flex flex-col max-w-[80%] md:max-w-2xl", isUser ? "items-end" : "items-start")}>
+      <div className={cn("flex flex-col max-w-[85%] sm:max-w-[80%] md:max-w-2xl", isUser ? "items-end" : "items-start")}>
         <div 
           className={cn(
-            "prose prose-neutral dark:prose-invert max-w-none break-words px-5 py-3 shadow-sm text-sm leading-relaxed",
+            "prose prose-neutral dark:prose-invert max-w-none break-words px-3 py-2 sm:px-5 sm:py-3 shadow-sm text-sm leading-relaxed",
             isUser 
               ? "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm" 
               : "bg-muted text-foreground rounded-2xl rounded-tl-sm"

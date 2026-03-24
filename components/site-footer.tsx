@@ -70,7 +70,7 @@ const footerSections = [
 export function SiteFooter() {
   const pathname = usePathname()
 
-  if (pathname?.startsWith("/crm")) {
+  if (pathname?.startsWith("/crm") || pathname === "/chat") {
     return null
   }
 

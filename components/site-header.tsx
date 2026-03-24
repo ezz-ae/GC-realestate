@@ -63,7 +63,7 @@ export function SiteHeader() {
   const megaMenuMedium = "w-[min(640px,92vw)] min-w-[340px] p-2"
   const megaMenuCompact = "w-[min(520px,92vw)] min-w-[320px] p-2"
 
-  if (pathname?.startsWith("/crm")) {
+  if (pathname?.startsWith("/crm") || pathname === "/chat") {
     return null
   }
 

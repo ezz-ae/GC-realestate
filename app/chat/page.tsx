@@ -101,7 +101,7 @@ export default function ChatPage() {
   ]
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="fixed inset-0 flex flex-col bg-background overflow-hidden overscroll-none">
        {/* Header */}
        <header className="flex-none border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
           <div className="container flex h-14 items-center justify-between">
@@ -133,13 +133,13 @@ export default function ChatPage() {
                 <div className="absolute top-[30%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div className="flex-1 flex flex-col overflow-hidden px-2 md:px-4 py-4 md:py-8">
+            <div className="flex-1 flex flex-col overflow-hidden px-0 sm:px-2 md:px-4 py-0 sm:py-4 md:py-8">
               <section
-                className="relative mx-auto flex h-full w-full max-w-4xl flex-1 flex-col rounded-2xl md:rounded-[2rem] border border-border bg-card/80 shadow-2xl backdrop-blur-xl overflow-hidden touch-pan-y"
+                className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col sm:rounded-2xl md:rounded-[2rem] border-x-0 sm:border border-border bg-card/80 shadow-2xl backdrop-blur-xl overflow-hidden touch-pan-y"
               >
                 <div
                     ref={scrollViewportRef}
-                    className="flex-1 overflow-y-auto px-4 py-6 md:px-6 overscroll-contain scroll-smooth"
+                    className="flex-1 overflow-y-auto px-4 py-4 md:px-6 overscroll-contain scroll-smooth"
                 >
                     <div className="space-y-10 pb-6">
                       {messages.length === 0 ? (
@@ -227,8 +227,8 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                <div className="flex-none border-t border-border bg-background/95 px-4 py-4 backdrop-blur">
-                  <div className="mx-auto w-full max-w-4xl space-y-3">
+                <div className="flex-none border-t border-border bg-background/95 px-2 py-2 sm:px-4 sm:py-4 backdrop-blur">
+                  <div className="mx-auto w-full max-w-4xl space-y-2">
                     {error && (
                       <div className="rounded-2xl border border-destructive/50 bg-destructive/5 px-4 py-2 text-xs text-destructive">
                         {error}

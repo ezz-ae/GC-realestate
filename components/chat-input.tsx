@@ -73,12 +73,12 @@ export function ChatInput({
       onSubmit={(e) => { e.preventDefault(); submit() }}
       className="relative w-full max-w-4xl mx-auto touch-none"
     >
-      <div className="relative flex items-end rounded-3xl border bg-background px-4 py-3 shadow-lg ring-offset-background transition-shadow hover:shadow-xl focus-within:shadow-xl focus-within:border-primary/20 touch-auto">
+      <div className="relative flex items-end rounded-2xl sm:rounded-3xl border bg-background px-2 py-2 sm:px-4 sm:py-3 shadow-lg ring-offset-background transition-shadow hover:shadow-xl focus-within:shadow-xl focus-within:border-primary/20 touch-auto">
         <div className="flex items-center">
           {suggestedQuestions.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-11 w-11 rounded-full">
+                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-11 sm:w-11 rounded-full">
                   <ChevronUp className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -96,7 +96,7 @@ export function ChatInput({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 rounded-full"
+                className="h-9 w-9 sm:h-11 sm:w-11 rounded-full"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={disabled}
               >
@@ -122,10 +122,10 @@ export function ChatInput({
           autoFocus
           inputMode="text"
           rows={1}
-          className="min-h-[52px] max-h-[200px] w-full resize-none border-0 bg-transparent py-2.5 pr-14 text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+          className="min-h-[44px] sm:min-h-[52px] max-h-[150px] sm:max-h-[200px] w-full resize-none border-0 bg-transparent py-2 sm:py-2.5 pl-1 sm:pl-2 pr-10 sm:pr-14 text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
           style={{ touchAction: "manipulation" }}
         />
-        <div className="absolute right-3 bottom-3">
+        <div className="absolute right-2 bottom-2 sm:right-3 sm:bottom-3">
           {/* 44×44px touch target (WCAG 2.5.5) */}
           <Button
             type="submit"
@@ -133,7 +133,7 @@ export function ChatInput({
             disabled={!input.trim() || disabled}
             aria-label="Send message"
             className={cn(
-              "h-11 w-11 shrink-0 rounded-full transition-all touch-manipulation",
+              "h-9 w-9 sm:h-11 sm:w-11 shrink-0 rounded-full transition-all touch-manipulation",
               input.trim()
                 ? "bg-primary text-primary-foreground shadow-md active:scale-95"
                 : "bg-muted text-muted-foreground",
