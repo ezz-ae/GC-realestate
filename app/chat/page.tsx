@@ -133,24 +133,23 @@ export default function ChatPage() {
                 <div className="absolute top-[30%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div className="flex-1 overflow-y-auto px-2 md:px-4 py-4 md:py-8 overscroll-contain scroll-smooth">
+            <div className="flex-1 flex flex-col overflow-hidden px-2 md:px-4 py-4 md:py-8">
               <section
-                className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col rounded-2xl md:rounded-[2rem] border border-border bg-card/80 shadow-2xl backdrop-blur-xl overflow-hidden touch-pan-y"
+                className="relative mx-auto flex h-full w-full max-w-4xl flex-1 flex-col rounded-2xl md:rounded-[2rem] border border-border bg-card/80 shadow-2xl backdrop-blur-xl overflow-hidden touch-pan-y"
               >
-                <div className="flex-1 overflow-hidden">
-                  <div
+                <div
                     ref={scrollViewportRef}
-                    className="flex h-full flex-col overflow-y-auto px-4 py-6 md:px-6 overscroll-contain scroll-smooth"
-                  >
+                    className="flex-1 overflow-y-auto px-4 py-6 md:px-6 overscroll-contain scroll-smooth"
+                >
                     <div className="space-y-10 pb-6">
                       {messages.length === 0 ? (
-                        <div className="flex min-h-[50vh] flex-col items-center justify-center text-center space-y-8">
+                        <div className="flex min-h-full flex-col items-center justify-center text-center space-y-8 py-12">
                           <div className="space-y-4">
                             <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 ring-8 ring-primary/5">
                               <Sparkles className="h-8 w-8 text-primary" />
                             </div>
                             <h2 className="text-2xl font-bold tracking-tight">How can I help you today?</h2>
-                            <p className="text-muted-foreground max-w-md mx-auto">
+                            <p className="text-muted-foreground max-w-md mx-auto px-4">
                               I can help you find properties, analyze market trends, and calculate ROI for your investments in Dubai.
                             </p>
                           </div>
@@ -226,10 +225,9 @@ export default function ChatPage() {
                         </>
                       )}
                     </div>
-                  </div>
                 </div>
 
-                <div className="sticky bottom-0 bg-background/95 px-4 py-4 backdrop-blur">
+                <div className="flex-none border-t border-border bg-background/95 px-4 py-4 backdrop-blur">
                   <div className="mx-auto w-full max-w-4xl space-y-3">
                     {error && (
                       <div className="rounded-2xl border border-destructive/50 bg-destructive/5 px-4 py-2 text-xs text-destructive">
@@ -247,6 +245,7 @@ export default function ChatPage() {
               </section>
             </div>
         </main>
+
     </div>
   )
 }

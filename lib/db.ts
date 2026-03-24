@@ -2,14 +2,22 @@ import { Pool, type QueryResultRow } from "pg"
 
 const rawConnectionString =
   process.env.NEON_DATABASE_URL || process.env.DATABASE_URL
+const schema = process.env.DB_SCHEMA || "public"
 
 const getConnectionString = () => {
   if (!rawConnectionString) {
     throw new Error("Missing NEON_DATABASE_URL or DATABASE_URL environment variable")
   }
-  return rawConnectionString.includes("sslmode=")
+  
+  let connectionString = rawConnectionString.includes("sslmode=")
     ? rawConnectionString.replace(/sslmode=[^&]+/, "sslmode=verify-full")
     : `${rawConnectionString}${rawConnectionString.includes("?") ? "&" : "?"}sslmode=verify-full`
+
+  if (!connectionString.includes("options=")) {
+    connectionString += `&options=--search_path%3D${schema}`
+  }
+  
+  return connectionString
 }
 
 const globalForPool = globalThis as unknown as { pgPool?: Pool }
