@@ -263,7 +263,7 @@ export function LeadsTable({ leads, isAdmin, teamMembers = [] }: LeadsTableProps
       </div>
 
       <div className="hidden overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm md:block">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overscroll-x-contain">
           <div className="grid min-w-[1220px] grid-cols-10 gap-4 border-b border-border/60 bg-muted/30 px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
             <div className="col-span-2">Lead Information</div>
             <div className="col-span-1">Status</div>

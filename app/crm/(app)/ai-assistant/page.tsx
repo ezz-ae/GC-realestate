@@ -161,6 +161,27 @@ export default function DashboardAIAssistantPage() {
     downloadFile([header, "", ...lines].join("\n"), "dashboard-summary.txt")
   }
 
+  const handleFileUpload = async (file: File) => {
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const response = await fetch("/api/ai/upload-brochure", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to upload brochure")
+      }
+
+      const { text } = await response.json()
+      sendMessage(`Create a new project from the following brochure text: ${text}`)
+    } catch (error) {
+      console.error("Error uploading brochure:", error)
+    }
+  }
+
   return (
     <div className="space-y-8 pb-16">
       <section className="rounded-3xl border border-border bg-gradient-to-br from-card to-muted/40 p-6 shadow-sm md:p-8">
@@ -226,6 +247,7 @@ export default function DashboardAIAssistantPage() {
             )}
             <ChatInput
               onSend={sendMessage}
+              onFileUpload={handleFileUpload}
               disabled={isLoading}
               placeholder="Ask about buyers, listings, offers, or project comparisons..."
             />

@@ -3,22 +3,33 @@
 import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, Loader2, Sparkles } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Send, Loader2, Paperclip, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface ChatInputProps {
   onSend: (message: string) => void
+  onFileUpload?: (file: File) => void
   disabled?: boolean
   placeholder?: string
+  suggestedQuestions?: string[]
 }
 
 export function ChatInput({
   onSend,
+  onFileUpload,
   disabled,
   placeholder = "Ask about Dubai real estate...",
+  suggestedQuestions = [],
 }: ChatInputProps) {
   const [input, setInput] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const submit = () => {
     const trimmed = input.trim()
@@ -50,14 +61,56 @@ export function ChatInput({
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && onFileUpload) {
+      onFileUpload(file)
+    }
+  }
+
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); submit() }}
-      className="relative w-full max-w-4xl mx-auto"
+      className="relative w-full max-w-4xl mx-auto touch-none"
     >
-      <div className="relative flex items-end rounded-3xl border bg-background px-4 py-3 shadow-lg ring-offset-background transition-shadow hover:shadow-xl focus-within:shadow-xl focus-within:border-primary/20">
-        <div className="absolute left-4 top-4 text-muted-foreground pointer-events-none">
-          <Sparkles className="h-5 w-5 opacity-50" />
+      <div className="relative flex items-end rounded-3xl border bg-background px-4 py-3 shadow-lg ring-offset-background transition-shadow hover:shadow-xl focus-within:shadow-xl focus-within:border-primary/20 touch-auto">
+        <div className="flex items-center">
+          {suggestedQuestions.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-11 w-11 rounded-full">
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-72">
+                {suggestedQuestions.map((q, i) => (
+                  <DropdownMenuItem key={i} onSelect={() => onSend(q)}>
+                    {q}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {onFileUpload && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-11 w-11 rounded-full"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={disabled}
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                accept=".pdf"
+              />
+            </>
+          )}
         </div>
         <Textarea
           ref={textareaRef}
@@ -69,7 +122,7 @@ export function ChatInput({
           autoFocus
           inputMode="text"
           rows={1}
-          className="min-h-[52px] max-h-[200px] w-full resize-none border-0 bg-transparent py-2.5 pl-10 pr-14 text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+          className="min-h-[52px] max-h-[200px] w-full resize-none border-0 bg-transparent py-2.5 pr-14 text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
           style={{ touchAction: "manipulation" }}
         />
         <div className="absolute right-3 bottom-3">

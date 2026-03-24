@@ -203,6 +203,8 @@ export const projectToProperty = (project: Project): Property => {
       ? project.mediaSource?.gallery
       : project.gallery
 
+  const projectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "https://goldcentury.ae"}/projects/${project.slug || normalizeSlug(projectName)}`
+
   return {
     id: project.id || project.slug || normalizeSlug(projectName) || "property",
     title: projectName,
@@ -245,6 +247,7 @@ export const projectToProperty = (project: Project): Property => {
       name: projectName,
       slug: project.slug || normalizeSlug(projectName) || "property",
     },
+    projectUrl,
     investmentMetrics: {
       roi: safeInvestment.expectedROI ?? 0,
       rentalYield: safeInvestment.rentalYield ?? 0,

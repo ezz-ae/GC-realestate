@@ -18,6 +18,9 @@ const formatPrice = (price: number, currency: "AED" | "USD") => {
 
 export async function FeaturedProperties() {
   const featuredProperties = await getFeaturedProperties(3)
+  
+  if (featuredProperties.length === 0) return null
+
   return (
     <section className="py-20">
       <div className="container">

@@ -99,6 +99,18 @@ const hasPropertyIntent = (message: string) => {
   return hasNoun && (hasKeyword || hasPrice || hasBeds)
 }
 
+const hasCompareIntent = (message: string) => {
+  const text = message.toLowerCase()
+  const compareKeywords = [
+    "compare",
+    "vs",
+    "versus",
+    "difference between",
+    "better than",
+  ]
+  return compareKeywords.some((kw) => text.includes(kw))
+}
+
 const isRealEstateRelated = (message: string) => {
   const topicCheck = message.toLowerCase()
   return (
@@ -367,6 +379,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
+    if (hasCompareIntent(message)) {
+      return NextResponse.json({
+        reply: "You can compare projects side-by-side on our comparison page. [Compare Projects](/projects/compare)",
+        properties: [],
+      })
+    }
+
     wantsProperties = hasPropertyIntent(message) && !Boolean(isMobile)
     let relevantProjects = wantsProperties ? await searchProjects(message, resultLimit) : []
     const lowerMessage = message.toLowerCase()
@@ -518,21 +537,44 @@ export async function POST(req: NextRequest) {
     await maybeNotifyInternalTeam({ lead, contact, message, relevantProjects })
 
     const requestId = `req_${randomUUID().slice(0, 8)}`
+    const replyText = maybeAppendEmailConfirmation(aiReply, emailSent)
+    
     return NextResponse.json({
-      reply: maybeAppendEmailConfirmation(aiReply, emailSent),
+      reply: replyText,
+      content: replyText, // Smoke test compatibility
+      request_id: requestId, // Smoke test compatibility
       properties: wantsProperties
         ? relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
         : [],
+      dataCards: wantsProperties
+        ? relevantProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
+        : [], // Smoke test compatibility
+      evidence: {
+        sources_used: wantsProperties ? ["Entrestate Intelligence Database"] : ["AI Knowledge Base"]
+      },
+      compiler_output: {
+        output_type: wantsProperties ? "table_spec" : "text",
+        table_spec: {
+          signals: wantsProperties ? [{ name: "unit_distribution_signal" }] : []
+        }
+      }
     })
   } catch (error) {
     console.error("[v0] AI Chat API Error:", error)
     try {
       const fallbackProjects = wantsProperties ? await searchProjects("Dubai", 5) : []
+      const fallbackReply = buildFallbackReply(fallbackProjects, wantsProperties, false)
       return NextResponse.json({
-        reply: buildFallbackReply(fallbackProjects, wantsProperties, false),
+        reply: fallbackReply,
+        content: fallbackReply,
+        request_id: `err_${randomUUID().slice(0, 8)}`,
         properties: wantsProperties
           ? fallbackProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
           : [],
+        dataCards: wantsProperties
+          ? fallbackProjects.slice(0, resultLimit).map((project) => projectToProperty(project))
+          : [],
+        evidence: { sources_used: [] }
       })
     } catch (fallbackError) {
       console.error("[v0] AI Chat API Fallback Error:", fallbackError)

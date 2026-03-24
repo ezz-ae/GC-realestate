@@ -80,6 +80,7 @@ export interface Property {
     name: string
     slug: string
   }
+  projectUrl?: string
   investmentMetrics: {
     roi: number
     rentalYield: number

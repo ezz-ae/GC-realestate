@@ -41,9 +41,10 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
     property.specifications.bathrooms === 1 ? "" : "s"
   }`
   const roiLabel = formatRoiLabel(property.investmentMetrics.roi)
+  const projectUrl = property.projectUrl || `/properties/${property.slug}`
 
   return (
-    <Link href={`/properties/${property.slug}`} className="group block" prefetch={false}>
+    <Link href={projectUrl} className="group block" prefetch={false}>
       <Card className="overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">
       <div className={`relative overflow-hidden bg-muted ${compact ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
         <Image

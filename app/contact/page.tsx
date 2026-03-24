@@ -46,8 +46,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm">Call Center</div>
-                      <a href="tel:+97150000000" className="text-base text-muted-foreground hover:text-primary transition-colors">
-                        +97150000000
+                      <a href="tel:+971526326541" className="text-base text-muted-foreground hover:text-primary transition-colors">
+                        +971526326541
                       </a>
                     </div>
                   </div>
@@ -58,7 +58,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm">WhatsApp</div>
-                      <a href="https://wa.me/97150000000" className="text-base text-muted-foreground hover:text-green-600 transition-colors">
+                      <a href="https://wa.me/971526326541" className="text-base text-muted-foreground hover:text-green-600 transition-colors">
                         Available 24/7
                       </a>
                     </div>
@@ -143,7 +143,7 @@ export default function ContactPage() {
           <div className="container">
             <div className="overflow-hidden rounded-lg border border-border">
               <div className="grid gap-6 bg-card p-8 md:grid-cols-2">
-                <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-primary mt-0.5" />
                   <div>
                     <div className="font-semibold">Gold Century Real Estate</div>
@@ -157,7 +157,7 @@ export default function ContactPage() {
                 </div>
                   <div className="space-y-2 text-sm text-muted-foreground">
                     <div>
-                      <span className="font-medium text-foreground">Phone:</span> +97150000000
+                      <span className="font-medium text-foreground">Phone:</span> +971526326541
                     </div>
                   <div>
                     <span className="font-medium text-foreground">Email:</span> hello@goldcentury.ae

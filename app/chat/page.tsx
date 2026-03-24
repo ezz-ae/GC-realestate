@@ -85,17 +85,12 @@ export default function ChatPage() {
 
   useEffect(() => {
     const behavior: ScrollBehavior = messages.length <= 1 ? "auto" : "smooth"
-    const frame = window.requestAnimationFrame(() => scrollToBottom(behavior))
-    return () => window.cancelAnimationFrame(frame)
-  }, [isLoading, messages.length, resultProperties.length, scrollToBottom])
-
-  useEffect(() => {
-    const behavior: ScrollBehavior = messages.length <= 1 ? "auto" : "smooth"
     const frame = window.requestAnimationFrame(() => {
+      scrollToBottom(behavior)
       listEndRef.current?.scrollIntoView({ behavior, block: "end" })
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [messages.length, isLoading])
+  }, [isLoading, messages.length, resultProperties.length, scrollToBottom])
 
   const suggestedQuestions = [
     "Show me 2BR apartments in Dubai Marina under AED 2M",
@@ -131,22 +126,21 @@ export default function ChatPage() {
        </header>
 
        {/* Main Chat Area */}
-       <main className="flex-1 flex flex-col overflow-hidden relative bg-background/50">
+       <main className="flex-1 flex flex-col overflow-hidden relative">
             {/* Background Effects */}
             <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-30">
                 <div className="absolute -top-[10%] -right-[5%] h-[600px] w-[600px] rounded-full bg-primary/10 blur-[120px]" />
                 <div className="absolute top-[30%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
             </div>
 
-            <div className="flex flex-1 overflow-hidden px-4 py-8">
+            <div className="flex-1 overflow-y-auto px-2 md:px-4 py-4 md:py-8 overscroll-contain scroll-smooth">
               <section
-                className="relative mx-auto flex h-full w-full max-w-4xl flex-1 flex-col overflow-hidden rounded-[2rem] border border-border bg-card/80 shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl"
-                style={{ maxHeight: "calc(100vh - 156px)" }}
+                className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col rounded-2xl md:rounded-[2rem] border border-border bg-card/80 shadow-2xl backdrop-blur-xl overflow-hidden touch-pan-y"
               >
                 <div className="flex-1 overflow-hidden">
                   <div
                     ref={scrollViewportRef}
-                    className="flex h-full flex-col overflow-y-auto px-4 py-6 md:px-6"
+                    className="flex h-full flex-col overflow-y-auto px-4 py-6 md:px-6 overscroll-contain scroll-smooth"
                   >
                     <div className="space-y-10 pb-6">
                       {messages.length === 0 ? (
@@ -235,7 +229,7 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.25)] backdrop-blur">
+                <div className="sticky bottom-0 bg-background/95 px-4 py-4 backdrop-blur">
                   <div className="mx-auto w-full max-w-4xl space-y-3">
                     {error && (
                       <div className="rounded-2xl border border-destructive/50 bg-destructive/5 px-4 py-2 text-xs text-destructive">
@@ -246,6 +240,7 @@ export default function ChatPage() {
                       onSend={handleSendMessage}
                       disabled={isLoading}
                       placeholder="Ask about Dubai properties, ROI, or Golden Visa eligibility"
+                      suggestedQuestions={suggestedQuestions}
                     />
                   </div>
                 </div>
