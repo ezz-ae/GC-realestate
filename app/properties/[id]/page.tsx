@@ -331,7 +331,7 @@ export default async function PropertyPage({
                                   Golden Visa Eligible
                                 </div>
                                 <div className="mt-1 text-sm text-amber-800 dark:text-amber-200">
-                                  This property qualifies for UAE Golden Visa, offering 5-10 year residency 
+                                  This property qualifies for UAE Golden Visa, offering a 10-year residency 
                                   with the option to sponsor family members.
                                 </div>
                               </div>

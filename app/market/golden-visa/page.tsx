@@ -34,7 +34,7 @@ export default function GoldenVisaPage() {
               <Card className="border-primary/50 mb-12">
                 <CardContent className="pt-6">
                   <p className="text-muted-foreground leading-relaxed">
-                    The UAE Golden Visa is a long-term residency program launched by the UAE government to attract investors, entrepreneurs, and talented individuals. Property investors who purchase real estate valued at <strong className="text-foreground">AED 2 million or more</strong> are eligible for a <strong className="text-foreground">5 or 10-year renewable residency visa</strong>, providing stability and freedom to live, work, and invest in the UAE without the need for a sponsor.
+                    The UAE Golden Visa is a long-term residency program launched by the UAE government to attract investors, entrepreneurs, and talented individuals. Property investors who purchase real estate valued at <strong className="text-foreground">AED 2 million or more</strong> are eligible for a <strong className="text-foreground">10-year renewable residency visa</strong>, providing stability and freedom to live, work, and invest in the UAE without the need for a sponsor.
                   </p>
                 </CardContent>
               </Card>
@@ -46,13 +46,13 @@ export default function GoldenVisaPage() {
 
               <div className="grid gap-6 md:grid-cols-2 mb-12">
                 <Card className="border-border">
-                  <CardHeader>
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg gold-gradient">
-                      <Award className="h-6 w-6 text-primary-foreground" />
-                    </div>
-                    <CardTitle className="font-serif">AED 1 Million</CardTitle>
-                    <CardDescription>5-Year Golden Visa</CardDescription>
-                  </CardHeader>
+                    <CardHeader>
+                      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg gold-gradient">
+                        <Award className="h-6 w-6 text-primary-foreground" />
+                      </div>
+                      <CardTitle className="font-serif">AED 1 Million</CardTitle>
+                      <CardDescription>10-Year Golden Visa</CardDescription>
+                    </CardHeader>
                   <CardContent>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start">
@@ -61,7 +61,7 @@ export default function GoldenVisaPage() {
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
-                        <span>5-year renewable residency visa</span>
+                        <span>10-year renewable residency visa</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
@@ -181,7 +181,7 @@ export default function GoldenVisaPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      Renewable every 5 or 10 years as long as you maintain property ownership.
+                      Renewable every 10 years as long as you maintain property ownership.
                     </p>
                   </CardContent>
                 </Card>
@@ -215,7 +215,7 @@ export default function GoldenVisaPage() {
                   {
                     step: 1,
                     title: "Purchase Eligible Property",
-                    description: "Buy property worth minimum AED 1 million (5-year visa) or AED 2 million (10-year visa). Property must be freehold and registered with Dubai Land Department.",
+                    description: "Buy property worth minimum AED 1 million. Property must be freehold and registered with Dubai Land Department to qualify for the 10-year visa.",
                   },
                   {
                     step: 2,
@@ -312,7 +312,7 @@ export default function GoldenVisaPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      For 5-year visa: Yes, but your equity (property value minus mortgage) must be at least AED 2M. For 10-year visa: Property must be fully paid (no mortgage).
+                      For the 10-year visa, property investors are encouraged to keep equity at or above AED 1M; fully paid investments are preferred so approval is faster, though high-equity mortgages may still qualify upon review.
                     </p>
                   </CardContent>
                 </Card>
