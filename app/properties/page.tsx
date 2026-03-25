@@ -5,8 +5,7 @@ import { PropertiesToolbar } from "@/components/properties-toolbar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { getAreas, getDevelopers, getPropertyListing } from "@/lib/entrestate"
-import type { AreaProfile, DeveloperProfile } from "@/lib/types/project"
+import { getDashboardProjectFilters, getPropertyListing } from "@/lib/entrestate"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -32,6 +31,7 @@ export default async function PropertiesPage({
   const areas = typeof params.areas === "string" ? params.areas.split(",").filter(Boolean) : []
   const bedrooms = typeof params.beds === "string" ? params.beds.split(",").filter(Boolean) : []
   const propertyType = typeof params.type === "string" ? params.type : undefined
+  const status = typeof params.status === "string" ? params.status : undefined
   const developer = typeof params.developer === "string" ? params.developer : undefined
   const minPrice = params.minPrice ? Number(params.minPrice) : undefined
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined
@@ -45,6 +45,7 @@ export default async function PropertiesPage({
     areas,
     bedrooms,
     propertyType,
+    status,
     developer,
     minPrice,
     maxPrice,
@@ -52,19 +53,14 @@ export default async function PropertiesPage({
     goldenVisa,
   })
 
-  const [areaProfiles, developerProfiles, listingResult] = await Promise.all([
-    getAreas().catch(() => [] as AreaProfile[]),
-    getDevelopers().catch(() => [] as DeveloperProfile[]),
+  const [filterOptions, listingResult] = await Promise.all([
+    getDashboardProjectFilters().catch(() => ({ areas: [] as string[], developers: [] as string[] })),
     listingPromise,
   ])
   const { properties, total } = listingResult
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
-  const areaNames = Array.from(
-    new Set(areaProfiles.map((area) => area.name).filter((name) => Boolean(name))),
-  )
-  const developerNames = Array.from(
-    new Set(developerProfiles.map((dev) => dev.name).filter((name) => Boolean(name))),
-  )
+  const areaNames = Array.from(new Set(filterOptions.areas.filter((name) => Boolean(name))))
+  const developerNames = Array.from(new Set(filterOptions.developers.filter((name) => Boolean(name))))
   const buildPageLink = (nextPage: number) => {
     const q = new URLSearchParams()
     Object.entries(params || {}).forEach(([key, value]) => {
@@ -115,7 +111,7 @@ export default async function PropertiesPage({
               </aside>
 
               {/* Results */}
-              <div className="flex-1">
+              <div id="properties-results" className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
                    <div className="lg:hidden">
                      <MobilePropertyFilters

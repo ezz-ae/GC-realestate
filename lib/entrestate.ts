@@ -12,6 +12,7 @@ type ProjectListingRow = ProjectRow & {
   name?: string | null
   area?: string | null
   status?: string | null
+  developer_name?: string | null
   hero_image?: string | null
   price_from_aed?: number | null
   price_to_aed?: number | null
@@ -121,6 +122,46 @@ const pickNumber = (...values: unknown[]) => {
   return null
 }
 
+const toRecord = (value: unknown): Record<string, unknown> | null => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  return value as Record<string, unknown>
+}
+
+const normalizeCategory = (value: unknown): Property["category"] => {
+  const normalized = pickString(value).toLowerCase()
+  if (!normalized) return "apartment"
+  if (normalized.includes("villa")) return "villa"
+  if (normalized.includes("townhouse")) return "townhouse"
+  if (normalized.includes("penthouse")) return "penthouse"
+  if (normalized.includes("office")) return "office"
+  if (normalized.includes("retail")) return "retail"
+  if (normalized.includes("warehouse")) return "warehouse"
+  return "apartment"
+}
+
+const normalizeRiskClass = (value: unknown): Property["riskClass"] => {
+  const normalized = pickString(value).toLowerCase()
+  if (normalized === "low" || normalized === "moderate" || normalized === "high") return normalized
+  return null
+}
+
+const normalizePropertyStatus = (value: unknown): Property["status"] => {
+  const normalized = pickString(value).toLowerCase()
+  if (
+    normalized === "available" ||
+    normalized === "reserved" ||
+    normalized === "sold" ||
+    normalized === "selling" ||
+    normalized === "launching" ||
+    normalized === "upcoming" ||
+    normalized === "completed" ||
+    normalized === "sold-out"
+  ) {
+    return normalized
+  }
+  return "selling"
+}
+
 const getTableColumns = async (tableName: string) => {
   const rows = await query<{ column_name: string }>(
     `SELECT column_name
@@ -141,21 +182,60 @@ const parseBedrooms = (unitType?: string) => {
 
 const SORT_SCORE_ORDER =
   "COALESCE(market_score, NULLIF(payload->>'sortScore', '')::numeric) DESC NULLS LAST"
+const LISTING_AREA_SQL =
+  "COALESCE(NULLIF(payload->'location'->>'area', ''), NULLIF(payload->>'area', ''), area, 'Dubai')"
+const LISTING_DEVELOPER_SQL =
+  "COALESCE(NULLIF(payload->'developer'->>'name', ''), NULLIF(payload->>'developer', ''), developer_name, '')"
+const LISTING_PRICE_SQL =
+  "COALESCE(price_from_aed, price_to_aed, NULLIF(payload->>'priceFrom', '')::numeric, NULLIF(payload->>'price_from_aed', '')::numeric, NULLIF(payload->'price'->>'fromAed', '')::numeric, NULLIF(payload->'units'->0->>'priceFrom', '')::numeric, 0)"
+const LISTING_STATUS_SQL = "COALESCE(NULLIF(payload->>'status', ''), status, 'selling')"
+const LISTING_PROPERTY_TYPE_SQL =
+  "COALESCE(NULLIF(payload->>'propertyType', ''), NULLIF(payload->>'category', ''), NULLIF(payload->>'type', ''))"
+const LISTING_ROI_SQL =
+  "COALESCE(NULLIF(payload->>'roi', '')::numeric, NULLIF(payload->'investmentHighlights'->>'expectedROI', '')::numeric, rental_yield)"
+const LISTING_UNITS_ARRAY_SQL =
+  "CASE WHEN jsonb_typeof(payload->'units') = 'array' THEN payload->'units' ELSE '[]'::jsonb END"
+const unitBedroomsExpression = (unitAlias = "unit") => `(
+  CASE
+    WHEN lower(COALESCE(${unitAlias}->>'bedrooms', '')) = 'studio' THEN 0
+    WHEN COALESCE(${unitAlias}->>'bedrooms', '') ~ '^[0-9]+$' THEN (${unitAlias}->>'bedrooms')::int
+    WHEN lower(COALESCE(${unitAlias}->>'type', '')) LIKE '%studio%' THEN 0
+    WHEN COALESCE(${unitAlias}->>'type', '') ~ '[0-9]+' THEN substring(${unitAlias}->>'type' from '[0-9]+')::int
+    ELSE NULL
+  END
+)`
 
 export const projectToProperty = (project: Project): Property => {
   const projectRecord = project as unknown as Record<string, unknown>
+  const projectLocationRecord = toRecord(projectRecord.location)
+  const projectCoordinatesRecord = toRecord(projectLocationRecord?.coordinates)
+  const payloadPaymentPlanRecord = toRecord(projectRecord.paymentPlan)
   const primaryUnit = project.units?.[0]
   const safeLocation = project.location || ({} as Project["location"])
   const safeDeveloper = project.developer || ({} as Project["developer"])
   const safeInvestment = project.investmentHighlights || ({} as Project["investmentHighlights"])
   const safeTimeline = project.timeline || ({} as Project["timeline"])
-  const area = safeLocation.area || "Dubai"
-  const district = safeLocation.district || "Dubai"
-  const city = safeLocation.city || "Dubai"
-  const coordinates = safeLocation.coordinates || { lat: 0, lng: 0 }
-  const freehold = typeof safeLocation.freehold === "boolean" ? safeLocation.freehold : true
+  const area = pickString(safeLocation.area, projectLocationRecord?.area, projectRecord.area, "Dubai")
+  const district = pickString(safeLocation.district, projectLocationRecord?.district, area, "Dubai")
+  const city = pickString(safeLocation.city, projectLocationRecord?.city, projectRecord.city, "Dubai")
+  const coordinates = {
+    lat: pickNumber(safeLocation.coordinates?.lat, projectCoordinatesRecord?.lat, projectRecord.lat) ?? 0,
+    lng: pickNumber(safeLocation.coordinates?.lng, projectCoordinatesRecord?.lng, projectRecord.lng) ?? 0,
+  }
+  const freehold =
+    typeof safeLocation.freehold === "boolean"
+      ? safeLocation.freehold
+      : typeof projectLocationRecord?.freehold === "boolean"
+        ? (projectLocationRecord.freehold as boolean)
+        : true
   const developerId = safeDeveloper.id || project.id || "developer"
-  const developerName = safeDeveloper.name || "Gold Century"
+  const developerName = pickString(
+    safeDeveloper.name,
+    toRecord(projectRecord.developer)?.name,
+    projectRecord.developer_name,
+    projectRecord.developer,
+    "Gold Century",
+  )
   const developerSlug = safeDeveloper.slug || normalizeSlug(developerName) || "gold-century"
   const developerLogo = safeDeveloper.pfLogo || safeDeveloper.logo || "/logo.png"
   const bedrooms =
@@ -196,6 +276,27 @@ export const projectToProperty = (project: Project): Property => {
     )
   })()
   const price = pickNumber(primaryUnit?.priceFrom, primaryUnit?.priceTo, fallbackPriceFromRecord) ?? 0
+  const propertyType = pickString(projectRecord.propertyType, projectRecord.category, primaryUnit?.type) || null
+  const category = normalizeCategory(propertyType)
+  const roi = pickNumber(projectRecord.roi, safeInvestment.expectedROI)
+  const rentalYield = pickNumber(projectRecord.rentalYield, safeInvestment.rentalYield)
+  const constructionProgress = pickNumber(projectRecord.constructionProgress, safeTimeline.progressPercentage)
+  const investorScore = pickNumber(projectRecord.investorScore)
+  const riskClass = normalizeRiskClass(projectRecord.riskClass)
+  const status = normalizePropertyStatus(projectRecord.status || project.status)
+  const rawPaymentPlan = payloadPaymentPlanRecord || toRecord(project.paymentPlan)
+  const paymentPlanDescription = pickString(rawPaymentPlan?.description)
+  const paymentPlan = rawPaymentPlan
+    ? {
+        downPayment: pickNumber(rawPaymentPlan.downPayment) ?? 0,
+        duringConstruction: pickNumber(rawPaymentPlan.duringConstruction) ?? 0,
+        onHandover: pickNumber(rawPaymentPlan.onHandover) ?? 0,
+        postHandover: pickNumber(rawPaymentPlan.postHandover) ?? 0,
+        description:
+          paymentPlanDescription ||
+          `${pickNumber(rawPaymentPlan.downPayment) ?? 0}% down / ${pickNumber(rawPaymentPlan.duringConstruction) ?? 0}% during construction / ${pickNumber(rawPaymentPlan.onHandover) ?? 0}% on handover`,
+      }
+    : null
   const heroImage = project.mediaSource?.heroImage || project.heroImage
   const gallery =
     Array.isArray(project.mediaSource?.gallery) && project.mediaSource?.gallery?.length
@@ -209,7 +310,7 @@ export const projectToProperty = (project: Project): Property => {
     title: projectName,
     slug: project.slug || normalizeSlug(projectName) || "property",
     type: "off-plan",
-    category: "apartment",
+    category,
     price,
     currency: "AED",
     location: {
@@ -229,6 +330,14 @@ export const projectToProperty = (project: Project): Property => {
       view: project.tagline || "City view",
     },
     images: gallery?.length ? gallery : heroImage ? [heroImage] : [],
+    roi,
+    rentalYield,
+    paymentPlan,
+    constructionProgress,
+    investorScore,
+    riskClass,
+    propertyType,
+    developerName: developerName || null,
     video: project.heroVideo,
     virtualTour: project.virtualTour,
     description: project.description || `${projectName} in ${area}, Dubai.`,
@@ -248,15 +357,14 @@ export const projectToProperty = (project: Project): Property => {
     },
     projectUrl,
     investmentMetrics: {
-      roi: safeInvestment.expectedROI ?? 0,
-      rentalYield: safeInvestment.rentalYield ?? 0,
-      appreciationRate: safeInvestment.rentalYield ?? 0,
+      roi: roi ?? 0,
+      rentalYield: rentalYield ?? 0,
+      appreciationRate: rentalYield ?? 0,
       goldenVisaEligible: safeInvestment.goldenVisaEligible ?? false,
     },
-    paymentPlan: project.paymentPlan,
     completionDate: safeTimeline.expectedCompletion,
     handoverDate: safeTimeline.handoverDate,
-    status: "available",
+    status,
     featured: project.featured,
     seoTitle: project.seoTitle || projectName,
     seoDescription: project.seoDescription || project.description || `${projectName} in Dubai.`,
@@ -355,6 +463,8 @@ const normalizeProjectPayload = (row: ProjectRow) => {
 const normalizeListingProject = (row: ProjectListingRow) => {
   const payload = normalizeProjectPayload(row)
   const payloadRecord = payload as unknown as Record<string, unknown>
+  const payloadLocationRecord = toRecord(payloadRecord.location)
+  const payloadDeveloperRecord = toRecord(payloadRecord.developer)
   const primaryUnit = Array.isArray(payload.units) ? payload.units[0] : undefined
   const rowSlug = pickString(row.slug, payload.slug, payloadRecord.pfSlug)
   const resolvedName =
@@ -388,20 +498,45 @@ const normalizeListingProject = (row: ProjectListingRow) => {
   const enriched = {
     ...payload,
     name: resolvedName,
-    status: payload.status || (row.status as Project["status"]) || "selling",
+    status:
+      pickString(payload.status, payloadRecord.status, row.status, "selling") as Project["status"],
     tagline: payload.tagline || (row.area ? `${row.area} · Dubai` : "Dubai property"),
     heroImage: pickString(payload.heroImage, row.hero_image) || "/logo.png",
   } as Project
 
   const location = enriched.location || ({} as Project["location"])
+  const resolvedArea = pickString(location.area, payloadLocationRecord?.area, payloadRecord.area, row.area, "Dubai")
   enriched.location = {
     ...location,
-    area: location.area || row.area || "Dubai",
-    district: location.district || "Dubai",
-    city: location.city || "Dubai",
+    area: resolvedArea,
+    district: pickString(location.district, payloadLocationRecord?.district, resolvedArea, "Dubai"),
+    city: pickString(location.city, payloadLocationRecord?.city, payloadRecord.city, "Dubai"),
     coordinates: location.coordinates || { lat: 0, lng: 0 },
     freehold: typeof location.freehold === "boolean" ? location.freehold : true,
     nearbyLandmarks: Array.isArray(location.nearbyLandmarks) ? location.nearbyLandmarks : [],
+  }
+
+  const developerName = pickString(
+    enriched.developer?.name,
+    payloadDeveloperRecord?.name,
+    row.developer_name,
+    payloadRecord.developerName,
+    payloadRecord.developer,
+    "Gold Century",
+  )
+  enriched.developer = {
+    ...(enriched.developer || {}),
+    id: pickString(enriched.developer?.id, payloadDeveloperRecord?.id, normalizeSlug(developerName), "developer"),
+    name: developerName,
+    slug: pickString(
+      enriched.developer?.slug,
+      payloadDeveloperRecord?.slug,
+      normalizeSlug(developerName),
+      "gold-century",
+    ),
+    logo: pickString(enriched.developer?.logo, payloadDeveloperRecord?.logo, "/logo.png"),
+    description: pickString(enriched.developer?.description, "Developer profile"),
+    trackRecord: pickString(enriched.developer?.trackRecord, "Strong delivery track record in Dubai."),
   }
 
   const hasUnits = Array.isArray(enriched.units) && enriched.units.length > 0
@@ -431,10 +566,11 @@ const normalizeListingProject = (row: ProjectListingRow) => {
   }
 
   const investment = enriched.investmentHighlights || ({} as Project["investmentHighlights"])
-  const safeYield = typeof row.rental_yield === "number" ? row.rental_yield : 0
+  const safeYield = pickNumber(row.rental_yield, payloadRecord.rentalYield) ?? 0
+  const safeRoi = pickNumber(payloadRecord.roi, investment.expectedROI, safeYield) ?? safeYield
   enriched.investmentHighlights = {
-    expectedROI: investment.expectedROI ?? safeYield,
-    rentalYield: investment.rentalYield ?? safeYield,
+    expectedROI: safeRoi,
+    rentalYield: pickNumber(investment.rentalYield, safeYield) ?? safeYield,
     goldenVisaEligible:
       typeof investment.goldenVisaEligible === "boolean"
         ? investment.goldenVisaEligible
@@ -551,7 +687,7 @@ export async function getProjectBySlug(slug: string) {
 
 export async function getProperties(limit = 12) {
   const rows = await query<ProjectListingRow>(
-    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+    `SELECT id, slug, payload, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      WHERE status = 'selling'
      ORDER BY ${SORT_SCORE_ORDER}
@@ -563,7 +699,7 @@ export async function getProperties(limit = 12) {
 
 export async function getFeaturedProperties(limit = 3) {
   const rows = await query<ProjectListingRow>(
-    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+    `SELECT id, slug, payload, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      WHERE status = 'selling'
        AND featured = true
@@ -585,6 +721,7 @@ export interface PropertyListingFilters {
   maxPrice?: number
   bedrooms?: string[]
   propertyType?: string
+  status?: string
   freeholdOnly?: boolean
   goldenVisa?: boolean
 }
@@ -595,24 +732,24 @@ const buildPropertyListingWhere = (filters: PropertyListingFilters, values: Arra
   if (filters.areas?.length) {
     const areaClauses = filters.areas.map((area) => {
       values.push(`%${area}%`)
-      return `area ILIKE $${values.length}`
+      return `${LISTING_AREA_SQL} ILIKE $${values.length}`
     })
     where.push(`(${areaClauses.join(" OR ")})`)
   }
 
   if (filters.developer && filters.developer !== "All Developers") {
     values.push(`%${filters.developer}%`)
-    where.push(`developer_name ILIKE $${values.length}`)
+    where.push(`${LISTING_DEVELOPER_SQL} ILIKE $${values.length}`)
   }
 
   if (typeof filters.minPrice === "number") {
     values.push(filters.minPrice)
-    where.push(`price_from_aed >= $${values.length}`)
+    where.push(`${LISTING_PRICE_SQL} >= $${values.length}`)
   }
 
   if (typeof filters.maxPrice === "number") {
     values.push(filters.maxPrice)
-    where.push(`price_to_aed <= $${values.length}`)
+    where.push(`${LISTING_PRICE_SQL} <= $${values.length}`)
   }
 
   if (filters.goldenVisa) {
@@ -626,31 +763,36 @@ const buildPropertyListingWhere = (filters: PropertyListingFilters, values: Arra
   if (filters.propertyType && filters.propertyType !== "All Types") {
     values.push(`%${filters.propertyType.toLowerCase()}%`)
     where.push(
-      `EXISTS (SELECT 1 FROM jsonb_array_elements(payload->'units') AS unit WHERE lower(unit->>'type') LIKE $${values.length})`,
+      `(lower(${LISTING_PROPERTY_TYPE_SQL}) LIKE $${values.length}
+        OR EXISTS (SELECT 1 FROM jsonb_array_elements(${LISTING_UNITS_ARRAY_SQL}) AS unit WHERE lower(unit->>'type') LIKE $${values.length}))`,
     )
   }
 
   if (filters.bedrooms?.length) {
+    const unitBedroomsSql = unitBedroomsExpression("unit")
     const bedClauses = filters.bedrooms.map((bed) => {
       if (bed.toLowerCase() === "studio") {
-        return `(unit->>'bedrooms')::int = 0`
+        return `${unitBedroomsSql} = 0`
       }
       if (bed === "5+") {
-        return `(unit->>'bedrooms')::int >= 5`
+        return `${unitBedroomsSql} >= 5`
       }
       const bedNumber = Number(bed)
       if (Number.isFinite(bedNumber)) {
         values.push(bedNumber)
-        return `(unit->>'bedrooms')::int = $${values.length}`
+        return `${unitBedroomsSql} = $${values.length}`
       }
       return "false"
     })
     where.push(
-      `EXISTS (SELECT 1 FROM jsonb_array_elements(payload->'units') AS unit WHERE ${bedClauses.join(" OR ")})`,
+      `EXISTS (SELECT 1 FROM jsonb_array_elements(${LISTING_UNITS_ARRAY_SQL}) AS unit WHERE ${bedClauses.join(" OR ")})`,
     )
   }
 
-  where.push(`status = 'selling'`)
+  if (filters.status && filters.status !== "All Statuses") {
+    values.push(filters.status)
+    where.push(`lower(${LISTING_STATUS_SQL}) = lower($${values.length})`)
+  }
 
   return where
 }
@@ -661,9 +803,10 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
   const offset = (page - 1) * pageSize
   const hasActiveFilters =
     Boolean(filters.areas?.length) ||
-    Boolean(filters.developer) ||
+    Boolean(filters.developer && filters.developer !== "All Developers") ||
     Boolean(filters.bedrooms?.length) ||
-    Boolean(filters.propertyType) ||
+    Boolean(filters.propertyType && filters.propertyType !== "All Types") ||
+    Boolean(filters.status && filters.status !== "All Statuses") ||
     filters.minPrice != null ||
     filters.maxPrice != null ||
     filters.freeholdOnly ||
@@ -674,10 +817,9 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
 
   if (usesFeaturedFirstPage) {
     const featuredRows = await query<ProjectListingRow>(
-      `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+      `SELECT id, slug, payload, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
        FROM gc_projects
-       WHERE status = 'selling'
-         AND featured = true
+       WHERE featured = true
        ORDER BY ${SORT_SCORE_ORDER}
        LIMIT $1`,
       [pageSize],
@@ -687,10 +829,9 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
     const remaining = pageSize - featuredRows.length
     if (remaining > 0) {
       const fallbackRows = await query<ProjectListingRow>(
-        `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+        `SELECT id, slug, payload, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
          FROM gc_projects
-         WHERE status = 'selling'
-           AND (featured IS DISTINCT FROM true)
+         WHERE (featured IS DISTINCT FROM true)
          ORDER BY ${SORT_SCORE_ORDER}
          LIMIT $1`,
         [remaining],
@@ -699,7 +840,7 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
     }
 
     const countRows = await query<{ total: number }>(
-      `SELECT COUNT(*)::int AS total FROM gc_projects WHERE status = 'selling'`,
+      `SELECT COUNT(*)::int AS total FROM gc_projects`,
     )
     const total = countRows[0]?.total ?? rows.length
     return {
@@ -721,13 +862,13 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
       orderBy = "created_at DESC NULLS LAST"
       break
     case "price-low":
-      orderBy = "price_from_aed ASC NULLS LAST"
+      orderBy = `${LISTING_PRICE_SQL} ASC NULLS LAST`
       break
     case "price-high":
-      orderBy = "price_from_aed DESC NULLS LAST"
+      orderBy = `${LISTING_PRICE_SQL} DESC NULLS LAST`
       break
     case "roi":
-      orderBy = "COALESCE((payload->'investmentHighlights'->>'expectedROI')::numeric, rental_yield) DESC NULLS LAST"
+      orderBy = `${LISTING_ROI_SQL} DESC NULLS LAST`
       break
     case "yield":
       orderBy = "rental_yield DESC NULLS LAST"
@@ -744,7 +885,7 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
 
   values.push(pageSize, offset)
   const rows = await query<ProjectListingRow>(
-    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+    `SELECT id, slug, payload, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      ${whereClause}
      ORDER BY ${orderBy}
@@ -760,9 +901,9 @@ export async function getPropertyListing(filters: PropertyListingFilters) {
 
 export async function getPropertiesByArea(area: string, limit = 12) {
   const rows = await query<ProjectListingRow>(
-    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+    `SELECT id, slug, payload, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
-     WHERE area ILIKE $1
+     WHERE ${LISTING_AREA_SQL} ILIKE $1
      ORDER BY ${SORT_SCORE_ORDER}
      LIMIT $2`,
     [`%${area}%`, limit],
@@ -773,7 +914,7 @@ export async function getPropertiesByArea(area: string, limit = 12) {
 export async function getPropertyBySlug(slug: string) {
   const cleanSlug = slug.trim().toLowerCase()
   const rows = await query<ProjectListingRow>(
-    `SELECT id, slug, payload, name, area, status, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
+    `SELECT id, slug, payload, name, area, status, developer_name, hero_image, price_from_aed, price_to_aed, rental_yield, golden_visa_eligible
      FROM gc_projects
      WHERE lower(slug) = $1
         OR lower(payload->>'slug') = $1
@@ -2136,10 +2277,18 @@ export async function upsertDashboardProject(input: DashboardProjectInput) {
 export async function getDashboardProjectFilters() {
   await ensureProjectsTable()
   const areas = await query<{ area: string | null }>(
-    `SELECT DISTINCT area FROM gc_projects WHERE area IS NOT NULL ORDER BY area ASC LIMIT 30`,
+    `SELECT DISTINCT COALESCE(NULLIF(payload->'location'->>'area', ''), NULLIF(payload->>'area', ''), area) AS area
+     FROM gc_projects
+     WHERE COALESCE(NULLIF(payload->'location'->>'area', ''), NULLIF(payload->>'area', ''), area) IS NOT NULL
+     ORDER BY area ASC
+     LIMIT 120`,
   )
   const developers = await query<{ developer_name: string | null }>(
-    `SELECT DISTINCT developer_name FROM gc_projects WHERE developer_name IS NOT NULL ORDER BY developer_name ASC LIMIT 30`,
+    `SELECT DISTINCT COALESCE(NULLIF(payload->'developer'->>'name', ''), NULLIF(payload->>'developer', ''), developer_name) AS developer_name
+     FROM gc_projects
+     WHERE COALESCE(NULLIF(payload->'developer'->>'name', ''), NULLIF(payload->>'developer', ''), developer_name) IS NOT NULL
+     ORDER BY developer_name ASC
+     LIMIT 120`,
   )
   return {
     areas: areas.map((row) => row.area).filter(Boolean) as string[],

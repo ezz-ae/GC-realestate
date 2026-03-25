@@ -7,8 +7,17 @@ export type PropertyCategory =
   | "office"
   | "retail"
   | "warehouse"
-export type PropertyStatus = "available" | "reserved" | "sold"
-export type ProjectStatus = "launching" | "selling" | "sold-out" | "completed"
+export type PropertyStatus =
+  | "available"
+  | "reserved"
+  | "sold"
+  | "selling"
+  | "launching"
+  | "upcoming"
+  | "completed"
+  | "sold-out"
+export type ProjectStatus = "launching" | "selling" | "upcoming" | "sold-out" | "completed"
+export type InvestmentRiskClass = "low" | "moderate" | "high"
 export type LandmarkType = "airport" | "metro" | "mall" | "beach" | "school" | "hospital"
 
 export interface Coordinates {
@@ -41,6 +50,7 @@ export interface PaymentPlan {
   duringConstruction: number
   onHandover: number
   postHandover: number
+  description?: string
   installments?: PaymentPlanInstallment[]
 }
 
@@ -69,6 +79,14 @@ export interface Property {
     view: string
   }
   images: string[]
+  roi: number | null
+  rentalYield: number | null
+  paymentPlan: PaymentPlan | null
+  constructionProgress: number | null
+  investorScore: number | null
+  riskClass: InvestmentRiskClass | null
+  propertyType: string | null
+  developerName: string | null
   video?: string
   virtualTour?: string
   description: string
@@ -87,7 +105,6 @@ export interface Property {
     appreciationRate: number
     goldenVisaEligible: boolean
   }
-  paymentPlan?: PaymentPlan
   completionDate?: string
   handoverDate?: string
   status: PropertyStatus

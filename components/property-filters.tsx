@@ -21,6 +21,10 @@ const propertyTypes = [
   "All Types", "Apartment", "Villa", "Townhouse", "Penthouse", "Studio"
 ]
 
+const listingStatuses = [
+  "All Statuses", "selling", "launching", "upcoming", "completed",
+]
+
 const defaultDevelopers = [
   "All Developers", "Emaar", "Damac", "Nakheel", "Dubai Properties",
   "Meraas", "Azizi", "Sobha", "Select Group"
@@ -57,6 +61,7 @@ export function PropertyFilters({
   const initialAreas = searchParams.get("areas")?.split(",").filter(Boolean) ?? []
   const initialBedrooms = searchParams.get("beds")?.split(",").filter(Boolean) ?? []
   const initialPropertyType = searchParams.get("type") || "All Types"
+  const initialStatus = searchParams.get("status") || "All Statuses"
   const initialDeveloper = searchParams.get("developer") || "All Developers"
   const initialCurrency = searchParams.get("currency") || "AED"
   const initialFreehold = searchParams.get("freehold") === "true"
@@ -67,6 +72,7 @@ export function PropertyFilters({
   const [priceRange, setPriceRange] = React.useState([initialMinPrice, initialMaxPrice])
   const [bedrooms, setBedrooms] = React.useState<string[]>(initialBedrooms)
   const [propertyType, setPropertyType] = React.useState(initialPropertyType)
+  const [status, setStatus] = React.useState(initialStatus)
   const [selectedAreas, setSelectedAreas] = React.useState<string[]>(initialAreas)
   const [developer, setDeveloper] = React.useState(initialDeveloper)
   const [currency, setCurrency] = React.useState(initialCurrency)
@@ -85,28 +91,21 @@ export function PropertyFilters({
     )
   }
 
-  const scrollToTop = () => {
-    if (typeof window === "undefined") return
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" })
-    })
-  }
-
   const clearFilters = () => {
     setPriceRange([0, 10000000])
     setBedrooms([])
     setPropertyType("All Types")
+    setStatus("All Statuses")
     setSelectedAreas([])
     setDeveloper("All Developers")
     setFreeholdOnly(false)
     setGoldenVisaEligible(false)
     const params = new URLSearchParams(searchParams.toString())
-    ;["areas", "beds", "type", "developer", "minPrice", "maxPrice", "freehold", "goldenVisa"].forEach((key) =>
+    ;["areas", "beds", "type", "status", "developer", "minPrice", "maxPrice", "freehold", "goldenVisa"].forEach((key) =>
       params.delete(key),
     )
     params.set("page", "1")
-    scrollToTop()
-    router.push(`/properties?${params.toString()}`)
+    router.push(`/properties?${params.toString()}#properties-results`, { scroll: false })
   }
 
   const applyFilters = () => {
@@ -126,6 +125,11 @@ export function PropertyFilters({
     } else {
       params.delete("type")
     }
+    if (status && status !== "All Statuses") {
+      params.set("status", status)
+    } else {
+      params.delete("status")
+    }
     if (developer && developer !== "All Developers") {
       params.set("developer", developer)
     } else {
@@ -137,8 +141,7 @@ export function PropertyFilters({
     params.set("goldenVisa", String(goldenVisaEligible))
     params.set("currency", currency)
     params.set("page", "1")
-    scrollToTop()
-    router.push(`/properties?${params.toString()}`)
+    router.push(`/properties?${params.toString()}#properties-results`, { scroll: false })
   }
 
   const filtersBody = (
@@ -200,6 +203,25 @@ export function PropertyFilters({
           <SelectContent>
             {propertyTypes.map(type => (
               <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Status */}
+      <div>
+        <Label className="text-sm font-medium">Status</Label>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className="mt-2">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {listingStatuses.map((statusOption) => (
+              <SelectItem key={statusOption} value={statusOption}>
+                {statusOption === "All Statuses"
+                  ? statusOption
+                  : statusOption.charAt(0).toUpperCase() + statusOption.slice(1)}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>

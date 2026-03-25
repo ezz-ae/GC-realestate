@@ -40,7 +40,11 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
   const bathLabel = `${property.specifications.bathrooms} Bath${
     property.specifications.bathrooms === 1 ? "" : "s"
   }`
-  const roiLabel = formatRoiLabel(property.investmentMetrics.roi)
+  const roiLabel = formatRoiLabel(property.roi ?? property.investmentMetrics.roi)
+  const rentalYield =
+    typeof property.rentalYield === "number" ? property.rentalYield : property.investmentMetrics.rentalYield
+  const roiValue = typeof property.roi === "number" ? property.roi : property.investmentMetrics.roi
+  const paymentPlanDescription = property.paymentPlan?.description || null
   const projectUrl = `/properties/${property.slug}`
 
   return (
@@ -79,7 +83,7 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
               className={`shrink-0 border-primary/20 bg-primary/5 text-primary ${compact ? "text-[9px] h-4 px-1.5" : "text-[10px] h-5"}`}
             >
               <TrendingUp className="mr-1 h-3 w-3" />
-              {formatRoiLabel(property.investmentMetrics.roi)}
+              {roiLabel}
             </Badge>
           )}
         </div>
@@ -109,6 +113,31 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
         <div className={`${compact ? "text-xl" : "text-2xl"} font-bold gold-text-gradient tracking-tight`}>
           {formatPrice(property.price, property.currency)}
         </div>
+        <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+          {rentalYield && (
+            <span className="flex items-center gap-1">
+              <span className="font-medium text-emerald-600">{rentalYield}%</span>
+              <span>yield</span>
+            </span>
+          )}
+          {roiValue && (
+            <span className="flex items-center gap-1">
+              <span className="font-medium">{roiValue}</span>
+              <span>yr ROI</span>
+            </span>
+          )}
+          {property.constructionProgress != null && property.constructionProgress > 0 && (
+            <span className="flex items-center gap-1">
+              <span className="font-medium">{property.constructionProgress}%</span>
+              <span>built</span>
+            </span>
+          )}
+        </div>
+        {paymentPlanDescription && (
+          <div className="mt-1.5 inline-flex items-center rounded-md border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+            {paymentPlanDescription}
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className={compact ? "p-3 pt-0" : "p-5 pt-0"}>
