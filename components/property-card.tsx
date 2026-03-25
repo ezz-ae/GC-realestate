@@ -41,7 +41,7 @@ export function PropertyCard({ property, compact = false }: PropertyCardProps) {
     property.specifications.bathrooms === 1 ? "" : "s"
   }`
   const roiLabel = formatRoiLabel(property.investmentMetrics.roi)
-  const projectUrl = property.projectUrl || `/properties/${property.slug}`
+  const projectUrl = `/properties/${property.slug}`
 
   return (
     <Link href={projectUrl} className="group block" prefetch={false}>

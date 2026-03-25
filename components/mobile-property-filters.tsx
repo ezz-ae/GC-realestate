@@ -5,7 +5,12 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetFooter
 import { Filter } from "lucide-react"
 import { PropertyFilters } from "./property-filters"
 
-export function MobilePropertyFilters() {
+interface MobilePropertyFiltersProps {
+  areas?: string[]
+  developers?: string[]
+}
+
+export function MobilePropertyFilters({ areas, developers }: MobilePropertyFiltersProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -19,7 +24,7 @@ export function MobilePropertyFilters() {
           <SheetTitle>Filter Properties</SheetTitle>
         </SheetHeader>
         <div className="py-6">
-          <PropertyFilters />
+          <PropertyFilters areas={areas} developers={developers} />
         </div>
         <SheetFooter>
            <p className="text-xs text-muted-foreground">Apply filters to refine your search.</p>

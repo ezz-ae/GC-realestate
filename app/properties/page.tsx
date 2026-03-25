@@ -5,7 +5,8 @@ import { PropertiesToolbar } from "@/components/properties-toolbar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { getPropertyListing } from "@/lib/entrestate"
+import { getAreas, getDevelopers, getPropertyListing } from "@/lib/entrestate"
+import type { AreaProfile, DeveloperProfile } from "@/lib/types/project"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default async function PropertiesPage({
   const freeholdOnly = params.freehold === "true"
   const goldenVisa = params.goldenVisa === "true"
 
-  const { properties, total } = await getPropertyListing({
+  const listingPromise = getPropertyListing({
     page,
     pageSize,
     sort: sort as "score" | "newest" | "price-low" | "price-high" | "roi" | "yield",
@@ -51,7 +52,19 @@ export default async function PropertiesPage({
     goldenVisa,
   })
 
+  const [areaProfiles, developerProfiles, listingResult] = await Promise.all([
+    getAreas().catch(() => [] as AreaProfile[]),
+    getDevelopers().catch(() => [] as DeveloperProfile[]),
+    listingPromise,
+  ])
+  const { properties, total } = listingResult
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const areaNames = Array.from(
+    new Set(areaProfiles.map((area) => area.name).filter((name) => Boolean(name))),
+  )
+  const developerNames = Array.from(
+    new Set(developerProfiles.map((dev) => dev.name).filter((name) => Boolean(name))),
+  )
   const buildPageLink = (nextPage: number) => {
     const q = new URLSearchParams()
     Object.entries(params || {}).forEach(([key, value]) => {
@@ -92,7 +105,12 @@ export default async function PropertiesPage({
               {/* Filters Sidebar */}
               <aside className="hidden lg:block">
                 <div className="sticky top-24">
-                  <PropertyFilters collapsible defaultOpen={false} />
+                  <PropertyFilters
+                    collapsible
+                    defaultOpen={false}
+                    areas={areaNames}
+                    developers={developerNames}
+                  />
                 </div>
               </aside>
 
@@ -100,7 +118,10 @@ export default async function PropertiesPage({
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
                    <div className="lg:hidden">
-                     <MobilePropertyFilters />
+                     <MobilePropertyFilters
+                       areas={areaNames}
+                       developers={developerNames}
+                     />
                    </div>
                    <div className="flex-1">
                      <PropertiesToolbar total={total} page={page} pageSize={pageSize} sort={sort} view={view} />

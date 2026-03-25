@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react"
 
-const dubaiAreas = [
+const defaultDubaiAreas = [
   "Dubai Marina", "Downtown Dubai", "Palm Jumeirah", "Business Bay",
   "JBR", "Arabian Ranches", "Dubai Hills Estate", "Jumeirah Village Circle",
   "Dubai Sports City", "Dubai Silicon Oasis", "Meydan", "The Springs"
@@ -21,7 +21,7 @@ const propertyTypes = [
   "All Types", "Apartment", "Villa", "Townhouse", "Penthouse", "Studio"
 ]
 
-const developers = [
+const defaultDevelopers = [
   "All Developers", "Emaar", "Damac", "Nakheel", "Dubai Properties",
   "Meraas", "Azizi", "Sobha", "Select Group"
 ]
@@ -31,11 +31,28 @@ const sliderFormatter = new Intl.NumberFormat("en-AE", { maximumFractionDigits: 
 interface PropertyFiltersProps {
   collapsible?: boolean
   defaultOpen?: boolean
+  areas?: string[]
+  developers?: string[]
 }
 
-export function PropertyFilters({ collapsible = false, defaultOpen = true }: PropertyFiltersProps) {
+export function PropertyFilters({
+  collapsible = false,
+  defaultOpen = true,
+  areas,
+  developers,
+}: PropertyFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const dynamicAreas = areas?.filter(Boolean) ?? []
+  const dynamicDevelopers = developers?.filter(Boolean) ?? []
+  const availableAreas =
+    dynamicAreas.length > 0
+      ? Array.from(new Set([...dynamicAreas, ...defaultDubaiAreas]))
+      : defaultDubaiAreas
+  const availableDevelopers =
+    dynamicDevelopers.length > 0
+      ? Array.from(new Set([...dynamicDevelopers, ...defaultDevelopers]))
+      : defaultDevelopers
 
   const initialAreas = searchParams.get("areas")?.split(",").filter(Boolean) ?? []
   const initialBedrooms = searchParams.get("beds")?.split(",").filter(Boolean) ?? []
@@ -68,6 +85,13 @@ export function PropertyFilters({ collapsible = false, defaultOpen = true }: Pro
     )
   }
 
+  const scrollToTop = () => {
+    if (typeof window === "undefined") return
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    })
+  }
+
   const clearFilters = () => {
     setPriceRange([0, 10000000])
     setBedrooms([])
@@ -81,6 +105,7 @@ export function PropertyFilters({ collapsible = false, defaultOpen = true }: Pro
       params.delete(key),
     )
     params.set("page", "1")
+    scrollToTop()
     router.push(`/properties?${params.toString()}`)
   }
 
@@ -112,6 +137,7 @@ export function PropertyFilters({ collapsible = false, defaultOpen = true }: Pro
     params.set("goldenVisa", String(goldenVisaEligible))
     params.set("currency", currency)
     params.set("page", "1")
+    scrollToTop()
     router.push(`/properties?${params.toString()}`)
   }
 
@@ -201,7 +227,7 @@ export function PropertyFilters({ collapsible = false, defaultOpen = true }: Pro
       <div>
         <Label className="text-sm font-medium">Dubai Areas</Label>
         <div className="mt-2 max-h-48 space-y-2 overflow-y-auto">
-          {dubaiAreas.map(area => (
+          {availableAreas.map(area => (
             <div key={area} className="flex items-center space-x-2">
               <Checkbox
                 id={area}
@@ -234,7 +260,7 @@ export function PropertyFilters({ collapsible = false, defaultOpen = true }: Pro
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {developers.map(dev => (
+            {availableDevelopers.map((dev) => (
               <SelectItem key={dev} value={dev}>{dev}</SelectItem>
             ))}
           </SelectContent>
